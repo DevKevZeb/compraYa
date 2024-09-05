@@ -14,4 +14,4 @@ Tecnologias
  - [React Native](https://reactnative.dev/)
  - [React Native Paper (Componentes estilizados)](https://callstack.github.io/react-native-paper/)
  - [React Navigation](https://reactnavigation.org/docs/getting-started)
- - [SupaBase](https://supabase.com/docs)
+ - [SupaBase ](https://supabase.com/docs)
