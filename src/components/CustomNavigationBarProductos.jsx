@@ -6,7 +6,7 @@ export const CustomNavigationBarProducts = ({ navigation, options, back}) => {
 	const title= getHeaderTitle(options);
 	
 	return (
-		<Appbar.Header style={styles.appBar}>
+		<Appbar.Header style={styles.appBar} >
 			{back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
 			<Appbar.Content title={title} />
 			{!back ? (
