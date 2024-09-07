@@ -1,4 +1,4 @@
-import { StyleSheet ,StatusBar} from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 
 export const styles = StyleSheet.create({
 	text: {
@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	appBar: {
-		backgroundColor: '#EADDFF',
+		backgroundColor: '#BEA8FF',
 	},
 	searchBar: {
 		marginTop: 10,
@@ -21,12 +21,27 @@ export const styles = StyleSheet.create({
 	chip: {
 		marginRight: 5,
 	},
-	scrollCard:{
-		marginTop:5,
-		padding:10,
+	scrollCard: {
+		marginTop: 5,
+		padding: 10,
+		marginBottom: 220,
 	},
 	containerSafe: {
 		flex: 1,
 		marginTop: StatusBar.currentHeight || 0,
+	},
+	card: {
+		marginBottom: 20,
+	},
+	cardTitle: {
+		fontWeight: 'black',
+	},
+	iconWithBadge: {
+		position: 'relative',
+	},
+	badge: {
+		position: 'absolute',
+		top: 0,
+		right: 0,
 	},
 });
