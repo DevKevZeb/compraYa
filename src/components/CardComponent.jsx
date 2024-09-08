@@ -1,13 +1,15 @@
-import React from 'react';
-import { Text } from 'react-native';
+import { useState } from 'react';
+import { Text, View } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import { styles } from '../styles/globalStyle';
-import { useBadgeStore } from '../context/store';
-
-export const CardComponent = ({ Nombre, showDialog }) => {
+import { useBadgeStore } from '../Stores/StoreBadge';
+import { LoadingImageComponent } from './LoadingImageComponent';
+export const CardComponent = ({ Nombre, uri, showDialog }) => {
 	const { incrementBadge, decrementBadge } = useBadgeStore();
-	const [showButton, setshowButton] = React.useState(false);
-	const [disabled, setdisabled] = React.useState(false);
+	const [loading, setLoading] = useState(true);
+	const [showButton, setshowButton] = useState(false);
+	const [disabled, setdisabled] = useState(false);
+
 	const showButtonCancel = () => {
 		setshowButton(true);
 		incrementBadge();
@@ -27,7 +29,13 @@ export const CardComponent = ({ Nombre, showDialog }) => {
 			delayLongPress={3}
 		>
 			<Card.Title title={Nombre} style={styles.cardTitle} />
-			<Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
+			<View style={styles.coverContainer}>
+				{loading && (<LoadingImageComponent/>)}
+				<Card.Cover
+					source={{uri}}
+					onLoadEnd={() => setLoading(false)}
+				/>
+			</View>
 			<Card.Content>
 				<Text>Precio:125 c/u</Text>
 				<Text>Color:Negro - Rojo</Text>

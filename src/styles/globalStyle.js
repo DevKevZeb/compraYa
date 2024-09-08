@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
 	scrollCard: {
 		marginTop: 5,
 		padding: 10,
-		marginBottom: 220,
+		marginBottom: 250,
 	},
 	containerSafe: {
 		flex: 1,
@@ -44,4 +44,13 @@ export const styles = StyleSheet.create({
 		top: 0,
 		right: 0,
 	},
+	loadingContainer: {
+		position:'absolute',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginBottom:"10%"
+	},
+	coverContainer:{
+		position: 'relative',
+	}
 });

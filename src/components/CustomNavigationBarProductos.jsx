@@ -3,7 +3,7 @@ import { getHeaderTitle } from '@react-navigation/elements';
 import { Appbar,Badge } from 'react-native-paper';
 import Feather from '@expo/vector-icons/Feather';
 import { styles } from '../styles/globalStyle';
-import { useBadgeStore } from '../context/store';
+import { useBadgeStore } from '../Stores/StoreBadge';
 export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
 	const {badge} = useBadgeStore();
 	const title = getHeaderTitle(options);
