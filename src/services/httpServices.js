@@ -37,18 +37,19 @@ export const getProductId = async (categoryId) => {
 };
 export const getProductAtributeId = async () => {
 	try {
-		const { data:productos, error } = await supabase.from('productos').select(`
-			producto_id,
-			nombre_producto,
-			atributos_producto (
-			  producto_id
-			)
-		  `);
+		const { data: productos, error } = await supabase.from('productos').select(`
+    		nombre_producto	,
+			url_imagen ,
+    		atributos_producto (
+     		 nombre_atributo,
+			 valor_atributo
+    		)
+ 		 `);
 		if (error) {
 			console.error('Error al obtener los datos:', error);
 			return { error };
 		}
-		useProductAtributeID.getState().setDataAtributeProduct(productos);
+		useProduct.getState().setDataAtributeProduct(productos);
 	} catch (error) {
 		console.error('Error en la solicitud:', error);
 		return { error };

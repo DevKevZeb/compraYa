@@ -1,10 +1,11 @@
 import React from 'react';
-import { Image } from 'react-native';
-import { Dialog, Portal, Text, Button } from 'react-native-paper';
+import { Image, View } from 'react-native';
+import { Dialog, Portal, Text, Button, List } from 'react-native-paper';
 
 export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
-	console.log(detailProduct);
-	const { nombre_producto, url_imagen } = detailProduct;
+	console.log('producto detallado: ', detailProduct);
+	const { nombre_producto, url_imagen, atributos_producto } = detailProduct;
+	console.log('mis atributos:', atributos_producto);
 	return (
 		<Portal>
 			<Dialog visible={visible} theme={{ colors: { background: '#BEA8FF' } }}>
@@ -19,13 +20,15 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
 							marginBottom: 10,
 						}}
 					/>
-					<Text variant='labelLarge' style={{ fontSize: 18 }}>
-						This is simple dialog
-					</Text>
-					<Text variant='bodyMedium'>This is simple dialog</Text>
-					<Text variant='bodyMedium'>This is simple dialog</Text>
-					<Text variant='bodyMedium'>This is simple dialog</Text>
-					<Text variant='bodyMedium'>This is simple dialog</Text>
+					<List.Section>
+						<List.Subheader style={{fontSize:20,fontWeith:'bold'}}>Caracterisitcas</List.Subheader>
+						{atributos_producto.map((atributo) => (
+							<View style={{flexDirection:'row',marginLeft:17}}>
+								<Text variant='labelLarge'>{atributo['nombre_atributo']} :</Text>
+								<Text variant='bodyMedium'>  {atributo['valor_atributo']}</Text>
+							</View>
+						))}
+					</List.Section>
 				</Dialog.Content>
 				<Dialog.Actions>
 					<Button onPress={hideDialog}>Cancel</Button>

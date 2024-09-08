@@ -36,7 +36,7 @@ export const CardComponent = ({ Nombre, uri, showDialog }) => {
 					onLoadEnd={() => setLoading(false)}
 				/>
 			</View>
-			<Card.Content>
+			<Card.Content style={{marginTop:20}}>
 				<Text>Precio:125 c/u</Text>
 				<Text>Color:Negro - Rojo</Text>
 			</Card.Content>

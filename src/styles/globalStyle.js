@@ -21,6 +21,9 @@ export const styles = StyleSheet.create({
 	chip: {
 		marginRight: 5,
 	},
+	selectedChip:{
+		backgroundColor:'#BEA8FF'
+	},
 	scrollCard: {
 		marginTop: 5,
 		padding: 10,

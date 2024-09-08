@@ -12,10 +12,9 @@ export const useCategory = create((set) => ({
 }));
 export const useProduct = create((set) => ({
 	products: [],
-	setDataProducts: (newData) => set(() => ({ products: newData })),
-}));
-export const useProductAtributeID = create((set) => ({
 	productAtribute: [],
+	setDataProducts: (newData) => set(() => ({ products: newData })),
 	setDataAtributeProduct: (newData) =>
 		set(() => ({ productAtribute: newData })),
 }));
+
