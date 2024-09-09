@@ -32,6 +32,7 @@ export const CardComponent = ({ Nombre, uri, showDialog }) => {
 			<View style={styles.coverContainer}>
 				{loading && (<LoadingImageComponent/>)}
 				<Card.Cover
+				style={{heigth:'50%'}}
 					source={{uri}}
 					onLoadEnd={() => setLoading(false)}
 				/>

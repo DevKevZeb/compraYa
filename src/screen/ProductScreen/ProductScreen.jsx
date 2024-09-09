@@ -37,7 +37,6 @@ export const ProductScreen = () => {
 	useEffect(() => {
 		getProductAtributeId();
 	}, []);
-	console.log('los', productAtribute);
 	useEffect(() => {
 		getNameCategory();
 	}, []);

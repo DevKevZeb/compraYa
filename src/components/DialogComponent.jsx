@@ -3,9 +3,7 @@ import { Image, View } from 'react-native';
 import { Dialog, Portal, Text, Button, List } from 'react-native-paper';
 
 export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
-	console.log('producto detallado: ', detailProduct);
 	const { nombre_producto, url_imagen, atributos_producto } = detailProduct;
-	console.log('mis atributos:', atributos_producto);
 	return (
 		<Portal>
 			<Dialog visible={visible} theme={{ colors: { background: '#BEA8FF' } }}>
