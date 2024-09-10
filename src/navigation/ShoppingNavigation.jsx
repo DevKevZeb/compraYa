@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator();
 export const ShoppingNavigation = () => {
 	return (
 		<Stack.Navigator
-			// initialRouteName='Producto'
+			initialRouteName='Producto'
 			screenOptions={{
 				header: (props) => <CustomNavigationBarProducts{...props} />,
 			}}
@@ -15,13 +15,13 @@ export const ShoppingNavigation = () => {
 			<Stack.Screen
 				name='Producto'
 				component={ProductScreen}
-				options={{ title: 'Productos' }}
+				options={{ headerTitle:"Productos"}}
 
 			/>
 			<Stack.Screen
 				name='Carrito'
 				component={ShoppingScreen}
-				options={{ title: 'Carrito de Compras' }}
+				options={{ headerTitle: 'Carrito de Compras' }}
 			/>
 		</Stack.Navigator>
 	);

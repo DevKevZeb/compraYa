@@ -14,4 +14,7 @@ Tecnologias
  - [React Native](https://reactnative.dev/)
  - [React Native Paper (Componentes estilizados)](https://callstack.github.io/react-native-paper/)
  - [React Navigation](https://reactnavigation.org/docs/getting-started)
- - [SupaBase](https://supabase.com/docs)
+ - [SupaBase ](https://supabase.com/docs)
+
+
+ eyJhbGciOiJIUzI1NiIsImtpZCI6IndOaXpUZDk3NE9vUGJNRzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2ZjZGxueW5tY3V0cGZ0dGd1bW9tLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJkMDEwZDVjMy1lZTU3LTRjYjEtYmQ3Yi1lMzc3NjkzNDM5MTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzI1NjgyMjgxLCJpYXQiOjE3MjU2Nzg2ODEsImVtYWlsIjoicm9kb2xmb2xvcGV6bG96YW5vMTRAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6e30sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoib3RwIiwidGltZXN0YW1wIjoxNzI1Njc4NjgwfV0sInNlc3Npb25faWQiOiI0NTFjMDM2Yi00YWU5LTRhNGEtYjViZi1hYmMzOGVhZDZkZGQiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.6smsjxXTs9FF72nzlOI80CwYkkxy4ZTHTd2lYqxr8No
