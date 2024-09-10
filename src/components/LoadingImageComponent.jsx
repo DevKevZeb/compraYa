@@ -5,7 +5,7 @@ import { styles } from '../styles/globalStyle';
 export const LoadingImageComponent = () => {
 	return (
 		<View style={styles.loadingContainer}>
-			<ActivityIndicator animating={true} color={MD2Colors.red800} />
+			<ActivityIndicator animating={true} color={MD2Colors.deepPurple400} />
 		</View>
 	);
 };

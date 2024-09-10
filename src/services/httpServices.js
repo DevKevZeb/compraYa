@@ -2,7 +2,6 @@ import { supabase } from '../../lib/initSupaBase';
 import {
 	useCategory,
 	useProduct,
-	useProductAtributeID,
 } from '../Stores/StoreBadge';
 export const getNameCategory = async () => {
 	try {
@@ -19,6 +18,22 @@ export const getNameCategory = async () => {
 		return { error };
 	}
 };
+export const getProductsBySearch = async (valueSearch) => {
+	try {
+		const { data: productos, error } = await supabase
+			.from('productos')
+			.select('*')
+			.ilike('nombre_producto', `%${valueSearch}%`);
+		if (error) {
+			console.error('Error al obtener los datos:', error);
+			return { error };
+		}
+		useProduct.getState().setDataProductsSearch(productos);
+	} catch (error) {
+		console.error('Error en la solicitud:', error);
+		return { error };
+	}
+};
 export const getProductId = async (categoryId) => {
 	try {
 		const { data, error } = await supabase
@@ -29,7 +44,7 @@ export const getProductId = async (categoryId) => {
 			console.error('Error al obtener los datos:', error);
 			return { error };
 		}
-		useProduct.getState().setDataProducts(data);
+		useProduct.getState().setDataProductsCategory(data);
 	} catch (error) {
 		console.error('Error en la solicitud:', error);
 		return { error };
