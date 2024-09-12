@@ -11,18 +11,22 @@ export const useCategory = create((set) => ({
 	setData: (newData) => set(() => ({ categorys: newData })),
 }));
 export const useProduct = create((set) => ({
-	//estados
+	//stores
 	productsCategory: [],
 	productAtribute: [],
 	productSearchBar: [],
-	//funciones para actualizar estados
+	productSelected: [],
+	//funcion para anadir un producto Seleccionado
+	setAddProduct: (newProduct) =>
+		set(() => ({ productSelected: [...state.productSelected, newProduct] })),
+	//funciones para actualizar los stores
 	setDataProductsCategory: (newData) =>
 		set(() => ({ productsCategory: newData })),
 	setDataAtributeProduct: (newData) =>
 		set(() => ({ productAtribute: newData })),
 	setDataProductsSearch: (newData) =>
 		set(() => ({ productSearchBar: newData })),
-	//funciones para resetear estados
+	//funciones para resetear stores
 	resetProductSearch: () => set(() => ({ productSearchBar: [] })),
 	resetProductCategory: () => set(() => ({ productsCategory: [] })),
 }));

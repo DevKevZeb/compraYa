@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Chip } from 'react-native-paper';
-import { useCategory } from '../Stores/StoreBadge';
+import { useCategory } from '../Stores/global.store';
 import { styles } from '../styles/globalStyle';
-export const CategoryChipComponent = ({filterCategory}) => {
+export const CategoryChipComponent = ({ filterCategory }) => {
 	const [selectedChip, setSelectedChip] = useState(null);
-	const { categorys } = useCategory();
+	const categorys = useCategory((state) => state.categorys);
 
 	const handleChipPress = (id) => {
 		setSelectedChip(id);
@@ -22,7 +22,7 @@ export const CategoryChipComponent = ({filterCategory}) => {
 					selected={selectedChip === category.categoria_id}
 					onPress={() => {
 						handleChipPress(category.categoria_id),
-						filterCategory(category.nombre_categoria);
+							filterCategory(category.nombre_categoria);
 					}} // Cambia el estado al hacer clic
 					style={[
 						styles.chip,

@@ -1,7 +1,7 @@
 import { Provider } from 'react-native-paper';
 import { StyleSheet} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { TabNavigation } from './src/navigation/TabNavigation';
+import { TabNavigation } from './src/navigation/tab.navigation';
 export default function App() {
   return (
     <Provider>

@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ProductScreen } from '../screen/ProductScreen/ProductScreen';
+import { ProductScreen } from '../screen/ProductScreen/product.screen';
 import { ShoppingScreen } from '../screen/ShoppingScreen/ShoppingScreen';
 import {  CustomNavigationBarProducts } from '../components/CustomNavigationBarProductos';
 
@@ -9,7 +9,7 @@ export const ShoppingNavigation = () => {
 		<Stack.Navigator
 			initialRouteName='Producto'
 			screenOptions={{
-				header: (props) => <CustomNavigationBarProducts{...props} />,
+				header: (props) => <CustomNavigationBarProducts{...props} nextRoute="Carrito" />,
 			}}
 		>
 			<Stack.Screen

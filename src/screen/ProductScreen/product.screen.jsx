@@ -2,17 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
 import { Searchbar, ActivityIndicator, MD2Colors } from 'react-native-paper';
 import { styles } from '../../styles/globalStyle';
-import { DialogComponent } from '../../components/DialogComponent';
-import { CardComponent } from '../../components/CardComponent';
-import { useCategory, useProduct } from '../../Stores/StoreBadge';
+import { DialogComponent } from '../../components/dialog.component';
+import { CardComponent } from '../../components/card.component';
+import { useCategory, useProduct } from '../../Stores/global.store';
 import {
 	getNameCategory,
 	getProductId,
 	getProductAtributeId,
 	getProductsBySearch,
-} from '../../services/httpServices';
+} from '../../services/api.services';
 import { filterItem } from '../../services/filterFunction';
-import { CategoryChipComponent } from '../../components/CategoryChipComponent';
+import { CategoryChipComponent } from '../../components/categoryChip.component';
 import debounce from 'lodash/debounce';
 export const ProductScreen = () => {
 	// usamos los stores globales para guardar la data enviada desde el backend
@@ -21,12 +21,13 @@ export const ProductScreen = () => {
 	const productAtribute = useProduct((state) => state.productAtribute);
 	const productSearchBar = useProduct((state) => state.productSearchBar);
 	const resetProductSearch = useProduct((state) => state.resetProductSearch);
-	
+
 	const [idCategory, setidCategory] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [detailsProduct, setdetailsProduct] = useState({});
 
+	
 	const handleSearch = (searchQuery) => {
 		if (searchQuery.trim() === '') {
 			resetProductSearch();
@@ -51,6 +52,7 @@ export const ProductScreen = () => {
 		);
 		myProduct ? setdetailsProduct(myProduct) : null;
 	};
+	
 	const filterCategory = (nameCategory) => {
 		resetProductSearch();
 		const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
@@ -73,6 +75,7 @@ export const ProductScreen = () => {
 	const hideDialog = () => setVisible(false);
 
 	const item = ({ item }) => {
+		
 		const { nombre_producto, url_imagen } = item;
 		return (
 			<CardComponent

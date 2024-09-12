@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import { getHeaderTitle } from '@react-navigation/elements';
-import { Appbar,Badge } from 'react-native-paper';
+import { Appbar, Badge } from 'react-native-paper';
 import Feather from '@expo/vector-icons/Feather';
 import { styles } from '../styles/globalStyle';
-import { useBadgeStore } from '../Stores/StoreBadge';
-export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
-	const {badge} = useBadgeStore();
+import { useBadgeStore } from '../Stores/global.store';
+export const CustomNavigationBarProducts = ({ navigation, options, back,nextRoute }) => {
+	const badge = useBadgeStore((state) => state.badge);
 	const title = getHeaderTitle(options);
 
 	return (
@@ -22,13 +22,13 @@ export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
 							navigation.navigate('Carrito');
 						}}
 					/>
-					<Badge style={styles.badge}>{badge}</Badge>
+					{badge > 0 ? <Badge style={styles.badge}>{badge}</Badge> : null}
 				</View>
 			) : (
 				<Appbar.Action
 					icon={() => <Feather name='trash-2' size={24} color='black' />}
 					onPress={() => {
-						navigation.navigate('Carrito');
+						navigation.navigate(nextRoute);
 					}}
 				/>
 			)}

@@ -2,7 +2,7 @@ import { supabase } from '../../lib/initSupaBase';
 import {
 	useCategory,
 	useProduct,
-} from '../Stores/StoreBadge';
+} from '../Stores/global.store';
 export const getNameCategory = async () => {
 	try {
 		const { data: categorías, error } = await supabase
@@ -18,6 +18,7 @@ export const getNameCategory = async () => {
 		return { error };
 	}
 };
+
 export const getProductsBySearch = async (valueSearch) => {
 	try {
 		const { data: productos, error } = await supabase
@@ -50,11 +51,11 @@ export const getProductId = async (categoryId) => {
 		return { error };
 	}
 };
+
 export const getProductAtributeId = async () => {
 	try {
 		const { data: productos, error } = await supabase.from('productos').select(`
-    		nombre_producto	,
-			url_imagen ,
+    		*
     		atributos_producto (
      		 nombre_atributo,
 			 valor_atributo
