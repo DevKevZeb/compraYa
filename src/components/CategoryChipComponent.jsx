@@ -16,6 +16,20 @@ export const CategoryChipComponent = ({filterCategory}) => {
 			showsHorizontalScrollIndicator={false}
 			style={styles.scrollView}
 		>
+				<Chip //agregar categoria Todos
+					icon='check'
+					selected={selectedChip === null}
+					onPress={() => {
+						handleChipPress(null),
+						filterCategory('Todos');
+					}} // Cambia el estado al hacer clic
+					style={[
+						styles.chip,
+						selectedChip === null && styles.selectedChip, // Aplica estilos condicionales
+					]}
+				>
+					{'Todos'}
+				</Chip>
 			{categorys.map((category) => (
 				<Chip
 					icon='check'

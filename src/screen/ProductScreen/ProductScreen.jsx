@@ -10,6 +10,7 @@ import {
 	getProductId,
 	getProductAtributeId,
 	getProductsBySearch,
+	getAllProducts
 } from '../../services/httpServices';
 import { filterItem } from '../../services/filterFunction';
 import { CategoryChipComponent } from '../../components/CategoryChipComponent';
@@ -53,8 +54,13 @@ export const ProductScreen = () => {
 	};
 	const filterCategory = (nameCategory) => {
 		resetProductSearch();
-		const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
-		myCategory ? setidCategory(myCategory.categoria_id) : null;
+		if(nameCategory == 'Todos'){
+			setidCategory(-1);
+		}else{
+			const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
+			myCategory ? setidCategory(myCategory.categoria_id) : null;
+		}
+		
 	};
 	useEffect(() => {
 		getProductAtributeId();
@@ -63,7 +69,11 @@ export const ProductScreen = () => {
 		getNameCategory();
 	}, []);
 	useEffect(() => {
-		getProductId(idCategory);
+		if(idCategory == -1){ //Solicitar productos sin filtrado
+			getAllProducts();
+		}else{
+			getProductId(idCategory);
+		}
 	}, [idCategory]);
 
 	const showDialog = (Nombre) => {
