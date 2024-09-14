@@ -72,23 +72,6 @@ export const getProductAtributeId = async () => {
 	}
 };
 
-<<<<<<< HEAD
-// Obtiene todos los productos
-export const getAllProducts = async () => {
-	try {
-		const { data: productos, error } = await supabase
-			.from('productos')
-			.select('*');
-		if (error) {
-			console.error('Error al obtener los productos:', error);
-			return { error };
-		}
-		useProduct.getState().setDataProductsCategory(productos); // Actualiza el estado global
-	} catch (error) {
-		console.error('Error en la solicitud:', error);
-		return { error };
-	}
-=======
 export const getPopularProducts = async () => {
     try {
         const { data: productos, error } = await supabase
@@ -122,5 +105,4 @@ export const getAllProducts = async () => {
         console.error('Error en la solicitud:', error);
         return { error };
     }
->>>>>>> master
 };

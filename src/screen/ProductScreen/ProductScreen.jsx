@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList } from 'react-native';
-import { Searchbar, ActivityIndicator, MD2Colors } from 'react-native-paper';
-import { styles } from '../../styles/globalStyle';
-import { DialogComponent } from '../../components/DialogComponent';
-import { CardComponent } from '../../components/CardComponent';
-import { useCategory, useProduct } from '../../Stores/StoreBadge';
-import {
-	getNameCategory,
-	getProductId,
-	getProductAtributeId,
-	getProductsBySearch,
-	getAllProducts
-} from '../../services/httpServices';
-import { filterItem } from '../../services/filterFunction';
-import { CategoryChipComponent } from '../../components/CategoryChipComponent';
-=======
->>>>>>> master
 import debounce from 'lodash/debounce';
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
@@ -73,18 +54,6 @@ export const ProductScreen = () => {
 		);
 		myProduct ? setdetailsProduct(myProduct) : null;
 	};
-<<<<<<< HEAD
-	const filterCategory = (nameCategory) => {
-		resetProductSearch();
-		if(nameCategory == 'Todos'){
-			setidCategory(-1);
-		}else{
-			const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
-			myCategory ? setidCategory(myCategory.categoria_id) : null;
-		}
-		
-	};
-=======
 	
 	const filterCategory = async (nameCategory) => {
         resetProductSearch();
@@ -97,7 +66,6 @@ export const ProductScreen = () => {
             myCategory ? setidCategory(myCategory.categoria_id) : null;
         }
     };
->>>>>>> master
 	useEffect(() => {
 		getProductAtributeId();
 	}, []);
