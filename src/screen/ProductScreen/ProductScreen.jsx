@@ -1,19 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList } from 'react-native';
-import { Searchbar, ActivityIndicator, MD2Colors } from 'react-native-paper';
-import { styles } from '../../styles/globalStyle';
-import { DialogComponent } from '../../components/DialogComponent';
-import { CardComponent } from '../../components/CardComponent';
-import { useCategory, useProduct } from '../../Stores/StoreBadge';
-import {
-	getNameCategory,
-	getProductId,
-	getProductAtributeId,
-	getProductsBySearch,
-} from '../../services/httpServices';
-import { filterItem } from '../../services/filterFunction';
-import { CategoryChipComponent } from '../../components/CategoryChipComponent';
 import debounce from 'lodash/debounce';
+import { useCallback, useEffect, useState } from 'react';
+import { FlatList, View } from 'react-native';
+import { ActivityIndicator, MD2Colors, Searchbar } from 'react-native-paper';
+import { CardComponent } from '../../components/CardComponent';
+import { CategoryChipComponent } from '../../components/CategoryChipComponent';
+import { DialogComponent } from '../../components/DialogComponent';
+import { filterItem } from '../../services/filterFunction';
+import {
+	getAllProducts,
+	getNameCategory,
+	getPopularProducts,
+	getProductAtributeId,
+	getProductId,
+	getProductsBySearch
+} from '../../services/httpServices';
+import { useCategory, useProduct } from '../../Stores/StoreBadge';
+import { styles } from '../../styles/globalStyle';
+
 export const ProductScreen = () => {
 	// usamos los stores globales para guardar la data enviada desde el backend
 	const categorys = useCategory((state) => state.categorys);
@@ -51,11 +54,18 @@ export const ProductScreen = () => {
 		);
 		myProduct ? setdetailsProduct(myProduct) : null;
 	};
-	const filterCategory = (nameCategory) => {
-		resetProductSearch();
-		const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
-		myCategory ? setidCategory(myCategory.categoria_id) : null;
-	};
+	
+	const filterCategory = async (nameCategory) => {
+        resetProductSearch();
+        if (nameCategory === 'Todos') {
+            await getAllProducts();
+        }else if (nameCategory === 'Popular') {
+            await getPopularProducts();
+        } else {
+            const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
+            myCategory ? setidCategory(myCategory.categoria_id) : null;
+        }
+    };
 	useEffect(() => {
 		getProductAtributeId();
 	}, []);
