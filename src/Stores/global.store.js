@@ -18,7 +18,9 @@ export const useProduct = create((set) => ({
 	productSelected: [],
 	//funcion para anadir un producto Seleccionado
 	setAddProduct: (newProduct) =>
-		set(() => ({ productSelected: [...state.productSelected, newProduct] })),
+		set((state) => ({
+			productSelected: [...state.productSelected, newProduct],
+		})),
 	//funciones para actualizar los stores
 	setDataProductsCategory: (newData) =>
 		set(() => ({ productsCategory: newData })),
@@ -29,4 +31,10 @@ export const useProduct = create((set) => ({
 	//funciones para resetear stores
 	resetProductSearch: () => set(() => ({ productSearchBar: [] })),
 	resetProductCategory: () => set(() => ({ productsCategory: [] })),
+	removeProductSelected: (nameProduct) =>
+		set((state) => ({
+			productSelected: state.productSelected.filter(
+				(product) => product['nombre_producto'] !== nameProduct
+			),
+		})),
 }));

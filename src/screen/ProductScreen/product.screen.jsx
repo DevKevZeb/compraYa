@@ -21,13 +21,13 @@ export const ProductScreen = () => {
 	const productAtribute = useProduct((state) => state.productAtribute);
 	const productSearchBar = useProduct((state) => state.productSearchBar);
 	const resetProductSearch = useProduct((state) => state.resetProductSearch);
+	const productSelected = useProduct((state) => state.productSelected);
 
 	const [idCategory, setidCategory] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [detailsProduct, setdetailsProduct] = useState({});
-
-	
+	console.log('mis productos seleccionados: ', productSelected);
 	const handleSearch = (searchQuery) => {
 		if (searchQuery.trim() === '') {
 			resetProductSearch();
@@ -52,7 +52,7 @@ export const ProductScreen = () => {
 		);
 		myProduct ? setdetailsProduct(myProduct) : null;
 	};
-	
+
 	const filterCategory = (nameCategory) => {
 		resetProductSearch();
 		const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
@@ -75,15 +75,7 @@ export const ProductScreen = () => {
 	const hideDialog = () => setVisible(false);
 
 	const item = ({ item }) => {
-		
-		const { nombre_producto, url_imagen } = item;
-		return (
-			<CardComponent
-				Nombre={nombre_producto}
-				showDialog={showDialog}
-				uri={url_imagen}
-			/>
-		);
+		return <CardComponent item={item} showDialog={showDialog} />;
 	};
 
 	return (

@@ -7,15 +7,7 @@ const Tab = createMaterialBottomTabNavigator();
 export const TabNavigation = () => {
 	return (
 		<Tab.Navigator barStyle={{ backgroundColor: '#9C7CFE' }}>
-			<Tab.Screen
-				name='Home'
-				component={HomeScreen}
-				options={{
-					tabBarIcon: () => (
-            <Feather name="home" size={24} color="black" />
-					),
-				}}
-			/>
+			
 			<Tab.Screen
 				name='Productos'
 				component={ShoppingNavigation}
