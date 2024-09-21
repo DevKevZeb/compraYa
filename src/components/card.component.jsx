@@ -6,7 +6,7 @@ import { useBadgeStore, useProduct } from '../Stores/global.store';
 import { LoadingImageComponent } from './loadingImage.component';
 import { filterItem } from '../services/filterFunction';
 export const CardComponent = ({ item, showDialog }) => {
-	const { nombre_producto, url_imagen, precio } = item;
+	const { nombre_producto, url_imagen, precio,producto_id } = item;
 	const incrementBadge = useBadgeStore((state) => state.incrementBadge);
 	const decrementBadge = useBadgeStore((state) => state.decrementBadge);
 	const setAddProduct = useProduct((state) => state.setAddProduct);
@@ -21,7 +21,7 @@ export const CardComponent = ({ item, showDialog }) => {
 		setshowButton(true);
 		incrementBadge();
 		setdisabled(true);
-		setAddProduct({ nombre_producto, precio, cantidad: 1 });
+		setAddProduct({ nombre_producto, precio, cantidad: 1,producto_id });
 	};
 	const hideButtons = () => {
 		setshowButton(false);

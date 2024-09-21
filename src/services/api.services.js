@@ -55,6 +55,7 @@ export const getProductId = async (categoryId) => {
 export const getProductAtributeId = async () => {
 	try {
 		const { data: productos, error } = await supabase.from('productos').select(`
+			producto_id,
     		nombre_producto,
 			url_imagen,
     		atributos_producto (

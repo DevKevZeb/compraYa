@@ -1,6 +1,5 @@
 import { createMaterialBottomTabNavigator } from 'react-native-paper/react-navigation';
 import Feather from '@expo/vector-icons/Feather';
-import { HomeScreen } from '../screen/HomeScreen/HomeScreen';
 import { ShoppingNavigation } from './shopping.navigation';
 
 const Tab = createMaterialBottomTabNavigator();

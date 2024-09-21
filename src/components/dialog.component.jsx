@@ -19,10 +19,10 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
 						}}
 					/>
 					<List.Section>
-						<List.Subheader style={{fontSize:20,fontWeith:'bold'}}>Caracterisitcas</List.Subheader>
+						<List.Subheader style={{fontSize:20,fontWeith:'bold'}}>Caracteristicas</List.Subheader>
 						{atributos_producto.map((atributo,index) => (
-							<View style={{flexDirection:'row',marginLeft:17}}>
-								<Text variant='labelLarge' key={index}>{atributo['nombre_atributo']} :</Text>
+							<View style={{flexDirection:'row',marginLeft:17}} key={index}>
+								<Text variant='labelLarge'>{atributo['nombre_atributo']} :</Text>
 								<Text variant='bodyMedium'>  {atributo['valor_atributo']}</Text>
 							</View>
 						))}
