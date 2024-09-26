@@ -22,3 +22,5 @@ Esta es una herramienta muy parecida a la react devtools de la web solo que para
  - [SupaBase ](https://supabase.com/docs)
  - [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction?trk=public_post_comment-text)
 
+
+ 
