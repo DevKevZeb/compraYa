@@ -2,9 +2,9 @@ import debounce from 'lodash/debounce';
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { ActivityIndicator, MD2Colors, Searchbar } from 'react-native-paper';
-import { CardComponent } from '../../components/CardComponent';
-import { CategoryChipComponent } from '../../components/CategoryChipComponent';
-import { DialogComponent } from '../../components/DialogComponent';
+import { CardComponent } from '../../components/card.component';
+import { CategoryChipComponent } from '../../components/categoryChip.component';
+import { DialogComponent } from '../../components/dialog.component';
 import { filterItem } from '../../services/filterFunction';
 import {
 	getAllProducts,
@@ -13,8 +13,8 @@ import {
 	getProductAtributeId,
 	getProductId,
 	getProductsBySearch
-} from '../../services/httpServices';
-import { useCategory, useProduct } from '../../Stores/StoreBadge';
+} from '../../services/api.services';
+import { useCategory, useProduct } from '../../Stores/global.store';
 import { styles } from '../../styles/globalStyle';
 
 export const ProductScreen = () => {
