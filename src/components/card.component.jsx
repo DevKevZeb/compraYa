@@ -21,7 +21,7 @@ export const CardComponent = ({ item, showDialog }) => {
 		setshowButton(true);
 		incrementBadge();
 		setdisabled(true);
-		setAddProduct({ nombre_producto, precio, cantidad: 1,producto_id });
+		setAddProduct({ nombre_producto, precio, cantidad: 1,producto_id,itemChecked:false });
 	};
 	const hideButtons = () => {
 		setshowButton(false);

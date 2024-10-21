@@ -1,16 +1,14 @@
-import { View } from 'react-native';
+import { View} from 'react-native';
 import { getHeaderTitle } from '@react-navigation/elements';
 import { Appbar, Badge } from 'react-native-paper';
 import Feather from '@expo/vector-icons/Feather';
 import { styles } from '../styles/globalStyle';
-import { useBadgeStore } from '../Stores/global.store';
-import { TrashComponent } from './trash.component';
-export const CustomNavigationBarProducts = ({ navigation, options, back,nextRoute }) => {
+import { useBadgeStore, useDialog } from '../Stores/global.store';
+import { useState } from 'react';
+export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
 	const badge = useBadgeStore((state) => state.badge);
 	const title = getHeaderTitle(options);
-	const showTrashDialog= (isVisible)=>{
-		return <TrashComponent isVisible={isVisible}/>
-	}
+	const showDialog = useDialog((state) => state.showDialog);
 	return (
 		<Appbar.Header style={styles.appBar}>
 			{back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
@@ -31,7 +29,7 @@ export const CustomNavigationBarProducts = ({ navigation, options, back,nextRout
 				<Appbar.Action
 					icon={() => <Feather name='trash-2' size={24} color='black' />}
 					onPress={() => {
-						showTrashDialog(true);
+						showDialog();
 					}}
 				/>
 			)}

@@ -5,7 +5,11 @@ export const useBadgeStore = create((set) => ({
 	incrementBadge: () => set((state) => ({ badge: state.badge + 1 })),
 	decrementBadge: () => set((state) => ({ badge: state.badge - 1 })),
 }));
-
+export const useDialog = create((set) => ({
+	isVisible: false,
+	showDialog: () => set((state) => ({ isVisible: (state.isVisible = true) })),
+	hideDialog: () => set((state) => ({ isVisible: (state.isVisible = false) })),
+}));
 export const useCategory = create((set) => ({
 	categorys: [],
 	setData: (newData) => set(() => ({ categorys: newData })),
@@ -40,7 +44,17 @@ export const useProduct = create((set) => ({
 	updateQuantityProduct: (id, quantityProduct) =>
 		set((state) => ({
 			productSelected: state.productSelected.map((product) =>
-				product['producto_id'] === id ? { ...product, cantidad: quantityProduct } : product
+				product['producto_id'] === id
+					? { ...product, cantidad: quantityProduct }
+					: product
+			),
+		})),
+	updateCheckedProduct: (id) =>
+		set((state) => ({
+			productSelected: state.productSelected.map((product) =>
+				product['producto_id'] === id
+					? { ...product, itemCheked: !product['itemCheked'] }
+					: product
 			),
 		})),
 }));
