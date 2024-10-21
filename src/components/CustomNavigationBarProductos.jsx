@@ -4,10 +4,13 @@ import { Appbar, Badge } from 'react-native-paper';
 import Feather from '@expo/vector-icons/Feather';
 import { styles } from '../styles/globalStyle';
 import { useBadgeStore } from '../Stores/global.store';
+import { TrashComponent } from './trash.component';
 export const CustomNavigationBarProducts = ({ navigation, options, back,nextRoute }) => {
 	const badge = useBadgeStore((state) => state.badge);
 	const title = getHeaderTitle(options);
-
+	const showTrashDialog= (isVisible)=>{
+		return <TrashComponent isVisible={isVisible}/>
+	}
 	return (
 		<Appbar.Header style={styles.appBar}>
 			{back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
@@ -28,7 +31,7 @@ export const CustomNavigationBarProducts = ({ navigation, options, back,nextRout
 				<Appbar.Action
 					icon={() => <Feather name='trash-2' size={24} color='black' />}
 					onPress={() => {
-						navigation.navigate(nextRoute);
+						showTrashDialog(true);
 					}}
 				/>
 			)}

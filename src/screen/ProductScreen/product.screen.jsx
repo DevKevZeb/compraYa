@@ -24,13 +24,11 @@ export const ProductScreen = () => {
 	const productAtribute = useProduct((state) => state.productAtribute);
 	const productSearchBar = useProduct((state) => state.productSearchBar);
 	const resetProductSearch = useProduct((state) => state.resetProductSearch);
-	const productSelected = useProduct((state) => state.productSelected);
 
 	const [idCategory, setidCategory] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [detailsProduct, setdetailsProduct] = useState({});
-	console.log('mis productos seleccionados: ', productSelected);
 	const handleSearch = (searchQuery) => {
 		if (searchQuery.trim() === '') {
 			resetProductSearch();

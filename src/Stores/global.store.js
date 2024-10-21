@@ -37,4 +37,10 @@ export const useProduct = create((set) => ({
 				(product) => product['nombre_producto'] !== nameProduct
 			),
 		})),
+	updateQuantityProduct: (id, quantityProduct) =>
+		set((state) => ({
+			productSelected: state.productSelected.map((product) =>
+				product['producto_id'] === id ? { ...product, cantidad: quantityProduct } : product
+			),
+		})),
 }));

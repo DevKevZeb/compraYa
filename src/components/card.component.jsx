@@ -47,7 +47,7 @@ export const CardComponent = ({ item, showDialog }) => {
 			<View style={styles.coverContainer}>
 				{loading && <LoadingImageComponent />}
 				<Card.Cover
-					style={{ heigth: '50%' }}
+					style={{ heigth:'500vh',objectFit:'cover' }}
 					source={{ uri: url_imagen }}
 					onLoadEnd={onLoading}
 				/>

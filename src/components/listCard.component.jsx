@@ -1,14 +1,17 @@
-import {useState} from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Card, Text } from 'react-native-paper';
 import { useProduct } from '../Stores/global.store';
 
 export const ListCardComponent = () => {
 	const productSelected = useProduct((state) => state.productSelected);
-	const [productState, setfirst] = useState([productSelected]);
-    const changeCant = ()=>{
-
-    }
+	const updateQuantityProduct = useProduct(
+		(state) => state.updateQuantityProduct
+	);
+	const changeCant = (idProduct, quantityProduct) => {
+		if (quantityProduct < 1) return;
+		updateQuantityProduct(idProduct, quantityProduct);
+	};
 	return (
 		<View style={{ marginBottom: 10 }}>
 			{productSelected.map((element) => (
@@ -24,13 +27,18 @@ export const ListCardComponent = () => {
 							icon='plus'
 							mode='contained'
 							labelStyle={{ marginLeft: 10 }}
-                            onPress={changeCant}
+							onPress={() =>
+								changeCant(element.producto_id, element.cantidad + 1)
+							}
 						></Button>
 						<Text variant='headlineSmall'>{element.cantidad}</Text>
 						<Button
 							icon='minus'
 							mode='contained'
 							labelStyle={{ marginLeft: 10 }}
+							onPress={() =>
+								changeCant(element.producto_id, element.cantidad - 1)
+							}
 						></Button>
 					</Card.Actions>
 				</Card>
