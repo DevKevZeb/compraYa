@@ -12,7 +12,7 @@ import {
 	getPopularProducts,
 	getProductAtributeId,
 	getProductId,
-	getProductsBySearch
+	getProductsBySearch,
 } from '../../services/api.services';
 import { useCategory, useProduct } from '../../Stores/global.store';
 import { styles } from '../../styles/globalStyle';
@@ -53,18 +53,22 @@ export const ProductScreen = () => {
 		);
 		myProduct ? setdetailsProduct(myProduct) : null;
 	};
-	
+
 	const filterCategory = async (nameCategory) => {
-        resetProductSearch();
-        if (nameCategory === 'Todos') {
-            await getAllProducts();
-        }else if (nameCategory === 'Popular') {
-            await getPopularProducts();
-        } else {
-            const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
-            myCategory ? setidCategory(myCategory.categoria_id) : null;
-        }
-    };
+		resetProductSearch();
+		if (nameCategory === 'Todos') {
+			await getAllProducts();
+		} else if (nameCategory === 'Popular') {
+			await getPopularProducts();
+		} else {
+			const myCategory = filterItem(
+				categorys,
+				nameCategory,
+				'nombre_categoria'
+			);
+			myCategory ? setidCategory(myCategory.categoria_id) : null;
+		}
+	};
 	useEffect(() => {
 		getProductAtributeId();
 	}, []);
@@ -72,9 +76,10 @@ export const ProductScreen = () => {
 		getNameCategory();
 	}, []);
 	useEffect(() => {
-		if(idCategory == -1){ //Solicitar productos sin filtrado
+		if (idCategory == -1) {
+			//Solicitar productos sin filtrado
 			getAllProducts();
-		}else{
+		} else {
 			getProductId(idCategory);
 		}
 	}, [idCategory]);
@@ -86,7 +91,8 @@ export const ProductScreen = () => {
 	const hideDialog = () => setVisible(false);
 
 	const item = ({ item }) => {
-		return <CardComponent item={item} showDialog={showDialog} />;
+		const newAtribute = { ...item, itemCheked: false ,cantidad:1};
+		return <CardComponent item={newAtribute} showDialog={showDialog} />;
 	};
 
 	return (

@@ -6,7 +6,11 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
 	const { nombre_producto, url_imagen, atributos_producto } = detailProduct;
 	return (
 		<Portal>
-			<Dialog visible={visible} theme={{ colors: { background: '#BEA8FF' } }}>
+			<Dialog
+				visible={visible}
+				theme={{ colors: { background: '#BEA8FF' } }}
+				dismissable={false}
+			>
 				<Dialog.Title>{nombre_producto}</Dialog.Title>
 				<Dialog.Content>
 					<Image
@@ -19,11 +23,18 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
 						}}
 					/>
 					<List.Section>
-						<List.Subheader style={{fontSize:20,fontWeith:'bold'}}>Caracteristicas</List.Subheader>
-						{atributos_producto.map((atributo,index) => (
-							<View style={{flexDirection:'row',marginLeft:17}} key={index}>
-								<Text variant='labelLarge'>{atributo['nombre_atributo']} :</Text>
-								<Text variant='bodyMedium'>  {atributo['valor_atributo']}</Text>
+						<List.Subheader style={{ fontSize: 20, fontWeith: 'bold' }}>
+							Caracteristicas
+						</List.Subheader>
+						{atributos_producto.map((atributo, index) => (
+							<View
+								style={{ flexDirection: 'row', marginLeft: 17 }}
+								key={index}
+							>
+								<Text variant='labelLarge'>
+									{atributo['nombre_atributo']} :
+								</Text>
+								<Text variant='bodyMedium'> {atributo['valor_atributo']}</Text>
 							</View>
 						))}
 					</List.Section>

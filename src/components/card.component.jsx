@@ -4,31 +4,43 @@ import { Card, Button } from 'react-native-paper';
 import { styles } from '../styles/globalStyle';
 import { useBadgeStore, useProduct } from '../Stores/global.store';
 import { LoadingImageComponent } from './loadingImage.component';
-import { filterItem } from '../services/filterFunction';
+// import { filterItem } from '../services/filterFunction';
 export const CardComponent = ({ item, showDialog }) => {
-	const { nombre_producto, url_imagen, precio,producto_id } = item;
+	const {
+		nombre_producto,
+		url_imagen,
+		precio,
+		producto_id,
+		itemCheked,
+		cantidad,
+	} = item;
 	const incrementBadge = useBadgeStore((state) => state.incrementBadge);
-	const decrementBadge = useBadgeStore((state) => state.decrementBadge);
+	// const decrementBadge = useBadgeStore((state) => state.decrementBadge);
 	const setAddProduct = useProduct((state) => state.setAddProduct);
-	const removeProductSelected = useProduct(
-		(state) => state.removeProductSelected
-	);
+	// const removeProductSelected = useProduct(
+	// 	(state) => state.removeProductSelected
+	// );
 	const [loading, setLoading] = useState(true);
-	const [showButton, setshowButton] = useState(false);
+	// const [showButton, setshowButton] = useState(false);
 	const [disabled, setdisabled] = useState(false);
 
-	const showButtonCancel = () => {
-		setshowButton(true);
+	const addProductList = () => {
 		incrementBadge();
+		setAddProduct({
+			nombre_producto,
+			precio,
+			cantidad,
+			producto_id,
+			itemCheked,
+		});
 		setdisabled(true);
-		setAddProduct({ nombre_producto, precio, cantidad: 1,producto_id,itemChecked:false });
 	};
-	const hideButtons = () => {
-		setshowButton(false);
-		setdisabled(false);
-		decrementBadge();
-		removeProductSelected(nombre_producto);
-	};
+	// const hideButtons = () => {
+	// 	setshowButton(false);
+	// 	setdisabled(false);
+	// 	decrementBadge();
+	// 	removeProductSelected(nombre_producto);
+	// };
 	const onLoading = () => {
 		setLoading(false);
 	};
@@ -47,7 +59,7 @@ export const CardComponent = ({ item, showDialog }) => {
 			<View style={styles.coverContainer}>
 				{loading && <LoadingImageComponent />}
 				<Card.Cover
-					style={{ heigth:'500vh',objectFit:'cover' }}
+					style={{ heigth: '500vh', objectFit: 'cover' }}
 					source={{ uri: url_imagen }}
 					onLoadEnd={onLoading}
 				/>
@@ -57,12 +69,11 @@ export const CardComponent = ({ item, showDialog }) => {
 				<Text>Color:Negro - Rojo</Text>
 			</Card.Content>
 			<Card.Actions>
-				{showButton ? <Button onPress={hideButtons}>Cancelar</Button> : null}
 				<Button
 					buttonColor='#9C7CFE'
 					textColor='#ffffff'
 					icon='plus'
-					onPress={showButtonCancel}
+					onPress={addProductList}
 					disabled={disabled}
 				>
 					Añadir

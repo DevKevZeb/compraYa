@@ -9,14 +9,24 @@ import {
 	Divider,
 	Checkbox,
 } from 'react-native-paper';
-import { useProduct } from '../Stores/global.store';
+import { useBadgeStore, useProduct } from '../Stores/global.store';
 export const TrashComponent = ({ isVisible, hideDialog }) => {
+	
+	const updateBadge = useBadgeStore((state) => state.updateBadge);
 	const productSelected = useProduct((state) => state.productSelected);
 	const updateCheckedProduct = useProduct(
 		(state) => state.updateCheckedProduct
 	);
+	const removeCheckProduct = useProduct((state) => state.removeCheckProduct);
 	const handleCheck = (idProduct) => {
-		updateCheckedProduct(idProduct, true); // Cambia el estado del checkbox
+		updateCheckedProduct(idProduct); // Cambia el estado del checkbox
+	};
+	const removeProducts = () => {
+		removeCheckProduct();
+		hideDialog();
+		updateBadge(productSelected.length);
+		console.log(productSelected.length);
+
 	};
 	return (
 		<TouchableWithoutFeedback>
@@ -30,7 +40,7 @@ export const TrashComponent = ({ isVisible, hideDialog }) => {
 					<Dialog.Content>
 						<List.Section>
 							{productSelected.map((product, index) => (
-								<View>
+								<View key={index}>
 									<List.Item
 										title={product['nombre_producto']}
 										key={product['producto_id']}
@@ -57,7 +67,7 @@ export const TrashComponent = ({ isVisible, hideDialog }) => {
 					</Dialog.Content>
 					<Dialog.Actions>
 						<Button onPress={hideDialog}>Cancel</Button>
-						<Button onPress={()=>{}}>Aceptar</Button>
+						<Button onPress={removeProducts}>Aceptar</Button>
 					</Dialog.Actions>
 				</Dialog>
 			</Portal>
