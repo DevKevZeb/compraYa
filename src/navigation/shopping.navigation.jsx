@@ -5,24 +5,24 @@ import {  CustomNavigationBarProducts } from '../components/CustomNavigationBarP
 
 const Stack = createNativeStackNavigator();
 export const ShoppingNavigation = () => {
-	return (
-		<Stack.Navigator
-			initialRouteName='Producto'
-			screenOptions={{
-				header: (props) => <CustomNavigationBarProducts{...props} nextRoute="Carrito" />,
-			}}
-		>
-			<Stack.Screen
-				name='Producto'
-				component={ProductScreen}
-				options={{ headerTitle:"Productos"}}
+  return (
+    <Stack.Navigator
+      initialRouteName='Producto'
+      screenOptions={{
+        header: (props) => <CustomNavigationBarProducts{...props} nextRoute="Carrito" />,
+      }}
+    >
+      <Stack.Screen
+        name='Producto'
+        component={ProductScreen}
+        options={{ headerTitle:"Productos"}}
 
-			/>
-			<Stack.Screen
-				name='Carrito'
-				component={ShoppingScreen}
-				options={{ headerTitle: 'Carrito de Compras' }}
-			/>
-		</Stack.Navigator>
-	);
+      />
+      <Stack.Screen
+        name='Carrito'
+        component={ShoppingScreen}
+        options={{ headerTitle: 'Carrito de Compras' }}
+      />
+    </Stack.Navigator>
+  );
 };
