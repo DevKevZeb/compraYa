@@ -40,6 +40,8 @@ export const ListCardComponent = () => {
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => increaseQuantity(element)}
+              style={{backgroundColor:"#9C7CFE"}}
+
             >
             </Button>
             <Text variant='headlineSmall'>{element.cantidad}</Text>
@@ -48,6 +50,8 @@ export const ListCardComponent = () => {
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => decreaseQuantity(element)}
+              style={{backgroundColor:"#9C7CFE"}}
+
             >
             </Button>
             <Button
@@ -55,6 +59,7 @@ export const ListCardComponent = () => {
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => deleteProduct(element.producto_id)}
+              style={{backgroundColor:"#9C7CFE"}}
             >
             </Button>
           </Card.Actions>

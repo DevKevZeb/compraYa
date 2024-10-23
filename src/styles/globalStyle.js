@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	appBar: {
-		backgroundColor: '#BEA8FF',
+		backgroundColor: '#9C7CFE',
 	},
 	searchBar: {
 		marginTop: 10,
