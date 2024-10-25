@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import { ListCardComponent } from '../../components/listCard.component';
-import { useDialog } from '../../Stores/global.store';
-import { TrashComponent } from '../../components/trash.component';
+import { Button } from 'react-native-paper';
 
-export const ShoppingScreen = () => {
-	const isVisible = useDialog((state) => state.isVisible);
-	const hideDialog = useDialog((state) => state.hideDialog);
+export const ShoppingScreen = ({ navigation }) => {
 	return (
 		<View style={{ padding: 15 }}>
 			<ListCardComponent />
-			{isVisible && <TrashComponent isVisible={isVisible} hideDialog={hideDialog}/>}
+			<Button onPress={() => navigation.navigate('PayMethod')}>Continuar</Button>
 		</View>
 	);
 };
