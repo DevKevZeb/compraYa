@@ -16,6 +16,7 @@ import {
 } from '../../services/api.services';
 import { useCategory, useProduct } from '../../Stores/global.store';
 import { styles } from '../../styles/globalStyle';
+import { useCartStore } from '../../Stores/card.store';
 
 export const ProductScreen = () => {
 	// usamos los stores globales para guardar la data enviada desde el backend
@@ -25,6 +26,9 @@ export const ProductScreen = () => {
 	const productSearchBar = useProduct((state) => state.productSearchBar);
 	const resetProductSearch = useProduct((state) => state.resetProductSearch);
 
+  const cartItems = useCartStore((state) => state.cartItems);
+
+  // Local state
 	const [idCategory, setidCategory] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -36,18 +40,21 @@ export const ProductScreen = () => {
 		}
 		getProductsBySearch(searchQuery);
 	};
+
 	const debouncedSearch = useCallback(
 		debounce((query) => handleSearch(query), 500),
 		[]
 	);
+
 	const onChangeSearch = (query) => {
 		// resetProductCategory();
 		setSearchQuery(query);
 		debouncedSearch(query);
 	};
+
 	const filterProductName = (nameProduct) => {
 		const myProduct = filterItem(
-			productAtribute,
+		  productAtribute,
 			nameProduct,
 			'nombre_producto'
 		);
@@ -55,26 +62,25 @@ export const ProductScreen = () => {
 	};
 
 	const filterCategory = async (nameCategory) => {
-		resetProductSearch();
-		if (nameCategory === 'Todos') {
-			await getAllProducts();
-		} else if (nameCategory === 'Popular') {
-			await getPopularProducts();
-		} else {
-			const myCategory = filterItem(
-				categorys,
-				nameCategory,
-				'nombre_categoria'
-			);
-			myCategory ? setidCategory(myCategory.categoria_id) : null;
-		}
-	};
+    resetProductSearch();
+    if (nameCategory === 'Todos') {
+      await getAllProducts();
+    } else if (nameCategory === 'Popular') {
+      await getPopularProducts();
+    } else {
+      const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
+      myCategory ? setidCategory(myCategory.categoria_id) : null;
+    }
+  };
+
 	useEffect(() => {
 		getProductAtributeId();
 	}, []);
+
 	useEffect(() => {
 		getNameCategory();
 	}, []);
+
 	useEffect(() => {
 		if (idCategory == -1) {
 			//Solicitar productos sin filtrado
@@ -88,18 +94,18 @@ export const ProductScreen = () => {
 		setVisible(true);
 		filterProductName(Nombre);
 	};
+
 	const hideDialog = () => setVisible(false);
 
-	const item = ({ item }) => {
-		const newAtribute = { ...item, itemCheked: false ,cantidad:1};
-		return <CardComponent item={newAtribute} showDialog={showDialog} />;
+	const renderProductItem = ({ item }) => {
+		return <CardComponent item={item} showDialog={showDialog} />;
 	};
 
 	return (
 		<View>
 			<View style={styles.searchBar}>
 				<Searchbar
-					placeholder='busca un producto'
+					placeholder='Busca un producto'
 					onChangeText={onChangeSearch}
 					value={searchQuery}
 				/>
@@ -118,24 +124,24 @@ export const ProductScreen = () => {
 				{productSearchBar.length > 0 ? (
 					<FlatList
 						data={productSearchBar}
-						renderItem={item}
-						KeyExtractor={(item) => item.id}
+						renderItem={renderProductItem}
+						KeyExtractor={(item) => item.id.toString()}
 					/>
 				) : (
 					<FlatList
 						data={productsCategory}
-						renderItem={item}
-						KeyExtractor={(item) => item.id}
+						renderItem={renderProductItem}
+						KeyExtractor={(item) => item.id.toString()}
 					/>
 				)}
 			</View>
-			{visible ? (
+			{visible && (
 				<DialogComponent
 					visible={visible}
 					hideDialog={hideDialog}
 					detailProduct={detailsProduct}
 				/>
-			) : null}
+			)}
 		</View>
 	);
 };

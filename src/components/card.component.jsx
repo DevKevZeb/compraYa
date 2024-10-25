@@ -1,52 +1,38 @@
 import { useState } from 'react';
+
 import { Text, View } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import { styles } from '../styles/globalStyle';
-import { useBadgeStore, useProduct } from '../Stores/global.store';
+import { useCartStore } from '../Stores/card.store';
 import { LoadingImageComponent } from './loadingImage.component';
-// import { filterItem } from '../services/filterFunction';
-export const CardComponent = ({ item, showDialog }) => {
-	const {
-		nombre_producto,
-		url_imagen,
-		precio,
-		producto_id,
-		itemCheked,
-		cantidad,
-	} = item;
-	const incrementBadge = useBadgeStore((state) => state.incrementBadge);
-	// const decrementBadge = useBadgeStore((state) => state.decrementBadge);
-	const setAddProduct = useProduct((state) => state.setAddProduct);
-	// const removeProductSelected = useProduct(
-	// 	(state) => state.removeProductSelected
-	// );
-	const [loading, setLoading] = useState(true);
-	// const [showButton, setshowButton] = useState(false);
-	const [disabled, setdisabled] = useState(false);
 
-	const addProductList = () => {
-		incrementBadge();
-		setAddProduct({
-			nombre_producto,
-			precio,
-			cantidad,
-			producto_id,
-			itemCheked,
-		});
-		setdisabled(true);
-	};
-	// const hideButtons = () => {
-	// 	setshowButton(false);
-	// 	setdisabled(false);
-	// 	decrementBadge();
-	// 	removeProductSelected(nombre_producto);
-	// };
+export const CardComponent = ({ item, showDialog }) => {
+	const { nombre_producto, url_imagen, precio, producto_id } = item;
+
+  // Acciones del carrito
+  const addToCart = useCartStore((state) => state.addToCart);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const isInCart = useCartStore((state) => state.isInCart);
+
+  // Estados locales
+	const [loading, setLoading] = useState(true);
+
 	const onLoading = () => {
 		setLoading(false);
 	};
+
 	const emitNameProduct = () => {
 		showDialog(nombre_producto);
 	};
+
+  const handleAddToCart = () => {
+    addToCart({ nombre_producto, precio, cantidad: 1, producto_id });
+  };
+
+  const handleRemoveFromCart = () => {
+    removeFromCart(producto_id);
+  };
+
 	return (
 		<Card
 			style={styles.card}
@@ -65,19 +51,29 @@ export const CardComponent = ({ item, showDialog }) => {
 				/>
 			</View>
 			<Card.Content style={{ marginTop: 20 }}>
-				<Text>Precio:{precio} c/u</Text>
-				<Text>Color:Negro - Rojo</Text>
+				<Text>Precio: {precio} c/u</Text>
+				<Text>Color: Negro - Rojo</Text>
 			</Card.Content>
 			<Card.Actions>
-				<Button
-					buttonColor='#9C7CFE'
-					textColor='#ffffff'
-					icon='plus'
-					onPress={addProductList}
-					disabled={disabled}
-				>
-					Añadir
-				</Button>
+        {isInCart(producto_id) && (
+          <Button
+            buttonColor='#9C7CFE'
+            mode='contained'
+            textColor='#fff'
+            style={{ backgroundColor: '#ff5f5f' }}
+            onPress={handleRemoveFromCart}
+          >
+            Cancelar
+          </Button>
+          )}
+          <Button
+            buttonColor='#9C7CFE'
+            textColor='#ffffff'
+            icon='plus'
+            onPress={handleAddToCart}
+          >
+            Añadir
+          </Button>
 			</Card.Actions>
 		</Card>
 	);
