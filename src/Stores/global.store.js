@@ -9,6 +9,7 @@ export const useProduct = create((set) => ({
 	productsCategory: [],
 	productAtribute: [],
 	productSearchBar: [],
+	noProductsFound: false,
 	//funciones para actualizar los stores
 	setDataProductsCategory: (newData) =>
 		set(() => ({ productsCategory: newData })),
@@ -16,6 +17,8 @@ export const useProduct = create((set) => ({
 		set(() => ({ productAtribute: newData })),
 	setDataProductsSearch: (newData) =>
 		set(() => ({ productSearchBar: newData })),
+	setNoProductsFound: (flag) => 
+		set(() => ({ noProductsFound: flag })), 
 	//funciones para resetear stores
 	resetProductSearch: () => set(() => ({ productSearchBar: [] })),
 	resetProductCategory: () => set(() => ({ productsCategory: [] })),
