@@ -4,6 +4,7 @@ import { ShoppingScreen } from '../screen/ShoppingScreen/ShoppingScreen';
 import { CustomNavigationBarProducts } from '../components/CustomNavigationBarProductos';
 import { PayMethodComponent } from '../screen/PayMethod/payMethod.component';
 import { DebitCardComponent } from '../screen/DebitCard/debitCard.component';
+import { QrMethodComponent } from '../screen/QrMethod/qrMethod.component';
 
 const Stack = createNativeStackNavigator();
 export const ShoppingNavigation = () => {
@@ -30,6 +31,11 @@ export const ShoppingNavigation = () => {
 				name='PayMethod'
 				component={PayMethodComponent}
 				options={{ headerTitle: 'Metodo de Pago' }}
+			/>
+			<Stack.Screen
+				name='QrMethod'
+				component={QrMethodComponent}
+				options={{ headerTitle: 'Pago por Qr' }}
 			/>
 			<Stack.Screen
 				name='DebitCard'
