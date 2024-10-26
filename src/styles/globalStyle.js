@@ -1,4 +1,4 @@
-import { StyleSheet, StatusBar } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 	text: {
@@ -55,5 +55,33 @@ export const styles = StyleSheet.create({
 	},
 	coverContainer:{
 		position: 'relative',
-	}
+	},
+
+	container: {
+		flex: 1,
+		backgroundColor: '#fff',
+		alignItems: 'center',
+		justifyContent: 'center',
+	  },
+	toastContainer: {
+		height: 60,
+		width: '90%',
+		backgroundColor: '#fff', // Fondo blanco para el mensaje de error
+		borderRadius: 10,
+		padding: 10,
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderColor: '#800080', // Borde morado
+		borderWidth: 3,
+	},
+	toastText1: {
+		fontSize: 16,
+		fontWeight: 'bold',
+		color: '#000', // Texto negro
+	},
+		toastText2: {
+		fontSize: 14,
+		color: '#000', // Texto negro
+		},
+
 });
