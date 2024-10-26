@@ -7,7 +7,13 @@ export const ShoppingScreen = ({ navigation }) => {
 	return (
 		<View style={{ padding: 15 }}>
 			<ListCardComponent />
-			<Button onPress={() => navigation.navigate('PayMethod')}>Continuar</Button>
+			<Button
+				mode='contained'
+				onPress={() => navigation.navigate('PayMethod')}
+				style={{backgroundColor:"#9C7CFE"}}
+			>
+				Continuar
+			</Button>
 		</View>
 	);
 };
