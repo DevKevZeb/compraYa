@@ -82,7 +82,7 @@ export const ProductScreen = () => {
 	}, []);
 
 	useEffect(() => {
-		if (idCategory == -1) {
+		if (idCategory == null) {
 			//Solicitar productos sin filtrado
 			getAllProducts();
 		} else {
