@@ -21,20 +21,25 @@ export const getNameCategory = async () => {
 };
 
 export const getProductsBySearch = async (valueSearch) => {
-	try {
-		const { data: productos, error } = await supabase
-			.from('productos')
-			.select('*')
-			.ilike('nombre_producto', `%${valueSearch}%`);
-		if (error) {
-			console.error('Error al obtener los datos:', error);
-			return { error };
-		}
-		useProduct.getState().setDataProductsSearch(productos);
-	} catch (error) {
-		console.error('Error en la solicitud:', error);
-		return { error };
-	}
+    try {
+        const { data: productos, error } = await supabase
+            .from('productos')
+            .select('*')
+            .ilike('nombre_producto', `%${valueSearch}%`);
+        if (error) {
+            console.error('Error al obtener los datos:', error);
+            return { error };
+        }
+        if (productos.length === 0) {
+            useProduct.getState().setNoProductsFound(true);
+        } else {
+            useProduct.getState().setNoProductsFound(false);
+            useProduct.getState().setDataProductsSearch(productos);
+        }
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+        return { error };
+    }
 };
 export const getProductId = async (categoryId) => {
 	try {
