@@ -7,12 +7,12 @@ import { CardComponent } from '../../components/card.component';
 import { CategoryChipComponent } from '../../components/categoryChip.component';
 import { DialogComponent } from '../../components/dialog.component';
 import {
-	getAllProducts,
-	getNameCategory,
-	getPopularProducts,
-	getProductAtributeId,
-	getProductId,
-	getProductsBySearch,
+    getAllProducts,
+    getNameCategory,
+    getPopularProducts,
+    getProductAtributeId,
+    getProductId,
+    getProductsBySearch,
 } from '../../services/api.services';
 import { filterItem } from '../../services/filterFunction';
 import { useCartStore } from '../../Stores/card.store';
@@ -38,9 +38,9 @@ export const ProductScreen = () => {
     const [detailsProduct, setdetailsProduct] = useState({});
 
     const handleSearch = (searchQuery) => {
+        setNoProductsFound(false); // Resetear el estado antes de cada búsqueda
         if (searchQuery.trim() === '') {
             resetProductSearch();
-            setNoProductsFound(false);
             return;
         }
         getProductsBySearch(searchQuery);
@@ -52,7 +52,7 @@ export const ProductScreen = () => {
     );
 
     const onChangeSearch = (query) => {
-        // resetProductCategory();
+        Toast.hide();
         setSearchQuery(query);
         debouncedSearch(query);
     };
@@ -81,11 +81,10 @@ export const ProductScreen = () => {
 
     useEffect(() => {
         getProductAtributeId();
+        getNameCategory();
+        filterCategory('Todos');
     }, []);
 
-    useEffect(() => {
-        getNameCategory();
-    }, []);
 
     useEffect(() => {
         if (idCategory == -1) { //Solicitar productos sin filtrado
@@ -112,7 +111,7 @@ export const ProductScreen = () => {
                 type: 'error',
                 text1: 'No encontrado',
                 text2: 'No existe un producto con ese nombre',
-                duration: 2000, // Duración de la notificación en milisegundos
+                duration: 1000, // Duración de la notificación en milisegundos
             });
         }
     }, [noProductsFound]);
