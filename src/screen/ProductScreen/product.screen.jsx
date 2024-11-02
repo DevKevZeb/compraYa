@@ -12,7 +12,7 @@ import {
 	getPopularProducts,
 	getProductAtributeId,
 	getProductId,
-	getProductsBySearch
+	getProductsBySearch,
 } from '../../services/api.services';
 import { filterItem } from '../../services/filterFunction';
 import { useCartStore } from '../../Stores/card.store';
