@@ -25,7 +25,7 @@ export const ListCardComponent = () => {
 	return (
 		<View style={{ marginBottom: 10 }}>
 			{productSelected.map((element) => (
-				<Card key={element.producto_id} style={{ marginBottom: 10 }}>
+				<Card key={element.producto_id} style={{ marginBottom: 10}}>
 					<Card.Title
 						title={element.nombre_producto}
 						subtitle={`Precio: ${element.precio}`}

@@ -14,12 +14,6 @@ export const CardComponent = memo(({ item, showDialog }) => {
 	const removeFromCart = useCartStore((state) => state.removeFromCart);
 	const isInCart = useCartStore((state) => state.isInCart);
 
-	// Estados locales
-	const [loading, setLoading] = useState(true);
-
-	const onLoading = () => {
-		setLoading(true);
-	};
 
 	const emitNameProduct = () => {
 		showDialog(nombre_producto);
@@ -42,16 +36,10 @@ export const CardComponent = memo(({ item, showDialog }) => {
 			delayLongPress={3}
 		>
 			<Card.Title title={nombre_producto} style={styles.cardTitle} />
-			<View style={styles.coverContainer}>
-				{loading && (
-					<LoadingImageComponent />
-				)}
-				<Card.Cover
-						style={{ heigth: '500vh', objectFit: 'cover' }}
-						source={{ uri: url_imagen }}
-						onLoadEnd={() => setLoading(false)}
-					/>
-			</View>
+			<Card.Cover
+				style={{ heigth: '500vh', objectFit: 'cover' }}
+				source={{ uri: url_imagen }}
+			/>
 			<Card.Content style={{ marginTop: 20 }}>
 				<Text>Precio: {precio} c/u</Text>
 				<Text>Color: Negro - Rojo</Text>
