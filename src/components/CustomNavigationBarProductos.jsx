@@ -14,9 +14,11 @@ export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
 
   return (
     <Appbar.Header style={styles.appBar}>
-      {back ? <Appbar.BackAction onPress={goBack} /> : null}
+      {!back ? <Appbar.BackAction onPress={goBack} /> : null}
+
       <Appbar.Content title={title} />
-      {!back ? (
+      {back ? (
+        
         <View style={styles.iconWithBadge}>
           <Appbar.Action
             icon={() => (

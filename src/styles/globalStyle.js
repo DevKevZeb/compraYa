@@ -66,13 +66,11 @@ export const styles = StyleSheet.create({
 	toastContainer: {
 		height: 60,
 		width: '90%',
-		backgroundColor: '#fff', // Fondo blanco para el mensaje de error
+		backgroundColor: '#FAA61A', // Fondo blanco para el mensaje de error
 		borderRadius: 10,
 		padding: 10,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderColor: '#800080', // Borde morado
-		borderWidth: 3,
 	},
 	toastText1: {
 		fontSize: 16,

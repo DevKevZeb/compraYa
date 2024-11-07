@@ -5,6 +5,7 @@ import { Provider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { TabNavigation } from './src/navigation/tab.navigation';
 import { styles } from './src/styles/globalStyle';
+import { RootNavigation } from './src/navigation/root.navigation';
 
 const toastConfig = {
   error: ({ text1, text2, ...rest }) => (
@@ -19,7 +20,8 @@ export default function App() {
   return (
     <Provider>
       <NavigationContainer>
-        <TabNavigation />
+        {/* <TabNavigation /> */}
+        <RootNavigation/>
         <Toast config={toastConfig} />
       </NavigationContainer>
     </Provider>
