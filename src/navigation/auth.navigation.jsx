@@ -4,6 +4,7 @@ import { HomeScreen } from '../screen/sig-in-up-Screnn/homeScreen/home.screen';
 import { SignInComponent } from '../screen/sig-in-up-Screnn/sign-in-Screen/sign-in.component';
 import { RegisterComponent } from '../screen/sig-in-up-Screnn/RegisterScreen/register.component';
 import { ForgotPassword } from '../screen/sig-in-up-Screnn/ForgotPassword/forgotPassword.screen';
+import { RecoveryPasswordComponent } from '../screen/sig-in-up-Screnn/recoveryPassword/recoveryPassword.component';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -34,15 +35,26 @@ export const AuthNavigation = () => {
 					headerShadowVisible: false,
 				}}
 			/>
-            <AuthStack.Screen
-            name='ForgotPassword'
-            component={ForgotPassword}
-            options={{
-                headerShown: true,
-                headerTitle: '',
-                headerStyle: { backgroundColor: '#EADDFF' },
-                headerShadowVisible: false,
-            }}/>
+			<AuthStack.Screen
+				name='ForgotPassword'
+				component={ForgotPassword}
+				options={{
+					headerShown: true,
+					headerTitle: '',
+					headerStyle: { backgroundColor: '#EADDFF' },
+					headerShadowVisible: false,
+				}}
+			/>
+			<AuthStack.Screen
+				name='RecoveryPassword'
+				component={RecoveryPasswordComponent}
+				options={{
+					headerShown: true,
+					headerTitle: '',
+					headerStyle: { backgroundColor: '#EADDFF' },
+					headerShadowVisible: false,
+				}}
+			/>
 		</AuthStack.Navigator>
 	);
 };

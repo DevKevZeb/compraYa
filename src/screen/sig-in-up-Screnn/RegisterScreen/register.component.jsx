@@ -1,46 +1,84 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet ,Image} from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Text, TextInput, Button, Divider } from 'react-native-paper';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { CustomInputComponent } from '../../../components/CustomInput.component';
+import { RegisterSchema } from '../../../models/form.model';
+
 import face from '../../../../assets/face.png';
 import google from '../../../../assets/google.png';
-export const RegisterComponent = ({navigation}) => {
+export const RegisterComponent = ({ navigation }) => {
+	const {
+		control,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			name: '',
+			email: '',
+			password: '',
+			confirmPassword: '',
+		},
+		resolver: zodResolver(RegisterSchema),
+		mode:'onBlur'
+
+	});
+	const onSubmit = (data) => {
+		console.log(data);
+		reset();
+	};
 	return (
 		<View style={styles.container}>
 			<Text variant='headlineSmall' style={styles.text}>
 				!Bienvenido! Registrate para comenzar.
 			</Text>
 			<View style={styles.inputContainer}>
-				<TextInput
-					mode='outlined'
+				<CustomInputComponent
+					name='name'
+					control={control}
 					label='Nombre'
 					placeholder='Nombre completo'
-					placeholderTextColor='gray'
-					style={styles.input}
+					type='text'
+					error={errors.name}
 				/>
-				<TextInput
-					mode='outlined'
+
+				<CustomInputComponent
+					name='email'
+					control={control}
 					label='Email'
 					placeholder='Ingresa su email'
-					placeholderTextColor='gray'
-					style={styles.input}
+					type='email'
+					error={errors.email}
 				/>
-				<TextInput
-					mode='outlined'
+
+				<CustomInputComponent
+					name='password'
+					control={control}
 					label='Contraseña'
-					placeholder='Contraseña'
-					placeholderTextColor='gray'
-					style={styles.input}
+					placeholder='Ingrese tu contraseña'
+					secureTextEntry={true}
+					type='password'
+					error={errors.password}
 				/>
-				<TextInput
-					mode='outlined'
+				<CustomInputComponent
+					name='confirmPassword'
+					control={control}
 					label='Confirmar'
 					placeholder='Confirmar Contraseña'
-					placeholderTextColor='gray'
-					style={styles.input}
+					secureTextEntry={true}
+					type='password'
+					error={errors.confirmPassword}
 				/>
 			</View>
 			<View style={styles.buttonContainer}>
-				<Button mode='contained' style={styles.button} onPress={() => {}}>
+				<Button
+					mode='contained'
+					style={styles.button}
+					onPress={handleSubmit(onSubmit)}
+				>
 					Registrarte
 				</Button>
 			</View>
@@ -58,7 +96,7 @@ export const RegisterComponent = ({navigation}) => {
 			</View>
 			<View style={styles.textContainer}>
 				<Text variant='titleSmall'>Ya tienes una cuenta? </Text>
-				<TouchableOpacity onPress={()=>navigation.navigate('SigIn')}>
+				<TouchableOpacity onPress={() => navigation.navigate('SigIn')}>
 					<Text variant='titleSmall' style={{ color: '#0866FF' }}>
 						Ingresa ahora
 					</Text>

@@ -1,40 +1,67 @@
 import React from 'react';
 import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Text, TextInput, Button, Divider } from 'react-native-paper';
+import { Text, Button, Divider } from 'react-native-paper';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { CustomInputComponent } from '../../../components/CustomInput.component';
+import { SigInSchema } from '../../../models/form.model';
 import face from '../../../../assets/face.png';
 import google from '../../../../assets/google.png';
 export const SignInComponent = ({ navigation }) => {
+	const {
+		control,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+		},
+		resolver: zodResolver(SigInSchema),
+		mode:'onBlur'
+	});
+	const onSubmit = (data) => {
+		navigation.navigate('Productos');
+		console.log(data);
+		reset();
+	};
 	return (
 		<View style={styles.container}>
 			<Text variant='headlineSmall' style={styles.text}>
 				Bienvenido de nuevo todo lo que buscas lo encuentras aqui.
 			</Text>
 			<View style={styles.inputContainer}>
-				<TextInput
-					mode='outlined'
-					label='Correo'
-					placeholder='Ingrese su correo'
-					placeholderTextColor='gray'
-					style={styles.input}
+				<CustomInputComponent
+					name='email'
+					control={control}
+					label='Email'
+					placeholder='Ingresa tu email'
+					type='email'
+					error={errors.email}
 				/>
-				<TextInput
-					mode='outlined'
+
+				<CustomInputComponent
+					name='password'
+					control={control}
 					label='Contraseña'
 					placeholder='Ingrese tu contraseña'
-					placeholderTextColor='gray'
-					style={styles.input}
+					secureTextEntry={true}
+					type='password'
+					error={errors.password}
 				/>
-				<TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.textInput}>
-					<Text variant='titleSmall'>
-						Olvidaste tu contrasena?
-					</Text>
+				<TouchableOpacity
+					onPress={() => navigation.navigate('ForgotPassword')}
+					style={styles.textInput}
+				>
+					<Text variant='titleSmall'>Olvidaste tu contrasena?</Text>
 				</TouchableOpacity>
 			</View>
 			<View style={styles.buttonContainer}>
 				<Button
 					mode='contained'
 					style={styles.button}
-					onPress={() => navigation.navigate('Productos')}
+					onPress={handleSubmit(onSubmit)}
 				>
 					Ingresar
 				</Button>
@@ -53,7 +80,7 @@ export const SignInComponent = ({ navigation }) => {
 			</View>
 			<View style={styles.textContainer}>
 				<Text variant='titleSmall'>No tienens cuenta? </Text>
-				<TouchableOpacity onPress={()=>navigation.navigate('Register')}>
+				<TouchableOpacity onPress={() => navigation.navigate('Register')}>
 					<Text variant='titleSmall' style={{ color: '#0866FF' }}>
 						Registrate ahora
 					</Text>
@@ -83,7 +110,7 @@ const styles = StyleSheet.create({
 		width: '80%',
 		marginTop: 10,
 		textDecorationLine: 'underline',
-        marginLeft:309
+		marginLeft: 309,
 	},
 	button: {
 		backgroundColor: '#9C7CFE',

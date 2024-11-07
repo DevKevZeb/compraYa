@@ -1,14 +1,13 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Text, Button, Divider } from 'react-native-paper';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
+import { useForm } from 'react-hook-form';
 import { CustomInputComponent } from '../../../components/CustomInput.component';
-import { ForgotSchema } from '../../../models/form.model';
+import { RecoverySchema } from '../../../models/form.model';
 import face from '../../../../assets/face.png';
 import google from '../../../../assets/google.png';
-export const ForgotPassword = ({ navigation }) => {
+export const RecoveryPasswordComponent = ({ navigation }) => {
 	const {
 		control,
 		handleSubmit,
@@ -16,21 +15,21 @@ export const ForgotPassword = ({ navigation }) => {
 		formState: { errors },
 	} = useForm({
 		defaultValues: {
-			email: '',
+			email: 'sapito@gmail.com',
+			password: '',
 		},
-		resolver: zodResolver(ForgotSchema),
-		mode: 'onBlur',
+		resolver: zodResolver(RecoverySchema),
+		mode:'onBlur'
 	});
 	const onSubmit = (data) => {
-		navigation.navigate('RecoveryPassword');
+		navigation.navigate('SigIn');
 		console.log(data);
 		reset();
 	};
 	return (
 		<View style={styles.container}>
 			<Text variant='headlineSmall' style={styles.text}>
-				Has olvidado tu contraseña? !No te preocupes! eso ocurre, Ingrese la
-				direccion de correro electronico vinculada con su cuenta.
+            Muy bien, puedes actualizar tu correo o tu contrasena.
 			</Text>
 			<View style={styles.inputContainer}>
 				<CustomInputComponent
@@ -41,6 +40,16 @@ export const ForgotPassword = ({ navigation }) => {
 					type='email'
 					error={errors.email}
 				/>
+
+				<CustomInputComponent
+					name='password'
+					control={control}
+					label='Contraseña'
+					placeholder='Nueva contraseña'
+					secureTextEntry={true}
+					type='password'
+					error={errors.password}
+				/>
 			</View>
 			<View style={styles.buttonContainer}>
 				<Button
@@ -48,7 +57,7 @@ export const ForgotPassword = ({ navigation }) => {
 					style={styles.button}
 					onPress={handleSubmit(onSubmit)}
 				>
-					Enviar
+					Actualizar
 				</Button>
 			</View>
 			<Divider horizontalInset={true} bold={true} style={{ marginTop: 100 }} />
@@ -64,8 +73,8 @@ export const ForgotPassword = ({ navigation }) => {
 				</TouchableOpacity>
 			</View>
 			<View style={styles.textContainer}>
-				<Text variant='titleSmall'>Ya tienes una cuenta? </Text>
-				<TouchableOpacity onPress={() => navigation.navigate('SigIn')}>
+				<Text variant='titleSmall'>Recuerdas la contrasena? </Text>
+				<TouchableOpacity onPress={() => navigation.navigate('Register')}>
 					<Text variant='titleSmall' style={{ color: '#0866FF' }}>
 						Ingresa ahora
 					</Text>
@@ -76,23 +85,30 @@ export const ForgotPassword = ({ navigation }) => {
 };
 const styles = StyleSheet.create({
 	container: {
-		height: '100%',
 		backgroundColor: '#EADDFF',
+		height: '100%',
 	},
 	text: {
 		textAlign: 'center',
 	},
 	inputContainer: {
-		marginTop: 60,
 		justifyContent: 'center',
 		alignItems: 'center',
+		marginTop: 20,
 	},
 	input: {
 		width: '80%',
+		marginTop: 30,
+	},
+	textInput: {
+		width: '80%',
+		marginTop: 10,
+		textDecorationLine: 'underline',
+		marginLeft: 309,
 	},
 	button: {
 		backgroundColor: '#9C7CFE',
-		marginTop: 100,
+		marginTop: 75,
 		width: '50%',
 	},
 	buttonContainer: {
