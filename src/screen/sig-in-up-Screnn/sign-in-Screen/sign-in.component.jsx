@@ -22,7 +22,7 @@ export const SignInComponent = ({ navigation }) => {
 		mode:'onBlur'
 	});
 	const onSubmit = (data) => {
-		navigation.navigate('Productos');
+		navigation.navigate('ListProductos');
 		console.log(data);
 		reset();
 	};
@@ -91,7 +91,7 @@ export const SignInComponent = ({ navigation }) => {
 };
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: '#EADDFF',
+		backgroundColor: '#eaddff',
 		height: '100%',
 	},
 	text: {
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
 	button: {
 		backgroundColor: '#9C7CFE',
 		marginTop: 75,
-		width: '50%',
+		width: '70%',
 	},
 	buttonContainer: {
 		justifyContent: 'center',

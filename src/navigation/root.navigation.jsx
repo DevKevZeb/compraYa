@@ -13,7 +13,7 @@ export const RootNavigation = () => {
 		>
 			<RootStack.Screen name='login' component={AuthNavigation} />
 			<RootStack.Screen
-				name='Productos'
+				name='ListProductos'
 				component={TabNavigation}
                 
 			/>

@@ -23,7 +23,7 @@ export const ShoppingScreen = ({ navigation }) => {
 				<Button
 					mode='contained'
 					onPress={() => navigation.navigate('PayMethod')}
-					style={{ backgroundColor: '#9C7CFE' }}
+					style={{ backgroundColor: '#9C7CFE', width: '100%' }}
 				>
 					Continuar
 				</Button>

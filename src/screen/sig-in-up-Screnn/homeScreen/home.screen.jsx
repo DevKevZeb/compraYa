@@ -1,11 +1,12 @@
 import React from 'react';
 import { Image, View, Text, StyleSheet } from 'react-native';
+import { Video } from 'expo-av';
 import { Button } from 'react-native-paper';
-import logo from '../../../../assets/logo.png';
+import Compraya3 from '../../../../assets/Compraya3.png';
 export const HomeScreen = ({ navigation }) => {
 	return (
 		<View style={styles.container}>
-			<Image source={logo} />
+			<Image source={Compraya3} style={styles.imageContainer} />
 			<View style={styles.buttonContainer}>
 				<Button
 					mode='contained'
@@ -36,8 +37,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	button: {
-		width: '50%',
+		width: '70%',
 		backgroundColor: '#9C7CFE',
-		marginBottom: 10,
+		marginBottom: 20,
+	},
+	imageContainer: {
+		alignSelf: 'center',
+		resizeMode: 'contain',
 	},
 });

@@ -6,18 +6,19 @@ import Feather from '@expo/vector-icons/Feather';
 import { styles } from '../styles/globalStyle';
 import { useCartStore } from '../Stores/card.store';
 
-export const CustomNavigationBarProducts = ({ navigation, options, back }) => {
+export const CustomNavigationBarProducts = ({ navigation, options, back,route }) => {
   const { goBack, navigate } = navigation;
 
   const totalItemsInCart = useCartStore((state) => state.totalItemsInCart());
   const title = getHeaderTitle(options);
+  const currentRoute = route?.name;
 
   return (
     <Appbar.Header style={styles.appBar}>
-      {!back ? <Appbar.BackAction onPress={goBack} /> : null}
+      {back && currentRoute !== 'listProducto'  ? <Appbar.BackAction onPress={goBack} /> : null}
 
       <Appbar.Content title={title} />
-      {back ? (
+      {currentRoute === 'listProducto' ? (
         
         <View style={styles.iconWithBadge}>
           <Appbar.Action
