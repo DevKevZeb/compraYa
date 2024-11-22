@@ -1,5 +1,5 @@
 import debounce from 'lodash/debounce';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { ActivityIndicator, MD2Colors, Searchbar } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
@@ -12,7 +12,7 @@ import {
     getPopularProducts,
     getProductAtributeId,
     getProductId,
-    getProductsBySearch,
+    getProductsBySearch
 } from '../../services/api.services';
 import { filterItem } from '../../services/filterFunction';
 import { useCartStore } from '../../Stores/card.store';
@@ -37,36 +37,36 @@ export const ProductScreen = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [detailsProduct, setdetailsProduct] = useState({});
 
-    const handleSearch = (searchQuery) => {
+    const handleSearch = useCallback((searchQuery) => {
         setNoProductsFound(false); // Resetear el estado antes de cada búsqueda
         if (searchQuery.trim() === '') {
             resetProductSearch();
             return;
         }
         getProductsBySearch(searchQuery);
-    };
+    }, [resetProductSearch, setNoProductsFound]);
 
-    const debouncedSearch = useCallback(
-        debounce((query) => handleSearch(query), 500),
-        []
+    const debouncedSearch = useMemo(
+        () => debounce((query) => handleSearch(query), 500),
+        [handleSearch]
     );
 
     const onChangeSearch = (query) => {
-        Toast.hide();
+        Toast.hide(); // Ocultar la notificación cuando se está escribiendo
         setSearchQuery(query);
         debouncedSearch(query);
     };
 
-    const filterProductName = (nameProduct) => {
+    const filterProductName = useCallback((nameProduct) => {
         const myProduct = filterItem(
             productAtribute,
             nameProduct,
             'nombre_producto'
         );
         myProduct ? setdetailsProduct(myProduct) : null;
-    };
+    }, [productAtribute]);
 
-    const filterCategory = async (nameCategory) => {
+    const filterCategory = useCallback(async (nameCategory) => {
         resetProductSearch();
         setNoProductsFound(false); // Restablecer la bandera al seleccionar una categoría
         if (nameCategory === 'Todos') {
@@ -77,14 +77,13 @@ export const ProductScreen = () => {
             const myCategory = filterItem(categorys, nameCategory, 'nombre_categoria');
             myCategory ? setidCategory(myCategory.categoria_id) : null;
         }
-    };
+    }, [categorys, resetProductSearch, setNoProductsFound]);
 
     useEffect(() => {
         getProductAtributeId();
         getNameCategory();
         filterCategory('Todos');
-    }, []);
-
+    }, [filterCategory]);
 
     useEffect(() => {
         if (idCategory == -1) { //Solicitar productos sin filtrado
@@ -94,21 +93,21 @@ export const ProductScreen = () => {
         }
     }, [idCategory]);
 
-    const showDialog = (Nombre) => {
+    const showDialog = useCallback((Nombre) => {
         setVisible(true);
         filterProductName(Nombre);
-    };
+    }, [filterProductName]);
 
     const hideDialog = () => setVisible(false);
 
-    const renderProductItem = ({ item }) => {
+    const renderProductItem = useCallback(({ item }) => {
         return <CardComponent item={item} showDialog={showDialog} />;
-    };
+    }, [showDialog]);
 
     useEffect(() => {
         if (noProductsFound) {
             Toast.show({
-                type: 'error',
+                type: 'info',
                 text1: 'No encontrado',
                 text2: 'No existe un producto con ese nombre',
                 duration: 1000, // Duración de la notificación en milisegundos
@@ -141,6 +140,12 @@ export const ProductScreen = () => {
                         data={productSearchBar.length > 0 ? productSearchBar : productsCategory}
                         renderItem={renderProductItem}
                         keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+                        getItemLayout={(data, index) => (
+                            { length: 50, offset: 50 * index, index }
+                        )}
+                        initialNumToRender={10} // Número inicial de elementos a renderizar
+                        maxToRenderPerBatch={10} // Número máximo de elementos a renderizar por lote
+                        windowSize={5} // Tamaño de la ventana de renderizado
                     />
                 )}
             </View>

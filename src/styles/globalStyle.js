@@ -77,9 +77,19 @@ export const styles = StyleSheet.create({
 		fontWeight: 'bold',
 		color: '#000', // Texto negro
 	},
-		toastText2: {
+	toastText2: {
 		fontSize: 14,
 		color: '#000', // Texto negro
+	},
+
+	toastError: {
+		backgroundColor: '#ff5f5f', // Color de fondo para notificaciones de error
 		},
+	toastSuccess: {
+		backgroundColor: '#4caf50', // Color de fondo para notificaciones de éxito
+		},
+	toastInfo: {
+		backgroundColor: '#FFA500', // Color de fondo para notificaciones de información (naranja)
+	},
 
 });
