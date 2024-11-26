@@ -5,6 +5,7 @@ import { CustomNavigationBarProducts } from '../components/CustomNavigationBarPr
 import { PayMethodComponent } from '../screen/PayMethod/payMethod.component';
 import { DebitCardComponent } from '../screen/DebitCard/debitCard.component';
 import { QrMethodComponent } from '../screen/QrMethod/qrMethod.component';
+import DeliveryMapComponent from '../screen/DeliveryMap/DeliveryMapComponent';
 
 const Stack = createNativeStackNavigator();
 export const ShoppingNavigation = () => {
@@ -41,6 +42,11 @@ export const ShoppingNavigation = () => {
 				name='DebitCard'
 				component={DebitCardComponent}
 				options={{ headerTitle: 'Tarjeta debito' }}
+			/>
+			<Stack.Screen
+				name='DeliveryMap'
+				component={DeliveryMapComponent}
+				options={{ headerTitle: 'Dirección de envio' }}
 			/>
 		</Stack.Navigator>
 	);

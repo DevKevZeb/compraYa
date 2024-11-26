@@ -136,8 +136,6 @@ export const getDebitCardsByUser = async (userId) => {
             .eq('usuario_id', userId)
             .eq('tipo_metodo', 'card');
 
-		console.log('Fetched data: ', debitCards);
-
         if (error) {
             console.error('Error al obtener las tarjetas de débito:', error);
             // Estado de error.

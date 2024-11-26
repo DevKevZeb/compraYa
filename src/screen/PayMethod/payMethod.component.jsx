@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Text, List, Checkbox, ActivityIndicator } from 'react-native-paper';
-import { View, StyleSheet, Image, ScrollView } from 'react-native';
+import { Button, Text, List, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 import qrImage from '../../../assets/qrImage.png';
 import { useDebitCards } from '../../Stores/global.store';
 import DebitCardItem from '../../components/debitCardItem.component';
@@ -16,6 +16,7 @@ export const PayMethodComponent = ({ navigation }) => {
     setCardDetails,
   } = useDebitCards();
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -23,6 +24,27 @@ export const PayMethodComponent = ({ navigation }) => {
   }, [setLoading, refreshDebitCards]);
 
   const handleSelectMethod = (methodId) => setSelectedMethod(methodId);
+
+  const handlePayment = () => {
+    if (!selectedMethod) {
+      Alert.alert('Selecciona un método de pago', 'Por favor selecciona un método de pago antes de continuar.');
+      return;
+    }
+    setIsPaying(true);
+    setTimeout(() => {
+      setIsPaying(false);
+      Alert.alert(
+        'Pago exitoso',
+        'El pago se procesó correctamente.',
+        [
+          {
+            text: 'Continuar',
+            onPress: () => navigation.navigate('DeliveryMap'),
+          },
+       ]
+      );
+    }, 2000);
+  };
 
   if (loading) {
     return (
@@ -91,6 +113,16 @@ export const PayMethodComponent = ({ navigation }) => {
         right={(props) => <Image source={qrImage} />}
         onPress={() => navigation.navigate('QrMethod')}
       />
+
+      <Button
+        mode="contained"
+        style={styles.payButton}
+        loading={isPaying}
+        disabled={isPaying}
+        onPress={handlePayment}
+      >
+        Pagar
+      </Button>
     </ScrollView>
   );
 };
