@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 
 import { View, StyleSheet, Image } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
-import visa from '../../../assets/visa.png';
 import { Controller, useForm } from 'react-hook-form';
+
 import { useDebitCards } from '../../Stores/global.store';
 import { deleteDebitCard, saveDebitCard } from '../../services/api.services';
+import visa from '../../../assets/visa.png';
 
 export const DebitCardComponent = ({ navigation }) => {
   const {

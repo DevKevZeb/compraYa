@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Text, List, Checkbox } from 'react-native-paper';
+import { Button, Text, List, Checkbox, ActivityIndicator } from 'react-native-paper';
 import { View, StyleSheet, Image, ScrollView } from 'react-native';
 import qrImage from '../../../assets/qrImage.png';
-import visa from '../../../assets/visa.png';
 import { useDebitCards } from '../../Stores/global.store';
+import DebitCardItem from '../../components/debitCardItem.component';
 
 export const PayMethodComponent = ({ navigation }) => {
   const {
@@ -18,21 +18,16 @@ export const PayMethodComponent = ({ navigation }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
 
   useEffect(() => {
-    const fetchDebitCards = async () => {
-      setLoading(true);
-      await refreshDebitCards();
-    };
-
-    fetchDebitCards();
+    setLoading(true);
+    refreshDebitCards();
   }, [setLoading, refreshDebitCards]);
 
-  const handleSelectMethod = (methodId) => {
-    setSelectedMethod(methodId);
-  };
+  const handleSelectMethod = (methodId) => setSelectedMethod(methodId);
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
+        <ActivityIndicator size='large' color='#9C7CFE' />
         <Text style={styles.loadingText}>Cargando métodos de pago...</Text>
       </View>
     );
@@ -47,7 +42,7 @@ export const PayMethodComponent = ({ navigation }) => {
       <List.Item
         title='Nueva Tarjeta'
         style={styles.listItem}
-        right={(props) => (
+        right={() => (
           <Button
             mode='contained'
             style={styles.buttonItem}
@@ -64,40 +59,22 @@ export const PayMethodComponent = ({ navigation }) => {
 
       {debitCards.length > 0 ? (
         debitCards.map((method, index) => (
-          <View key={`debit-card-${index}`} style={styles.debitCard}>
-            <View style={styles.cardHeader}>
-              <Image source={visa} style={styles.cardIcon} />
-              <Checkbox
-                status={
-                  selectedMethod === method.metodo_pago_id
-                    ? 'checked'
-                    : 'unchecked'
-                }
-                onPress={() => handleSelectMethod(method.metodo_pago_id)}
-              />
-            </View>
-            <Text style={styles.textCardDebit} variant='titleMedium'>
-              {method.tarjetas_pago.last3
-                ? `**** **** **** ${method.tarjetas_pago.last3}`
-                : 'Sin detalles'}
-            </Text>
-            <Button
-              mode='contained'
-              style={styles.buttonCardDebit}
-              onPress={() => {
-                setEditing(true);
-                setCardDetails({
-                  metodo_pago_id: method.metodo_pago_id,
-                  last3: method.tarjetas_pago?.last3 || '',
-                  marca: method.tarjetas_pago?.marca || '',
-                  fecha_expiracion: method.tarjetas_pago?.fecha_expiracion || '',
-                });
-                navigation.navigate('DebitCard');
-              }}
-            >
-              Editar
-            </Button>
-          </View>
+          <DebitCardItem
+            key={`debit-card-${index}`}
+            method={method}
+            isSelected={selectedMethod === method.metodo_pago_id}
+            onSelect={() => handleSelectMethod(method.metodo_pago_id)}
+            onEdit={() => {
+              setEditing(true);
+              setCardDetails({
+                metodo_pago_id: method.metodo_pago_id,
+                last3: method.tarjetas_pago[0]?.last3 || '',
+                marca: method.tarjetas_pago[0]?.marca || '',
+                fecha_expiracion: method.tarjetas_pago[0]?.fecha_expiracion || '',
+              });
+              navigation.navigate('DebitCard');
+            }}
+          />
         ))
       ) : (
         <Text style={styles.noMethodsText}>
@@ -132,35 +109,6 @@ const styles = StyleSheet.create({
   },
   buttonItem: {
     backgroundColor: '#9C7CFE',
-  },
-  debitCard: {
-    width: 353,
-    height: 185,
-    backgroundColor: '#EADDFF',
-    marginTop: 13,
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 15,
-    padding: 10,
-  },
-  cardHeader: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  cardIcon: {
-    marginLeft: 20,
-  },
-  textCardDebit: {
-    marginLeft: 20,
-    marginTop: 15,
-  },
-  buttonCardDebit: {
-    width: '40%',
-    backgroundColor: '#9C7CFE',
-    marginLeft: 20,
-    marginTop: 6,
   },
   noMethodsText: {
     textAlign: 'center',
