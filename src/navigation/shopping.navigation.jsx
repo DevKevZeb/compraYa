@@ -40,7 +40,7 @@ export const ShoppingNavigation = () => {
 			<Stack.Screen
 				name='DebitCard'
 				component={DebitCardComponent}
-				options={{ headerTitle: 'Agregar Tarjeta' }}
+				options={{ headerTitle: 'Tarjeta debito' }}
 			/>
 		</Stack.Navigator>
 	);
