@@ -16,6 +16,30 @@ export const DeliveryMapComponent = () => {
     longitude: -99.1500,
   };
 
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [initialRegion, setInitialRegion] = useState({
+    latitude: STORE_LOCATION.latitude,
+    longitude: STORE_LOCATION.longitude,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  });
+
+  // Request location permissions
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
   // Get current location
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
