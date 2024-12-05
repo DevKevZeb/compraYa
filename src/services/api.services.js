@@ -1,14 +1,11 @@
 import { supabase } from '../../lib/initSupaBase';
-import {
-	useCategory,
-	useProduct,
-} from '../Stores/global.store';
+import { useCategory, useProduct } from '../Stores/global.store';
 export const getNameCategory = async () => {
 	try {
 		const { data: categorías, error } = await supabase
 			.from('categorías')
 			.select('*')
-			.order('categoria_id',{ascending: true});
+			.order('categoria_id', { ascending: true });
 		if (error) {
 			console.error('Error al obtener los datos:', error);
 			return { error };
@@ -21,25 +18,25 @@ export const getNameCategory = async () => {
 };
 
 export const getProductsBySearch = async (valueSearch) => {
-    try {
-        const { data: productos, error } = await supabase
-            .from('productos')
-            .select('*')
-            .ilike('nombre_producto', `%${valueSearch}%`);
-        if (error) {
-            console.error('Error al obtener los datos:', error);
-            return { error };
-        }
-        if (productos.length === 0) {
-            useProduct.getState().setNoProductsFound(true);
-        } else {
-            useProduct.getState().setNoProductsFound(false);
-            useProduct.getState().setDataProductsSearch(productos);
-        }
-    } catch (error) {
-        console.error('Error en la solicitud:', error);
-        return { error };
-    }
+	try {
+		const { data: productos, error } = await supabase
+			.from('productos')
+			.select('*')
+			.ilike('nombre_producto', `%${valueSearch}%`);
+		if (error) {
+			console.error('Error al obtener los datos:', error);
+			return { error };
+		}
+		if (productos.length === 0) {
+			useProduct.getState().setNoProductsFound(true);
+		} else {
+			useProduct.getState().setNoProductsFound(false);
+			useProduct.getState().setDataProductsSearch(productos);
+		}
+	} catch (error) {
+		console.error('Error en la solicitud:', error);
+		return { error };
+	}
 };
 export const getProductId = async (categoryId) => {
 	try {
@@ -81,36 +78,51 @@ export const getProductAtributeId = async () => {
 };
 
 export const getPopularProducts = async () => {
-    try {
-        const { data: productos, error } = await supabase
-            .from('productos')
-            .select('*')
-            .order('popularidad', { ascending: false })
-            .limit(10);
-        if (error) {
-            console.error('Error al obtener los datos:', error);
-            return { error };
-        }
-        useProduct.getState().setDataProductsCategory(productos);
-    } catch (error) {
-        console.error('Error en la solicitud:', error);
-        return { error };
-    }
+	try {
+		const { data: productos, error } = await supabase
+			.from('productos')
+			.select('*')
+			.order('popularidad', { ascending: false })
+			.limit(10);
+		if (error) {
+			console.error('Error al obtener los datos:', error);
+			return { error };
+		}
+		useProduct.getState().setDataProductsCategory(productos);
+	} catch (error) {
+		console.error('Error en la solicitud:', error);
+		return { error };
+	}
 };
 
 export const getAllProducts = async () => {
-    try {
-        const { data: productos, error } = await supabase
-            .from('productos')
-            .select('*')
+	try {
+		const { data: productos, error } = await supabase
+			.from('productos')
+			.select('*')
 			.order('producto_id', { ascending: false });
-        if (error) {
-            console.error('Error al obtener los datos:', error);
-            return { error };
-        }
-        useProduct.getState().setDataProductsCategory(productos);
-    } catch (error) {
-        console.error('Error en la solicitud:', error);
-        return { error };
-    }
+		if (error) {
+			console.error('Error al obtener los datos:', error);
+			return { error };
+		}
+		useProduct.getState().setDataProductsCategory(productos);
+	} catch (error) {
+		console.error('Error en la solicitud:', error);
+		return { error };
+	}
+};
+export const getProducts = async () => {
+	try {
+		let { data: productos, error } = await supabase
+			.from('productos')
+			.select('*');
+		if (error) {
+			console.error('Error al obtener los datos:', error);
+			return { error };
+		}
+		useProduct.getState().setAllProducts(productos);
+	} catch (error) {
+		console.error('Error en la solicitud:', error);
+		return { error };
+	}
 };
