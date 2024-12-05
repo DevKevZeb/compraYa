@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CustomNavigationBarProducts } from '../components/CustomNavigationBarProductos';
 
-import { UserProfile } from '../screen/UserProfile/userProfile.component';
+import { UserProfile } from '../screen/UserProfile/UserProfile.component';
 
 const Stack = createNativeStackNavigator();
 
