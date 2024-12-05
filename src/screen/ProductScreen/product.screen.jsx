@@ -53,7 +53,6 @@ export const ProductScreen = () => {
 	);
 
 	const onChangeSearch = (query) => {
-		// resetProductCategory();
 		setSearchQuery(query);
 		debouncedSearch(query);
 	};
@@ -95,16 +94,8 @@ export const ProductScreen = () => {
         getProductId(idCategory);
     }, [idCategory])
     
-	// useEffect(() => {
-	// 	if (idCategory == -1) {
-	// 		//Solicitar productos sin filtrado
-	// 		getAllProducts();
-	// 	} else {
-	// 		getProductId(idCategory);
-	// 	}
-	// }, [idCategory]);
 	useEffect(() => {
-		getAllProducts();
+		getProducts();
 	}, []);
 
 	const showDialog = (Nombre) => {
