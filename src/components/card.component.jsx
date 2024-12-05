@@ -1,19 +1,19 @@
 import { useState, memo } from 'react';
 
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import { styles } from '../styles/globalStyle';
 import { useCartStore } from '../Stores/card.store';
-import { LoadingImageComponent } from './loadingImage.component';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export const CardComponent = memo(({ item, showDialog }) => {
-	const { nombre_producto, url_imagen, precio, producto_id } = item;
+	const { nombre_producto, url_imagen, precio, producto_id, popularidad } =
+		item;
 
 	// Acciones del carrito
 	const addToCart = useCartStore((state) => state.addToCart);
 	const removeFromCart = useCartStore((state) => state.removeFromCart);
 	const isInCart = useCartStore((state) => state.isInCart);
-
 
 	const emitNameProduct = () => {
 		showDialog(nombre_producto);
@@ -27,6 +27,43 @@ export const CardComponent = memo(({ item, showDialog }) => {
 		removeFromCart(producto_id);
 	};
 
+	const scaledPopularity = (popularidad / 100) * 5;
+
+	const renderStars = () => {
+		const stars = [];
+		for (let i = 1; i <= 5; i++) {
+			// Decidir si la estrella es llena, media o vacía
+			if (i <= Math.floor(scaledPopularity)) {
+				stars.push(
+					<MaterialIcons
+						key={i}
+						name='star'
+						size={20}
+						color='gold'
+					/>
+				);
+			} else if (i - 0.5 <= scaledPopularity) {
+				stars.push(
+					<MaterialIcons
+						key={i}
+						name='star-half'
+						size={20}
+						color='gold'
+					/>
+				);
+			} else {
+				stars.push(
+					<MaterialIcons
+						key={i}
+						name='star-border'
+						size={20}
+						color='gold'
+					/>
+				);
+			}
+		}
+		return stars;
+	};
 	return (
 		<Card
 			style={styles.card}
@@ -43,6 +80,12 @@ export const CardComponent = memo(({ item, showDialog }) => {
 			<Card.Content style={{ marginTop: 20 }}>
 				<Text>Precio: {precio} c/u</Text>
 				<Text>Color: Negro - Rojo</Text>
+				<View style={styleCard.startsRow}>
+					<Text style={styleCard.startsContainer}>
+						 {renderStars()}
+					</Text>
+					<Text>{popularidad}%</Text>
+				</View>
 			</Card.Content>
 			<Card.Actions>
 				{isInCart(producto_id) && (
@@ -67,4 +110,15 @@ export const CardComponent = memo(({ item, showDialog }) => {
 			</Card.Actions>
 		</Card>
 	);
+});
+
+const styleCard = StyleSheet.create({
+	startsRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	startsContainer: {
+		flexDirection:'row',
+		alignItems: 'center'
+	},
 });
