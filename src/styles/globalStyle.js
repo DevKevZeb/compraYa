@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
 	scrollCard: {
 		marginTop: 5,
 		padding: 10,
-		marginBottom: 250,
+		height:'80%'
 	},
 	containerSafe: {
 		flex: 1,

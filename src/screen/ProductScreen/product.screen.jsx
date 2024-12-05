@@ -31,12 +31,13 @@ export const ProductScreen = () => {
 	const resetProductSearch = useProduct((state) => state.resetProductSearch);
 	const setNoProductsFound = useProduct((state) => state.setNoProductsFound); // Nueva función
 
-    const cartItems = useCartStore((state) => state.cartItems);
+	const cartItems = useCartStore((state) => state.cartItems);
 	// Local state
 	const [idCategory, setidCategory] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [detailsProduct, setdetailsProduct] = useState({});
+	const [productAll, setproductAll] = useState(false);
 
 	const handleSearch = (searchQuery) => {
 		if (searchQuery.trim() === '') {
@@ -68,6 +69,7 @@ export const ProductScreen = () => {
 
 	const filterCategory = async (nameCategory) => {
 		resetProductSearch();
+
 		setNoProductsFound(false); // Restablecer la bandera al seleccionar una categoría
 		if (nameCategory === 'Todos') {
 			await getAllProducts();
@@ -81,6 +83,7 @@ export const ProductScreen = () => {
 			);
 			myCategory ? setidCategory(myCategory.categoria_id) : null;
 		}
+		setproductAll(false);
 	};
 
 	useEffect(() => {
@@ -90,12 +93,13 @@ export const ProductScreen = () => {
 	useEffect(() => {
 		getNameCategory();
 	}, []);
-    useEffect(() => {
-        getProductId(idCategory);
-    }, [idCategory])
-    
+	useEffect(() => {
+		getProductId(idCategory);
+	}, [idCategory]);
+
 	useEffect(() => {
 		getProducts();
+		setproductAll(true);
 	}, []);
 
 	const showDialog = (Nombre) => {
@@ -151,11 +155,9 @@ export const ProductScreen = () => {
 						}
 					/>
 				)}
-				{productsAll.length > 0 && (
+				{productAll && (
 					<FlatList
-						data={
-							productsAll
-						}
+						data={productsAll}
 						renderItem={renderProductItem}
 						keyExtractor={(item) =>
 							item.id ? item.id.toString() : Math.random().toString()
