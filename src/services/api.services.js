@@ -115,7 +115,8 @@ export const getProducts = async () => {
 	try {
 		let { data: productos, error } = await supabase
 			.from('productos')
-			.select('*');
+			.select('*')
+			.order('producto_id', { ascending: false });
 		if (error) {
 			console.error('Error al obtener los datos:', error);
 			return { error };

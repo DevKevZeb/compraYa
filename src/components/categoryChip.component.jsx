@@ -5,7 +5,7 @@ import { useCategory } from '../Stores/global.store';
 import { styles } from '../styles/globalStyle';
 
 export const CategoryChipComponent = ({filterCategory}) => {
-	const [selectedChip, setSelectedChip] = useState(null);
+	const [selectedChip, setSelectedChip] = useState('todos');
 	const categorys = useCategory((state) => state.categorys);
 
 	const handleChipPress = (id, nombre_categoria) => {
@@ -25,7 +25,7 @@ export const CategoryChipComponent = ({filterCategory}) => {
                 onPress={() => handleChipPress('todos', 'Todos')}
                 style={[
                     styles.chip,
-                    selectedChip === 'todos' && styles.selectedChip,
+                    selectedChip === 'todos'&& styles.selectedChip,
                 ]}
                 key='todos'
             >
