@@ -49,3 +49,15 @@ export const RecoverySchema = z.object({
 		.string()
 		.min(6, 'La contraseña debe de tener al menos 6 caracteres'),
 });
+
+export const DataUserSchema = z.object({
+	name: z.string().min(1, 'El nombre es obligatorio'),
+	email: z
+		.string()
+		.email('Correo Invalido')
+		.min(1, 'El correo es obligatorio')
+		.regex(
+			/^(?!.*@((?!gmail\.com|hotmail\.com|outlook\.com).)*$).*$/,
+			'El correo debe ser de Gmail, Hotmail o Outlook'
+		),
+});
