@@ -38,7 +38,7 @@ export const CardComponent = memo(({ item, showDialog }) => {
 					<MaterialIcons
 						key={i}
 						name='star'
-						size={20}
+						size={40}
 						color='gold'
 					/>
 				);
@@ -47,7 +47,7 @@ export const CardComponent = memo(({ item, showDialog }) => {
 					<MaterialIcons
 						key={i}
 						name='star-half'
-						size={20}
+						size={40}
 						color='gold'
 					/>
 				);
@@ -56,7 +56,7 @@ export const CardComponent = memo(({ item, showDialog }) => {
 					<MaterialIcons
 						key={i}
 						name='star-border'
-						size={20}
+						size={40}
 						color='gold'
 					/>
 				);
