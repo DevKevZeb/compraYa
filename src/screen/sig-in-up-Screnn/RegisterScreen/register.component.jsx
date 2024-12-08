@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, Divider, Text } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import face from "../../../../assets/face.png";
@@ -9,6 +9,7 @@ import google from "../../../../assets/google.png";
 import { supabase } from "../../../../lib/initSupaBase";
 import { CustomInputComponent } from "../../../components/CustomInput.component";
 import { RegisterSchema } from "../../../models/form.model";
+import { useUserStore } from '../../../Stores/user.store'; // Importar useUserStore
 
 export const RegisterComponent = ({ navigation }) => {
   const {
@@ -28,13 +29,14 @@ export const RegisterComponent = ({ navigation }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const setUser = useUserStore((state) => state.setUser); // Utilizar setUser
 
   const onSubmit = async (data) => {
     setLoading(true);
     const { name, email, password } = data;
 
     // Registrar usuario en Supabase Auth
-    const { error: authError } = await supabase.auth.signUp({
+    const { error: authError, user } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -50,15 +52,13 @@ export const RegisterComponent = ({ navigation }) => {
     }
 
     // Guardar información del usuario en la tabla "usuarios"
-    const { error: dbError } = await supabase
-      .from("usuarios")
-      .insert([
-        {
-          nombre_usuario: name,
-          correo_electronico: email,
-          contraseña_hash: password,
-        },
-      ]);
+    const { error: dbError } = await supabase.from("usuarios").insert([
+      {
+        nombre_usuario: name,
+        correo_electronico: email,
+        contraseña_hash: password,
+      },
+    ]);
 
     setLoading(false);
 
@@ -69,16 +69,15 @@ export const RegisterComponent = ({ navigation }) => {
         text2: dbError.message,
       });
     } else {
+      setUser(user); // Almacenar la información del usuario en el estado global
       Toast.show({
         type: "success",
         text1: "Success",
-        text2:
-          "Por favor, verifica tu correo electrónico para completar el registro.",
+        text2: "Por favor, verifica tu correo electrónico para completar el registro.",
       });
       reset();
-      navigation.navigate("SigIn");
+      navigation.navigate("SignIn");
     }
-
   };
 
   return (

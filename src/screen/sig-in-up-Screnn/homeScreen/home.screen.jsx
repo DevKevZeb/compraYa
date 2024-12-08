@@ -10,7 +10,7 @@ export const HomeScreen = ({ navigation }) => {
 			<View style={styles.buttonContainer}>
 				<Button
 					mode='contained'
-					onPress={() => navigation.navigate('SigIn')}
+					onPress={() => navigation.navigate('SignIn')}
 					style={styles.button}
 				>
 					Ingresar
