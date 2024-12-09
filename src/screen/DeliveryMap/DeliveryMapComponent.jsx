@@ -68,7 +68,7 @@ export const DeliveryMapComponent = () => {
     const getLocation = async () => {
       const hasPermission = await requestLocationPermission();
       if (hasPermission) {
-        // getCurrentLocation();
+       // getCurrentLocation();
       }
     };
 
@@ -100,7 +100,7 @@ export const DeliveryMapComponent = () => {
         />
 
         {/* Tracking Line */}
-        {currentLocation && (
+        {/* {currentLocation && (
           <Polyline
             coordinates={[
               currentLocation,
@@ -110,7 +110,7 @@ export const DeliveryMapComponent = () => {
             strokeColor="#000"
             strokeWidth={3}
           />
-        )}
+        )} */}
       </MapView>
       <Text style={styles.infoText}>Tu pedido está en camino.</Text>
     </View>

@@ -26,10 +26,10 @@ export const PayMethodComponent = ({ navigation }) => {
   const handleSelectMethod = (methodId) => setSelectedMethod(methodId);
 
   const handlePayment = () => {
-    if (!selectedMethod) {
-      Alert.alert('Selecciona un método de pago', 'Por favor selecciona un método de pago antes de continuar.');
-      return;
-    }
+    // if (!selectedMethod) {
+    //   Alert.alert('Selecciona un método de pago', 'Por favor selecciona un método de pago antes de continuar.');
+    //   return;
+    // }
     setIsPaying(true);
     setTimeout(() => {
       setIsPaying(false);

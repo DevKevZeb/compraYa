@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image,Text } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import { Controller, useForm } from 'react-hook-form';
 
