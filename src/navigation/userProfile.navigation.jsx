@@ -1,37 +1,35 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CustomNavigationBarProducts } from '../components/CustomNavigationBarProductos';
-
 import { UserProfile } from '../screen/UserProfile/UserProfile.component';
 import { DataUserProfile } from '../screen/UserProfile/DataUserProfile.component';
 
 const Stack = createNativeStackNavigator();
 
 export const UserProfileNavigation = () => {
-	return (
-		<Stack.Navigator
-			initialRouteName='User'
-			screenOptions={({ navigation, route }) => ({
-				header: (props) => (
-					<CustomNavigationBarProducts
-						{...props}
-						navigation={navigation}
-						route={route}
-					/>
-				),
-			})}
-		>
-			<Stack.Screen
-				name='UserProfile'
-				component={UserProfile}
-				options={{ headerTitle: 'Perfil de Usuario' }}
-			/>
-			<Stack.Screen
-				name='DataUser'
-				component={DataUserProfile}
-				options={{ headerTitle: 'Actualiza tus datos' }}
-			/>
-
-		</Stack.Navigator>
-	);
+    return (
+        <Stack.Navigator
+            initialRouteName='UserProfile'
+            screenOptions={({ navigation, route }) => ({
+                header: (props) => (
+                    <CustomNavigationBarProducts
+                        {...props}
+                        navigation={navigation}
+                        route={route}
+                    />
+                ),
+            })}
+        >
+            <Stack.Screen
+                name='UserProfile'
+                component={UserProfile}
+                options={{ headerTitle: 'Perfil de Usuario' }}
+            />
+            <Stack.Screen
+                name='DataUserProfile'
+                component={DataUserProfile}
+                options={{ headerTitle: 'Actualiza tus datos' }}
+            />
+        </Stack.Navigator>
+    );
 };
