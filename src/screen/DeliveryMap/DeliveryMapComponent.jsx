@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, PermissionsAndroid, Platform } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+// import Geolocation from '@react-native-community/geolocation';
 
 export const DeliveryMapComponent = () => {
   // Store location (fixed location)
@@ -68,7 +68,7 @@ export const DeliveryMapComponent = () => {
     const getLocation = async () => {
       const hasPermission = await requestLocationPermission();
       if (hasPermission) {
-        getCurrentLocation();
+        // getCurrentLocation();
       }
     };
 
