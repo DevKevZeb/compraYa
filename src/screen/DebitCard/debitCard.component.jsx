@@ -20,7 +20,6 @@ export const DebitCardComponent = ({ navigation }) => {
 		refreshDebitCards,
 		setLoading,
 	} = useDebitCards();
-	console.log(cardDetails);
 	const {
 		control,
 		handleSubmit,
@@ -81,7 +80,7 @@ export const DebitCardComponent = ({ navigation }) => {
 			}
 
 			alert(result.message);
-			refreshDebitCards(); // Refresh store after deleting
+			refreshDebitCards(userId); // Refresh store after deleting
 			navigation.goBack();
 		} catch (error) {
 			alert('Error inesperado. Intente nuevamente.');

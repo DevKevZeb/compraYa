@@ -7,7 +7,7 @@ import { useCartStore } from '../Stores/card.store';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export const CardComponent = memo(({ item, showDialog }) => {
-	const { nombre_producto, url_imagen, precio, producto_id, popularidad } =
+	const { nombre_producto, url_imagen, precio, producto_id, popularidad,stok } =
 		item;
 
 	// Acciones del carrito
