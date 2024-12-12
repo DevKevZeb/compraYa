@@ -10,6 +10,8 @@ import visa from '../../../assets/visa.png';
 import { useUserStore } from '../../Stores/user.store';
 export const DebitCardComponent = ({ navigation }) => {
 	const user = useUserStore((state) => state.user);
+	const { userId } = user;
+
 	const {
 		isEditing,
 		cardDetails,
@@ -18,7 +20,7 @@ export const DebitCardComponent = ({ navigation }) => {
 		refreshDebitCards,
 		setLoading,
 	} = useDebitCards();
-
+	console.log(cardDetails);
 	const {
 		control,
 		handleSubmit,
@@ -35,9 +37,12 @@ export const DebitCardComponent = ({ navigation }) => {
 
 	useEffect(() => {
 		if (isEditing && cardDetails) {
+			const year = cardDetails.fecha_expiracion.slice(2,4)
+			const month = cardDetails.fecha_expiracion.slice(5, 7);
+			const newExpiryDate = `${month}/${year}`;
 			setValue('cardNumber', cardDetails.last3 || '');
-			setValue('expiryDate', cardDetails.fecha_expiracion || '');
-			setValue('userName', cardDetails.userName || '');
+			setValue('expiryDate',newExpiryDate  || '');
+			setValue('userName', user.nombre_usuario || '');
 		}
 	}, [isEditing, cardDetails, setValue]);
 
@@ -45,7 +50,7 @@ export const DebitCardComponent = ({ navigation }) => {
 		const { expiryDate } = data;
 		const [month, year] = expiryDate.split('/');
 		const formattedDate = `20${year}-${month}-01`;
-    const newData = {...data,expiryDate:formattedDate};
+		const newData = { ...data, expiryDate: formattedDate };
 		setLoading(true);
 		try {
 			const result = await saveDebitCard(newData, isEditing, cardDetails, user);
@@ -56,7 +61,7 @@ export const DebitCardComponent = ({ navigation }) => {
 			}
 			alert(result.message);
 			reset();
-			refreshDebitCards();
+			refreshDebitCards(userId);
 			navigation.goBack();
 		} catch (error) {
 			alert('Error inesperado. Intente nuevamente.');

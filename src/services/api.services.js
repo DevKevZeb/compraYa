@@ -130,7 +130,6 @@ export const getProducts = async () => {
 };
 
 export const getDebitCardsByUser = async (userId) => {
-	console.log(userId);
 	try {
 		useDebitCards.getState().setLoading(true);
 
@@ -149,7 +148,6 @@ export const getDebitCardsByUser = async (userId) => {
 			)
 			.eq('usuario_id', userId)
 			.eq('tipo_metodo', 'card');
-      //todo:los datos de tarjetas_pago mandan [[object-object]]
 		if (error) {
 			console.error('Error al obtener las tarjetas de débito:', error);
 			// Estado de error.
@@ -216,7 +214,6 @@ export const saveDebitCard = async (data, isEditing, cardDetails, userData) => {
 				last3: data.cardNumber,
 				fecha_expiracion: data.expiryDate,
 			});
-
 			if (error) {
 				console.error('Error saving card details:', error);
 				return { success: false, error };

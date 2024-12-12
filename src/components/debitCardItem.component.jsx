@@ -32,7 +32,7 @@ const DebitCardItem = ({ method, isSelected, onSelect, onEdit }) => {
 
 const styles = StyleSheet.create({
   debitCard: {
-    marginHorizontal: 16,
+    marginHorizontal:20,
     marginVertical: 8,
     padding: 16,
     backgroundColor: '#EADDFF',

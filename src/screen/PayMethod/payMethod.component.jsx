@@ -17,7 +17,6 @@ export const PayMethodComponent = ({ navigation }) => {
 		setEditing,
 		setCardDetails,
 	} = useDebitCards();
-	console.log(debitCards);
 	const user = useUserStore((state) => state.user);
 	const { userId } = user;
 	const [selectedMethod, setSelectedMethod] = useState(null);
@@ -25,17 +24,20 @@ export const PayMethodComponent = ({ navigation }) => {
 
 	useEffect(() => {
 		setLoading(true);
-		refreshDebitCards();
-		getDebitCardsByUser(userId);
+		refreshDebitCards(userId);
 	}, [setLoading, refreshDebitCards]);
+
+	useEffect(() => {
+		getDebitCardsByUser(userId);
+	}, [setLoading]);
 
 	const handleSelectMethod = (methodId) => setSelectedMethod(methodId);
 
 	const handlePayment = () => {
-		// if (!selectedMethod) {
-		//   Alert.alert('Selecciona un método de pago', 'Por favor selecciona un método de pago antes de continuar.');
-		//   return;
-		// }
+		if (!selectedMethod) {
+		  Alert.alert('Selecciona un método de pago', 'Por favor selecciona un método de pago antes de continuar.');
+		  return;
+		}
 		setIsPaying(true);
 		setTimeout(() => {
 			setIsPaying(false);
@@ -58,7 +60,7 @@ export const PayMethodComponent = ({ navigation }) => {
 	}
 
 	return (
-		<ScrollView>
+		<ScrollView style={styles.scrollContainer}>
 			<Text style={styles.containerText} variant='titleMedium'>
 				Tarjetas de credito y debito
 			</Text>
@@ -86,7 +88,7 @@ export const PayMethodComponent = ({ navigation }) => {
 					<DebitCardItem
 						key={`debit-card-${index}`}
 						method={method}
-						isSelected={selectedMethod === method.metodo_pago_id}
+						isSelected={selectedMethod === method.metodo_pago_id }
 						onSelect={() => handleSelectMethod(method.metodo_pago_id)}
 						onEdit={() => {
 							setEditing(true);
@@ -116,21 +118,26 @@ export const PayMethodComponent = ({ navigation }) => {
 				right={(props) => <Image source={qrImage} />}
 				onPress={() => navigation.navigate('QrMethod')}
 			/>
-
-			<Button
-				mode='contained'
-				style={styles.payButton}
-				loading={isPaying}
-				disabled={isPaying}
-				onPress={handlePayment}
-			>
-				Pagar
-			</Button>
+			<View style = {styles.contendButton}>
+				<Button
+					mode='contained'
+					style={styles.payButton}
+					loading={isPaying}
+					disabled={isPaying}
+					onPress={handlePayment}
+				>
+					Pagar
+				</Button>
+			</View>
 		</ScrollView>
 	);
 };
 
 const styles = StyleSheet.create({
+	scrollContainer:{
+		height:'100%',
+		marginBottom:10
+	},
 	containerText: {
 		marginLeft: 30,
 		marginTop: 20,
@@ -158,4 +165,14 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontWeight: 'bold',
 	},
+	contendButton: {
+		justifyContent:'center',
+		alignItems:'center',
+		marginTop:20
+	},
+	payButton:{
+		width:'50%',
+		backgroundColor:'#9C7CFE',
+		
+	}
 });
