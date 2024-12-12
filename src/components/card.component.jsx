@@ -7,7 +7,7 @@ import { useCartStore } from '../Stores/card.store';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export const CardComponent = memo(({ item, showDialog }) => {
-	const { nombre_producto, url_imagen, precio, producto_id, popularidad,stok } =
+	const { nombre_producto, url_imagen, precio, producto_id, popularidad,stock } =
 		item;
 
 	// Acciones del carrito
@@ -79,7 +79,7 @@ export const CardComponent = memo(({ item, showDialog }) => {
 			/>
 			<Card.Content style={{ marginTop: 20 }}>
 				<Text>Precio: {precio} c/u</Text>
-				<Text>Color: Negro - Rojo</Text>
+				<Text>Stock: {stock} unidades</Text>
 				<View style={styleCard.startsRow}>
 					<Text style={styleCard.startsContainer}>
 						 {renderStars()}

@@ -8,12 +8,13 @@ import { useCartStore } from '../../Stores/card.store';
 export const ShoppingScreen = ({ navigation }) => {
   const prouductSelected = useCartStore((state) => state.cartItems);
   /**To do: Arreglar el costo de envio de acuerdo a la direccion de envio.*/
-  const shippingCost = 100; //
+  // const shippingCost = 100; //
   const subTotal = prouductSelected.reduce(
     (total, item) => total + item.precio * item.cantidad,
     0,
   );
-  const total = subTotal + shippingCost;
+  // const total = subTotal + shippingCost;
+  const total = subTotal;
 
   return (
     <View style={styles.container}>
@@ -29,10 +30,10 @@ export const ShoppingScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.costContainer}>
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <Text variant='bodyMedium'>Costo Envio:</Text>
           <Text variant='bodyMedium'>{shippingCost} Bs</Text>
-        </View>
+        </View> */}
         <Divider style={styles.divider} />
         <View style={styles.row}>
           <Text variant='bodyMedium'>Subtotal:</Text>
