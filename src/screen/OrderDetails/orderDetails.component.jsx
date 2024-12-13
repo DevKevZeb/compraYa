@@ -99,6 +99,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
 					// loading={isPaying}
 					// disabled={isPaying}
 					// onPress={handlePayment}
+					onPress={() => navigation.navigate('DeliveryMap')} 
 				>
 					Pagar
 				</Button>
