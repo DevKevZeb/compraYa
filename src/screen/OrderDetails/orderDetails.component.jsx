@@ -26,7 +26,9 @@ export const OrderDetailsComponent = ({ navigation }) => {
 					style={styles.safeContainer}
 					edges={['left', 'right', 'bottom']}
 				>
-					<ScrollView></ScrollView>
+					<ScrollView>
+						{/*  todo:usar el customItemDetails para renderizar los productos seleccionados usan renderizado condicional */}
+					</ScrollView>
 				</SafeAreaView>
 			</View>
 			<Text variant='titleMedium' style={styles.text}>
