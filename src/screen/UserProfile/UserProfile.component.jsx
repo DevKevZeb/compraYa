@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { useUserStore } from '../../Stores/user.store';
 import { supabase } from '../../../lib/initSupaBase';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CustomListItemComponent } from '../../components/customListItem.component';
 
 export const UserProfile = ({ navigation }) => {
 	const user = useUserStore((state) => state.user);
@@ -45,11 +46,40 @@ export const UserProfile = ({ navigation }) => {
 					edges={['left', 'right', 'bottom']}
 				>
 					<ScrollView>
-						{/* todo:usar el customItemDetails para renderizar los productos seleccionados usan renderizado condicional */}
+						<CustomListItemComponent>
+							<View style={styles.history}>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Numero de orden:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										{' '}
+										123
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Direccion envio:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										{' '}
+										ayacucho esquina heroinas
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Monto Total:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										100 Bs
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Costo Envio:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										10 Bs
+									</Text>
+								</View>
+							</View>
+						</CustomListItemComponent>
 					</ScrollView>
 				</SafeAreaView>
 			</View>
-            <View style={styles.scrollContainer}>
+			<View style={styles.scrollContainer}>
 				<Text variant='headlineSmall' style={styles.text}>
 					Pedidos en curso
 				</Text>
@@ -58,7 +88,44 @@ export const UserProfile = ({ navigation }) => {
 					edges={['left', 'right', 'bottom']}
 				>
 					<ScrollView>
-						{/* todo:usar el customItemDetails para renderizar los productos seleccionados usan renderizado condicional aqui usaremos como envoltura el Touchable opacity */}
+						<CustomListItemComponent>
+							<View style={styles.history}>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Numero de orden:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										{' '}
+										123
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Direccion envio:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										{' '}
+										ayacucho esquina heroinas
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Monto Total:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										100 Bs
+									</Text>
+								</View>
+								<View style={styles.historyText}>
+									<Text variant='titleMedium'>Costo Envio:</Text>
+									<Text variant='titleSmall' style={styles.valueText}>
+										10 Bs
+									</Text>
+									<TouchableOpacity
+										onPress={() => navigation.navigate('DeliveryMap')}
+										style={styles.linkPedido}
+									>
+										<Text variant='bodyMedium' style={styles.textLink}>
+											ver en camino
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
+						</CustomListItemComponent>
 					</ScrollView>
 				</SafeAreaView>
 			</View>
@@ -102,5 +169,19 @@ const styles = StyleSheet.create({
 	},
 	text: {
 		paddingBottom: 10,
+	},
+	history: {
+		flexDirection: 'column',
+		paddingTop: 5,
+	},
+	historyText: {
+		flexDirection: 'row',
+	},
+	valueText: {
+		paddingTop: 3,
+	},
+	linkPedido: {
+		marginLeft: 100,
+		paddingTop: 0,
 	},
 });

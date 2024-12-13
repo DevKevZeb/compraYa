@@ -14,7 +14,7 @@ import { LogBox } from 'react-native';
 import { GOOGLE_MAPS_KEY } from '@env';
 
 export const DeliveryMapComponent = () => {
-	const addressTest = 'calle calama esquina san martin';
+	const addressTest = '';
 	LogBox.ignoreLogs([
 		'MapViewDirections Error: Error on GMAPS route request: NOT_FOUND',
 		'Directions error: Error on GMAPS route request: NOT_FOUND',

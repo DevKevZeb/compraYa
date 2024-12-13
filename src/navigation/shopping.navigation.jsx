@@ -5,7 +5,6 @@ import { CustomNavigationBarProducts } from '../components/CustomNavigationBarPr
 import { PayMethodComponent } from '../screen/PayMethod/payMethod.component';
 import { DebitCardComponent } from '../screen/DebitCard/debitCard.component';
 import { QrMethodComponent } from '../screen/QrMethod/qrMethod.component';
-import { DeliveryMapComponent } from '../screen/DeliveryMap/DeliveryMapComponent';
 import { OrderDetailsComponent } from '../screen/OrderDetails/orderDetails.component';
 const Stack = createNativeStackNavigator();
 export const ShoppingNavigation = () => {
@@ -52,11 +51,7 @@ export const ShoppingNavigation = () => {
 				component={OrderDetailsComponent}
 				options={{ headerTitle: 'Pedido' }}
 			/>
-			<Stack.Screen
-				name='DeliveryMap'
-				component={DeliveryMapComponent}
-				options={{ headerTitle: 'Dirección de envio' }}
-			/>
+			
 		</Stack.Navigator>
 	);
 };
