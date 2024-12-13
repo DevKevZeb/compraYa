@@ -9,7 +9,7 @@ import google from "../../../../assets/google.png";
 import { supabase } from "../../../../lib/initSupaBase";
 import { CustomInputComponent } from "../../../components/CustomInput.component";
 import { RegisterSchema } from "../../../models/form.model";
-import { useUserStore } from '../../../Stores/user.store'; // Importar useUserStore
+import { useUserStore } from "../../../Stores/user.store"; // Importar useUserStore
 
 export const RegisterComponent = ({ navigation }) => {
   const {
@@ -52,13 +52,17 @@ export const RegisterComponent = ({ navigation }) => {
     }
 
     // Guardar información del usuario en la tabla "usuarios"
-    const { error: dbError } = await supabase.from("usuarios").insert([
-      {
-        nombre_usuario: name,
-        correo_electronico: email,
-        contraseña_hash: password,
-      },
-    ]);
+    const { error: dbError, data: userData } = await supabase
+      .from("usuarios")
+      .insert([
+        {
+          nombre_usuario: name,
+          correo_electronico: email,
+          contraseña_hash: password,
+        },
+      ])
+      .select()
+      .single();
 
     setLoading(false);
 
@@ -69,11 +73,16 @@ export const RegisterComponent = ({ navigation }) => {
         text2: dbError.message,
       });
     } else {
-      setUser(user); // Almacenar la información del usuario en el estado global
+      setUser({
+        userId: userData.usuario_id,
+        email: user.email,
+        nombre_usuario: name,
+      });
       Toast.show({
         type: "success",
         text1: "Success",
-        text2: "Por favor, verifica tu correo electrónico para completar el registro.",
+        text2:
+          "Por favor, verifica tu correo electrónico para completar el registro.",
       });
       reset();
       navigation.navigate("SignIn");
