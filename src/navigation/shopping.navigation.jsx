@@ -50,7 +50,7 @@ export const ShoppingNavigation = () => {
 			<Stack.Screen
 				name='OrderDetails'
 				component={OrderDetailsComponent}
-				options={{ headerTitle: 'Detalles Pedido' }}
+				options={{ headerTitle: 'Pedido' }}
 			/>
 			<Stack.Screen
 				name='DeliveryMap'

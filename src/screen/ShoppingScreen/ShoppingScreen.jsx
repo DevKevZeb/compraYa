@@ -53,7 +53,7 @@ export const ShoppingScreen = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <Button
           mode='contained'
-          onPress={() => navigation.navigate('PayMethod')}
+          onPress={() => navigation.navigate('OrderDetails')}
           style={{ backgroundColor: '#9C7CFE' }}
         >
           Continuar

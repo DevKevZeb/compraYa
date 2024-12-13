@@ -118,7 +118,7 @@ export const PayMethodComponent = ({ navigation }) => {
 				right={(props) => <Image source={qrImage} />}
 				onPress={() => navigation.navigate('QrMethod')}
 			/>
-			<View style = {styles.contendButton}>
+			{/* <View style = {styles.contendButton}>
 				<Button
 					mode='contained'
 					style={styles.payButton}
@@ -128,7 +128,7 @@ export const PayMethodComponent = ({ navigation }) => {
 				>
 					Pagar
 				</Button>
-			</View>
+			</View> */}
 		</ScrollView>
 	);
 };
