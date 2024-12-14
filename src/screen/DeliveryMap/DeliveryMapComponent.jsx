@@ -86,6 +86,7 @@ export const DeliveryMapComponent = ({ route }) => {
         initialRegion={initialRegion}
         showsUserLocation={true}
         followsUserLocation={true}
+        cameraZoomRange={5}
       >
         {/* Store Marker */}
         <Marker
