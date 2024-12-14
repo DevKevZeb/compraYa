@@ -40,7 +40,6 @@ export const ShoppingScreen = ({ navigation }) => {
           <Text variant='bodyMedium'>Costo Envio:</Text>
           <Text variant='bodyMedium'>{shippingCost} Bs</Text>
         </View> */}
-        <Divider style={styles.divider} />
         <View style={styles.row}>
           <Text variant="bodyMedium">Subtotal:</Text>
           <Text variant="bodyMedium">{subTotal.toFixed(2)} Bs</Text>
