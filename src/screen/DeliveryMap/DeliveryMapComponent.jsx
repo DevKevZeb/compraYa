@@ -6,8 +6,9 @@ import { LogBox, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 
-export const DeliveryMapComponent = () => {
-  const addressTest = "av. heroinas y oquendo";
+export const DeliveryMapComponent = ({ route }) => {
+  const { direccion_envio } = route.params || {};
+  const addressTest = direccion_envio ? `"${direccion_envio}"` : "";
   LogBox.ignoreLogs([
     "MapViewDirections Error: Error on GMAPS route request: NOT_FOUND",
     "Directions error: Error on GMAPS route request: NOT_FOUND",

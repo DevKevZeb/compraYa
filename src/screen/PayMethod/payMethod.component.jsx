@@ -31,7 +31,13 @@ export const PayMethodComponent = ({ navigation }) => {
     getDebitCardsByUser(userId);
   }, [setLoading]);
 
-  const handleSelectMethod = (methodId) => setSelectedMethod(methodId);
+  const handleSelectMethod = (methodId) => {
+    if (selectedMethod === methodId) {
+      setSelectedMethod(null);
+    } else {
+      setSelectedMethod(methodId);
+    }
+  };
 
   const handlePayment = () => {
     if (!selectedMethod) {

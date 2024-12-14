@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { useCartStore } from "../../Stores/card.store";
 import { useDebitCards } from "../../Stores/global.store";
+import { useUserStore } from "../../Stores/user.store";
 
 export const OrderDetailsComponent = ({ navigation }) => {
   const {
@@ -23,6 +24,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
   const cartItems = useCartStore((state) => state.cartItems);
   const saveOrder = useCartStore((state) => state.saveOrder);
   const selectedPaymentMethod = useDebitCards((state) => state.selectedMethod);
+  const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
   const shippingCost = 20;
   const subTotal = cartItems.reduce(
     (total, item) => total + item.precio * item.cantidad,
@@ -38,12 +40,13 @@ export const OrderDetailsComponent = ({ navigation }) => {
     }
 
     await saveOrder(data.address, selectedPaymentMethod, total);
+    await fetchUserOrders(); // Actualizar el estado de las órdenes
     Toast.show({
       type: "success",
       text1: "Pago realizado exitosamente",
       text2: "Tu pedido ha sido procesado.",
     });
-    navigation.navigate("listProducto");
+    navigation.navigate("listProducto", { direccion_envio: data.address });
   };
 
   return (
