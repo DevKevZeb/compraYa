@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
 	scrollCard: {
 		marginTop: 5,
 		padding: 10,
-		marginBottom: 250,
+		height:'80%'
 	},
 	containerSafe: {
 		flex: 1,
@@ -66,22 +66,30 @@ export const styles = StyleSheet.create({
 	toastContainer: {
 		height: 60,
 		width: '90%',
-		backgroundColor: '#fff', // Fondo blanco para el mensaje de error
+		backgroundColor: '#FAA61A', // Fondo blanco para el mensaje de error
 		borderRadius: 10,
 		padding: 10,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderColor: '#800080', // Borde morado
-		borderWidth: 3,
 	},
 	toastText1: {
 		fontSize: 16,
 		fontWeight: 'bold',
 		color: '#000', // Texto negro
 	},
-		toastText2: {
+	toastText2: {
 		fontSize: 14,
 		color: '#000', // Texto negro
+	},
+
+	toastError: {
+		backgroundColor: '#ff5f5f', // Color de fondo para notificaciones de error
 		},
+	toastSuccess: {
+		backgroundColor: '#4caf50', // Color de fondo para notificaciones de éxito
+		},
+	toastInfo: {
+		backgroundColor: '#FFA500', // Color de fondo para notificaciones de información (naranja)
+	},
 
 });

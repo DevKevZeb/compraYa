@@ -15,8 +15,6 @@ export const ListCardComponent = () => {
   const decreaseQuantity = (product) => {
     if (product.cantidad > 1) {
       setQuantity(product.producto_id, product.cantidad - 1);
-    } else {
-      removeFromCart(product.producto_id);
     }
   };
 
@@ -27,7 +25,7 @@ export const ListCardComponent = () => {
   return (
     <View style={{ marginBottom: 10 }}>
       {productSelected.map((element) => (
-        <Card key={element.producto_id} style={{ marginBottom: 10 }}>
+        <Card key={element.producto_id} style={{ marginBottom: 10}}>
           <Card.Title
             title={element.nombre_producto}
             subtitle={`Precio: ${element.precio}`}
@@ -40,28 +38,23 @@ export const ListCardComponent = () => {
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => increaseQuantity(element)}
-              style={{backgroundColor:"#9C7CFE"}}
-
-            >
-            </Button>
+              style={{ backgroundColor: '#9C7CFE' }}
+            ></Button>
             <Text variant='headlineSmall'>{element.cantidad}</Text>
             <Button
               icon='minus'
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => decreaseQuantity(element)}
-              style={{backgroundColor:"#9C7CFE"}}
-
-            >
-            </Button>
+              style={{ backgroundColor: '#9C7CFE' }}
+            ></Button>
             <Button
               icon='delete'
               mode='contained'
               labelStyle={{ marginLeft: 10 }}
               onPress={() => deleteProduct(element.producto_id)}
-              style={{backgroundColor:"#9C7CFE"}}
-            >
-            </Button>
+              style={{ backgroundColor: '#9C7CFE' }}
+            ></Button>
           </Card.Actions>
         </Card>
       ))}
