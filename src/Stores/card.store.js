@@ -217,4 +217,58 @@ export const useCartStore = create((set, get) => ({
     const cartItems = get().cartItems;
     return cartItems.some(item => item.producto_id === productId);
   },
+
+  saveOrder: async (address, paymentMethodId, totalAmount) => {
+    const userId = useUserStore.getState().user?.userId;
+    const shippingCost = 20;
+    const orderStatus = 'pendiente';
+    const trackingNumber = Math.floor(1000 + Math.random() * 9000).toString();
+    const currentDate = new Date().toISOString();
+
+    if (!userId) {
+      console.error('User not logged in');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('ordenes')
+        .insert([{
+          usuario_id: userId,
+          direccion_envio: address,
+          metodo_pago: paymentMethodId,
+          monto_total: totalAmount,
+          costo_envio: shippingCost,
+          estado: orderStatus,
+          numero_seguimiento: trackingNumber,
+          fecha: currentDate,
+        }]);
+
+      if (error) {
+        console.error('Error saving order:', error.message || error);
+        return;
+      }
+
+      console.log('Order saved:', data);
+
+      // Vaciar el carrito
+      const cartId = get().cartId;
+      if (cartId) {
+        await supabase
+          .from('items_carrito')
+          .delete()
+          .eq('carrito_id', cartId);
+
+        await supabase
+          .from('carrito_compras')
+          .delete()
+          .eq('carrito_id', cartId);
+
+        set({ cartItems: [], cartId: null });
+        console.log('Cart cleared');
+      }
+    } catch (error) {
+      console.error('Error saving order:', error.message || error);
+    }
+  },
 }));

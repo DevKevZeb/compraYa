@@ -34,6 +34,7 @@ export const useDebitCards = create((set) => ({
 	error: null,
 	isEditing: false,
 	cardDetails: null,
+	selectedMethod: null,
 
 	// Set debit cards data
 	setDebitCards: (newData) =>
@@ -67,6 +68,7 @@ export const useDebitCards = create((set) => ({
 		})),
 	setEditing: (editing) => set(() => ({ isEditing: editing })),
 	setCardDetails: (details) => set(() => ({ cardDetails: details })),
+	setSelectedMethod: (methodId) => set(() => ({ selectedMethod: methodId })),
 	refreshDebitCards: async (userId) => {
 		set(() => ({ loading: true }));
 		try {
