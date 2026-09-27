@@ -35,19 +35,20 @@ through a **transactional RPC**, so prices and stock can never be tampered with 
 - **Orders**: placed atomically by the `create_order` Postgres function, which prices items server-side,
   checks and decrements stock, and stores line items. Customers can track orders and confirm delivery.
 - **Delivery tracking**: route from the store to the delivery address with distance and ETA, using
-  **keyless** providers (native geocoder + OpenStreetMap Nominatim, OSRM routing).
+  **keyless** providers: a Leaflet map with OpenStreetMap tiles, the native geocoder with an
+  OpenStreetMap Nominatim fallback, and OSRM routing. No Google Maps API key is needed.
 - **Profile**: edit the display name, change the email (confirmed through Supabase Auth), order history.
 
 ## Tech stack
 
-| Area          | Tools                                                                                        |
-| ------------- | -------------------------------------------------------------------------------------------- |
-| App           | Expo SDK 57, React Native 0.86, React 19                                                     |
-| Navigation    | React Navigation 7 (native stack + bottom tabs)                                              |
-| UI            | React Native Paper (Material Design 3), `react-native-maps`, `react-native-qrcode-svg`       |
-| State & forms | Zustand (with persistence), React Hook Form, Zod                                             |
-| Backend       | Supabase: Postgres, Auth, row level security, RPC functions                                  |
-| Quality       | ESLint (`eslint-config-expo`), Prettier, Jest + React Native Testing Library, GitHub Actions |
+| Area          | Tools                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| App           | Expo SDK 57, React Native 0.86, React 19                                                               |
+| Navigation    | React Navigation 7 (native stack + bottom tabs)                                                        |
+| UI            | React Native Paper (Material Design 3), Leaflet (in `react-native-webview`), `react-native-qrcode-svg` |
+| State & forms | Zustand (with persistence), React Hook Form, Zod                                                       |
+| Backend       | Supabase: Postgres, Auth, row level security, RPC functions                                            |
+| Quality       | ESLint (`eslint-config-expo`), Prettier, Jest + React Native Testing Library, GitHub Actions           |
 
 ## Architecture
 
@@ -61,6 +62,7 @@ flowchart LR
 
   Services -->|"supabase-js<br/>(publishable key + user JWT)"| Supabase
   Services -->|geocoding| Nominatim["Device geocoder /<br/>OSM Nominatim"]
+  UI -->|"map tiles (WebView)"| OSM["OpenStreetMap<br/>+ Leaflet"]
   Services -->|routes| OSRM["OSRM"]
 
   subgraph Supabase
@@ -190,10 +192,9 @@ run offline. CI runs lint, formatting, tests and an Android bundle on every push
 - Payments are **simulated**: no payment gateway is involved.
 - Email confirmation is disabled in the demo project so sign up is instant. Password reset emails use
   Supabase's built-in email service, which is rate limited.
-- Nominatim and the public OSRM server are fair-use demo services. A production build should use a
-  commercial provider or self-hosted instances. Swapping providers only touches `src/services/maps.js`.
-- Standalone Android builds (EAS) would need a Google Maps SDK key for the map tiles. Expo Go works
-  without one.
+- OpenStreetMap tiles, Nominatim and the public OSRM server are fair-use demo services. A production
+  build should use a commercial provider or self-hosted instances. Swapping providers only touches
+  `src/services/maps.js` and `src/components/RouteMap.jsx`.
 
 Planned improvements:
 

@@ -28,7 +28,7 @@ export const ProfileNavigator = () => {
       <Stack.Screen
         name="DeliveryMap"
         component={DeliveryMapScreen}
-        options={{ headerTitle: 'Dirección de envio' }}
+        options={{ headerTitle: 'Seguimiento del pedido' }}
       />
     </Stack.Navigator>
   );

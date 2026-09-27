@@ -1,18 +1,10 @@
 import * as Location from 'expo-location';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
 import { ActivityIndicator, Surface, Text } from 'react-native-paper';
+import { RouteMap } from '../../components/RouteMap';
 import { STORE_LOCATION } from '../../config/store';
 import { geocodeAddress, getRoute } from '../../services/maps';
-
-const INITIAL_REGION = {
-  ...STORE_LOCATION,
-  latitudeDelta: 0.1,
-  longitudeDelta: 0.1,
-};
-
-const MAP_PADDING = { top: 80, right: 60, bottom: 160, left: 60 };
 
 // Without an address, fall back to the device location as the destination.
 const getCurrentPosition = async () => {
@@ -26,7 +18,6 @@ const getCurrentPosition = async () => {
 
 export const DeliveryMapScreen = ({ route }) => {
   const address = route.params?.direccion_envio?.trim() ?? '';
-  const mapRef = useRef(null);
   const [destination, setDestination] = useState(null);
   const [deliveryRoute, setDeliveryRoute] = useState(null);
   const [status, setStatus] = useState({ loading: true, error: null });
@@ -64,34 +55,13 @@ export const DeliveryMapScreen = ({ route }) => {
     };
   }, [address]);
 
-  // Frame the store, the destination and the route once they are known.
-  useEffect(() => {
-    if (!destination) return;
-    const points = deliveryRoute?.coordinates ?? [STORE_LOCATION, destination];
-    mapRef.current?.fitToCoordinates(points, { edgePadding: MAP_PADDING, animated: true });
-  }, [destination, deliveryRoute]);
-
   return (
     <View style={styles.container}>
-      <MapView ref={mapRef} style={styles.map} initialRegion={INITIAL_REGION} showsUserLocation>
-        <Marker
-          coordinate={STORE_LOCATION}
-          title="Tienda"
-          description="Punto de origen del pedido"
-          pinColor="green"
-        />
-        {destination && (
-          <Marker
-            coordinate={destination}
-            title="Destino"
-            description={address || 'Tu ubicación'}
-            pinColor="red"
-          />
-        )}
-        {deliveryRoute && (
-          <Polyline coordinates={deliveryRoute.coordinates} strokeColor="#9C7CFE" strokeWidth={6} />
-        )}
-      </MapView>
+      <RouteMap
+        store={STORE_LOCATION}
+        destination={destination}
+        route={deliveryRoute?.coordinates}
+      />
 
       <Surface style={styles.infoCard} elevation={3}>
         {status.loading ? (
@@ -117,9 +87,6 @@ export const DeliveryMapScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  map: {
     flex: 1,
   },
   infoCard: {
