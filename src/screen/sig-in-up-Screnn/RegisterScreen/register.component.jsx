@@ -9,7 +9,6 @@ import google from '../../../../assets/google.png';
 import { supabase } from '../../../../lib/initSupaBase';
 import { CustomInputComponent } from '../../../components/CustomInput.component';
 import { RegisterSchema } from '../../../models/form.model';
-import { useUserStore } from '../../../Stores/user.store'; // Importar useUserStore
 
 export const RegisterComponent = ({ navigation }) => {
   const {
@@ -29,63 +28,44 @@ export const RegisterComponent = ({ navigation }) => {
   });
 
   const [loading, setLoading] = useState(false);
-  const setUser = useUserStore((state) => state.setUser); // Utilizar setUser
 
   const onSubmit = async (data) => {
     setLoading(true);
     const { name, email, password } = data;
 
-    // Registrar usuario en Supabase Auth
-    const { error: authError, user } = await supabase.auth.signUp({
+    // The profile row is created by the on_auth_user_created database trigger,
+    // which reads the display name from the user metadata.
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
+      options: { data: { nombre_usuario: name } },
     });
 
-    if (authError) {
-      setLoading(false);
+    setLoading(false);
+
+    if (error) {
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: authError.message,
+        text2: error.message,
       });
       return;
     }
 
-    // Guardar información del usuario en la tabla "usuarios"
-    const { error: dbError, data: userData } = await supabase
-      .from('usuarios')
-      .insert([
-        {
-          nombre_usuario: name,
-          correo_electronico: email,
-          contraseña_hash: password,
-        },
-      ])
-      .select()
-      .single();
+    reset();
 
-    setLoading(false);
-
-    if (dbError) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: dbError.message,
-      });
-    } else {
-      setUser({
-        userId: userData.usuario_id,
-        email: user.email,
-        nombre_usuario: name,
-      });
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Por favor, verifica tu correo electrónico para completar el registro.',
-      });
-      reset();
-      navigation.navigate('SignIn');
+    // With email confirmation disabled Supabase signs the user in right away
+    // and the root navigator takes over.
+    if (signUpData.session) {
+      return;
     }
+
+    Toast.show({
+      type: 'success',
+      text1: 'Cuenta creada',
+      text2: 'Por favor, verifica tu correo electrónico para completar el registro.',
+    });
+    navigation.navigate('SignIn');
   };
 
   return (
