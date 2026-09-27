@@ -1,21 +1,18 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Text } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import { supabase } from '../../../lib/initSupaBase';
 import { CustomInputComponent } from '../../components/CustomInput.component';
 import { DataUserSchema } from '../../models/form.model';
 import { useUserStore } from '../../Stores/user.store';
-import { supabase } from '../../../lib/initSupaBase';
-import { useEffect } from 'react';
 
 export const DataUserProfile = ({ navigation }) => {
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors },
   } = useForm({
@@ -27,7 +24,7 @@ export const DataUserProfile = ({ navigation }) => {
     mode: 'onBlur',
   });
 
-  const [loading, setLoading] = useState(false); // Estado de carga
+  const [loading, setLoading] = useState(false);
   const setUser = useUserStore((state) => state.setUser);
   const user = useUserStore((state) => state.user);
 
@@ -38,74 +35,47 @@ export const DataUserProfile = ({ navigation }) => {
     }
   }, [user, setValue]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        navigation.goBack();
-        return true;
-      };
+  const showError = (message) =>
+    Toast.show({ type: 'error', text1: 'Error', text2: message, duration: 1000 });
 
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  const onSubmit = async ({ name, email }) => {
+    setLoading(true);
 
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [navigation])
-  );
-
-  const onSubmit = async (data) => {
-    setLoading(true); // Iniciar carga
-    const { name, email } = data;
-
-    // Actualizar el nombre del usuario en la tabla "usuarios"
     const { error: updateError } = await supabase
       .from('usuarios')
-      .update({ nombre_usuario: name, correo_electronico: email })
-      .eq('correo_electronico', user.email);
+      .update({ nombre_usuario: name })
+      .eq('usuario_id', user.userId);
 
     if (updateError) {
-      setLoading(false); // Detener carga
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'No se pudo actualizar el nombre del usuario.',
-        duration: 1000,
-      });
+      setLoading(false);
+      showError('No se pudo actualizar el nombre del usuario.');
       return;
     }
 
-    // Actualizar el correo electrónico del usuario autenticado
-    const { error: authError } = await supabase.auth.updateUser({
-      email: email,
-    });
-
-    if (authError) {
-      setLoading(false); // Detener carga
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'No se pudo actualizar el correo electrónico del usuario.',
-        duration: 1000,
-      });
-      return;
+    // Email changes go through Supabase Auth, which sends a confirmation email.
+    // A database trigger mirrors the confirmed address into the profile.
+    const emailChanged = email !== user.email;
+    if (emailChanged) {
+      const { error: authError } = await supabase.auth.updateUser({ email });
+      if (authError) {
+        setLoading(false);
+        showError('No se pudo actualizar el correo electrónico del usuario.');
+        return;
+      }
     }
 
-    // Actualizar el estado global con los nuevos datos del usuario
-    setUser({
-      ...user,
-      nombre_usuario: name,
-      email: email,
-    });
+    setUser({ ...user, nombre_usuario: name });
+    setLoading(false);
 
-    // Mostrar notificación de éxito
     Toast.show({
       type: 'success',
       text1: 'Éxito',
-      text2:
-        'La información del usuario se actualizó correctamente. Por favor, verifica tu nuevo correo electrónico.',
-      duration: 1000,
+      text2: emailChanged
+        ? 'Datos actualizados. Revisa tu correo para confirmar la nueva dirección.'
+        : 'Datos actualizados correctamente.',
+      duration: 1500,
     });
-
     navigation.goBack();
-    setLoading(false); // Detener carga
   };
 
   return (
