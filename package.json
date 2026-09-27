@@ -64,5 +64,7 @@
       "/node_modules/",
       "/supabase/"
     ]
-  }
+  },
+  "license": "MIT",
+  "author": "Wally Kevin Zeballos Oquendo"
 }
