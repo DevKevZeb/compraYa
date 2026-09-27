@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Text, Button, Divider } from 'react-native-paper';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as Linking from 'expo-linking';
+import Toast from 'react-native-toast-message';
+import { supabase } from '../../../../lib/initSupaBase';
+import { PASSWORD_RESET_PATH } from '../../../services/auth.service';
 
 import { CustomInputComponent } from '../../../components/CustomInput.component';
 import { ForgotSchema } from '../../../models/form.model';
@@ -21,10 +25,29 @@ export const ForgotPassword = ({ navigation }) => {
     resolver: zodResolver(ForgotSchema),
     mode: 'onBlur',
   });
-  const onSubmit = (data) => {
-    navigation.navigate('RecoveryPassword');
-    console.log(data);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async ({ email }) => {
+    setLoading(true);
+    // The email link opens the app (see RootNavigation), which then asks for a new password.
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: Linking.createURL(PASSWORD_RESET_PATH),
+    });
+    setLoading(false);
+
+    if (error) {
+      Toast.show({ type: 'error', text1: 'Error', text2: error.message });
+      return;
+    }
+
+    Toast.show({
+      type: 'success',
+      text1: 'Correo enviado',
+      text2: 'Abre el enlace del correo desde este teléfono para crear una nueva contraseña.',
+      visibilityTime: 6000,
+    });
     reset();
+    navigation.navigate('SignIn');
   };
   return (
     <View style={styles.container}>
@@ -43,7 +66,13 @@ export const ForgotPassword = ({ navigation }) => {
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Button mode="contained" style={styles.button} onPress={handleSubmit(onSubmit)}>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={handleSubmit(onSubmit)}
+          loading={loading}
+          disabled={loading}
+        >
           Enviar
         </Button>
       </View>
@@ -61,7 +90,7 @@ export const ForgotPassword = ({ navigation }) => {
       </View>
       <View style={styles.textContainer}>
         <Text variant="titleSmall">Ya tienes una cuenta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SigIn')}>
+        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
           <Text variant="titleSmall" style={{ color: '#0866FF' }}>
             Ingresa ahora
           </Text>

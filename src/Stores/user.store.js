@@ -5,6 +5,9 @@ export const useUserStore = create((set, get) => ({
   // Supabase auth session; the navigation tree is derived from it.
   session: null,
   authReady: false,
+  // True while the user is setting a new password from a reset link.
+  passwordRecovery: false,
+  setPasswordRecovery: (passwordRecovery) => set({ passwordRecovery }),
   user: null,
   setUser: (userData) => set(() => ({ user: userData })),
   clearUser: () => set(() => ({ user: null })),

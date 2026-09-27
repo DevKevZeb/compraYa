@@ -11,6 +11,7 @@ export const CustomInputComponent = ({
   error,
   placeholder,
   secureTextEntry = false,
+  keyboardType = 'default',
 }) => {
   return (
     <Controller
@@ -21,12 +22,13 @@ export const CustomInputComponent = ({
           <TextInput
             mode="outlined"
             label={label}
-            onChange={(value) => onChange(value)}
             type={type}
             placeholder={placeholder}
             placeholderTextColor="gray"
             onBlur={onBlur}
             secureTextEntry={secureTextEntry}
+            keyboardType={keyboardType}
+            autoCapitalize={type === 'email' || secureTextEntry ? 'none' : 'sentences'}
             onChangeText={onChange}
             value={value}
             error={!!error}
