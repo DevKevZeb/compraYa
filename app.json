@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "tienda-virtual",
-    "slug": "tienda-virtual",
+    "name": "CompraYa",
+    "slug": "compraya",
+    "scheme": "compraya",
     "version": "1.0.0",
+    "description": "Mobile e-commerce app with cart, payments and delivery tracking, built with Expo and Supabase.",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.compraya.app"
     },
     "android": {
+      "package": "com.compraya.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -28,6 +32,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "imageWidth": 200
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CompraYa usa tu ubicación para mostrar la ruta de entrega de tus pedidos."
         }
       ]
     ]
