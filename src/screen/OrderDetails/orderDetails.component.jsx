@@ -7,13 +7,13 @@ import Toast from 'react-native-toast-message';
 import { useCartStore } from '../../Stores/card.store';
 import { useDebitCards } from '../../Stores/global.store';
 import { useUserStore } from '../../Stores/user.store';
+import { maskCardNumber } from '../../utils/card';
+import { calculateOrderTotals, formatCurrency } from '../../utils/order';
 
 export const OrderDetailsComponent = ({ navigation }) => {
   const {
     control,
     handleSubmit,
-    setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -23,27 +23,37 @@ export const OrderDetailsComponent = ({ navigation }) => {
 
   const cartItems = useCartStore((state) => state.cartItems);
   const saveOrder = useCartStore((state) => state.saveOrder);
+  const debitCards = useDebitCards((state) => state.debitCards);
   const selectedPaymentMethod = useDebitCards((state) => state.selectedMethod);
   const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
-  const shippingCost = 20;
-  const subTotal = cartItems.reduce((total, item) => total + item.precio * item.cantidad, 0);
-  const total = subTotal + shippingCost;
+  const { subtotal, shipping, total } = calculateOrderTotals(cartItems);
+  const selectedCard = debitCards.find((card) => card.metodo_pago_id === selectedPaymentMethod);
   const currentDate = new Date().toLocaleDateString();
 
-  const handlePayment = async (data) => {
+  const handlePayment = async ({ address }) => {
     if (!selectedPaymentMethod) {
-      alert('Por favor seleccione un método de pago.');
+      Toast.show({
+        type: 'info',
+        text1: 'Falta el método de pago',
+        text2: 'Por favor seleccione un método de pago.',
+      });
       return;
     }
 
-    await saveOrder(data.address, selectedPaymentMethod, total);
-    await fetchUserOrders(); // Actualizar el estado de las órdenes
+    const { order, error } = await saveOrder(address, selectedPaymentMethod);
+
+    if (error) {
+      Toast.show({ type: 'error', text1: 'No se pudo crear el pedido', text2: error.message });
+      return;
+    }
+
+    await fetchUserOrders();
     Toast.show({
       type: 'success',
       text1: 'Pago realizado exitosamente',
-      text2: 'Tu pedido ha sido procesado.',
+      text2: `Pedido ${order.numero_seguimiento} en camino.`,
     });
-    navigation.navigate('listProducto', { direccion_envio: data.address });
+    navigation.navigate('listProducto', { direccion_envio: address });
   };
 
   return (
@@ -58,8 +68,8 @@ export const OrderDetailsComponent = ({ navigation }) => {
               <View key={item.producto_id} style={styles.productItem}>
                 <Text>{item.nombre_producto}</Text>
                 <Text>Cantidad: {item.cantidad}</Text>
-                <Text>Precio: {item.precio} Bs</Text>
-                <Text>Subtotal: {(item.precio * item.cantidad).toFixed(2)} Bs</Text>
+                <Text>Precio: {formatCurrency(item.precio)}</Text>
+                <Text>Subtotal: {formatCurrency(item.precio * item.cantidad)}</Text>
               </View>
             ))}
           </ScrollView>
@@ -73,10 +83,9 @@ export const OrderDetailsComponent = ({ navigation }) => {
         control={control}
         rules={{
           required: 'Necesita ingresar una dirección',
-          pattern: {
-            value: /^[a-zA-Z0-9\s,.'-]{3,100}$/, //permite comas, guiones, apóstrofes y puntos
-            message: 'Debe ingresar una dirección válida',
-          },
+          validate: (value) =>
+            (value.trim().length >= 5 && value.trim().length <= 150) ||
+            'Debe ingresar una dirección válida',
         }}
         render={({ field: { onChange, value } }) => (
           <TextInput
@@ -94,6 +103,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
       {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
       <List.Item
         title="Método de pago"
+        description={selectedCard ? maskCardNumber(selectedCard.last4) : 'Sin seleccionar'}
         style={styles.listItem}
         right={() => (
           <Button
@@ -112,20 +122,26 @@ export const OrderDetailsComponent = ({ navigation }) => {
           Monto total
         </Text>
         <Text variant="titleSmall" style={styles.textDetail}>
-          Costo Envío: {shippingCost} Bs
+          Costo Envío: {formatCurrency(shipping)}
         </Text>
         <Text variant="titleSmall" style={styles.textDetail}>
           Fecha: {currentDate}
         </Text>
         <Text variant="titleSmall" style={styles.textDetail}>
-          Subtotal: {subTotal.toFixed(2)} Bs
+          Subtotal: {formatCurrency(subtotal)}
         </Text>
         <Text variant="titleSmall" style={styles.textDetail}>
-          Total: {total.toFixed(2)} Bs
+          Total: {formatCurrency(total)}
         </Text>
       </View>
       <View style={styles.contendButton}>
-        <Button mode="contained" style={styles.payButton} onPress={handleSubmit(handlePayment)}>
+        <Button
+          mode="contained"
+          style={styles.payButton}
+          onPress={handleSubmit(handlePayment)}
+          loading={isSubmitting}
+          disabled={isSubmitting || cartItems.length === 0}
+        >
           Pagar
         </Button>
       </View>

@@ -4,14 +4,12 @@ import { Button, Divider, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListCardComponent } from '../../components/listCard.component';
 import { useCartStore } from '../../Stores/card.store';
+import { calculateSubtotal } from '../../utils/order';
 
 export const ShoppingScreen = ({ navigation }) => {
   const prouductSelected = useCartStore((state) => state.cartItems);
   const saveCartItems = useCartStore((state) => state.saveCartItems);
-  /**To do: Arreglar el costo de envio de acuerdo a la direccion de envio.*/
-  // const shippingCost = 100; //
-  const subTotal = prouductSelected.reduce((total, item) => total + item.precio * item.cantidad, 0);
-  // const total = subTotal + shippingCost;
+  const subTotal = calculateSubtotal(prouductSelected);
   const total = subTotal;
 
   const handleContinue = async () => {
