@@ -20,7 +20,11 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "CompraYa",
+      "themeColor": "#9C7CFE"
     },
     "plugins": [
       "expo-status-bar",

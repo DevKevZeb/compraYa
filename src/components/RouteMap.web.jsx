@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { buildRouteMapHtml } from './routeMapHtml';
 
+// Web version: react-native-webview is not available in the browser, so the same
+// Leaflet page is rendered in an iframe.
 export const RouteMap = ({ store, destination, route, bottomInset }) => {
   const html = useMemo(
     () => buildRouteMapHtml({ store, destination, route, bottomInset }),
@@ -10,17 +10,10 @@ export const RouteMap = ({ store, destination, route, bottomInset }) => {
   );
 
   return (
-    <WebView
-      style={styles.map}
-      originWhitelist={['*']}
-      source={{ html, baseUrl: 'https://compraya.app/' }}
-      scrollEnabled={false}
+    <iframe
+      title="Mapa de entrega"
+      srcDoc={html}
+      style={{ flex: 1, width: '100%', height: '100%', border: 0 }}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1,
-  },
-});
