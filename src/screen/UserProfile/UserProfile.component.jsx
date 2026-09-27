@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { supabase } from '../../../lib/initSupaBase';
-import { CustomListItemComponent } from '../../components/customListItem.component';
+import { OrderCard } from '../../components/orderCard.component';
 import { useUserStore } from '../../Stores/user.store';
 
 export const UserProfile = ({ navigation }) => {
@@ -14,20 +15,27 @@ export const UserProfile = ({ navigation }) => {
   const orderHistory = useUserStore((state) => state.orderHistory);
   const updateOrderStatus = useUserStore((state) => state.updateOrderStatus);
 
-  useEffect(() => {
-    fetchUserOrders();
-    fetchOrderHistory();
-  }, []);
+  // Orders are placed from the shopping tab, so refresh whenever this tab is shown.
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchUserOrders();
+        fetchOrderHistory();
+      }
+    }, [user, fetchUserOrders, fetchOrderHistory])
+  );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      orders.forEach((order) => {
-        updateOrderStatus(order.orden_id);
-      });
-    }, 30000); // 1 minuto
+  const handleTrack = (order) =>
+    navigation.navigate('DeliveryMap', { direccion_envio: order.direccion_envio });
 
-    return () => clearTimeout(timer);
-  }, [orders]);
+  const handleConfirm = async (order) => {
+    const { error } = await updateOrderStatus(order.orden_id, 'entregado');
+    Toast.show(
+      error
+        ? { type: 'error', text1: 'Error', text2: error.message }
+        : { type: 'success', text1: 'Pedido entregado', text2: '¡Gracias por tu compra!' }
+    );
+  };
 
   const handleSignOut = async () => {
     // The root navigator returns to the auth flow when the session ends.
@@ -43,108 +51,42 @@ export const UserProfile = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text variant="headlineSmall">Nombre Completo:</Text>
-        <Text variant="titleMedium" style={styles.textContent}>
-          {user.nombre_usuario}
-        </Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text variant="headlineSmall">Nombre Completo:</Text>
+      <Text variant="titleMedium" style={styles.textContent}>
+        {user.nombre_usuario}
+      </Text>
 
-        <Text variant="headlineSmall">Correo Electronico:</Text>
-        <Text variant="titleMedium" style={styles.textContent}>
-          {user.email}
-        </Text>
-      </View>
-      <View style={styles.scrollContainer}>
-        <Text variant="headlineSmall" style={styles.text}>
-          Pedidos en curso
-        </Text>
-        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
-          <ScrollView>
-            {orders.map((order) => (
-              <CustomListItemComponent key={order.numero_seguimiento}>
-                <View style={styles.history}>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Numero de seguimiento:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.numero_seguimiento}
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Direccion envio:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.direccion_envio}
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Monto Total:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.monto_total} Bs
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Estado:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.estado}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('DeliveryMap', {
-                          direccion_envio: order.direccion_envio,
-                        })
-                      }
-                      style={styles.linkPedido}
-                    >
-                      <Text variant="bodyMedium" style={styles.textLink}>
-                        ver en camino
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </CustomListItemComponent>
-            ))}
-          </ScrollView>
-        </SafeAreaView>
-      </View>
-      <View style={styles.scrollContainer}>
-        <Text variant="headlineSmall" style={styles.text}>
-          Historial pedidos
-        </Text>
-        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
-          <ScrollView>
-            {orderHistory.map((order) => (
-              <CustomListItemComponent key={order.numero_seguimiento}>
-                <View style={styles.history}>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Numero de seguimiento:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.numero_seguimiento}
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Direccion envio:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.direccion_envio}
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Monto Total:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.monto_total} Bs
-                    </Text>
-                  </View>
-                  <View style={styles.historyText}>
-                    <Text variant="titleMedium">Estado:</Text>
-                    <Text variant="titleSmall" style={styles.valueText}>
-                      {order.estado}
-                    </Text>
-                  </View>
-                </View>
-              </CustomListItemComponent>
-            ))}
-          </ScrollView>
-        </SafeAreaView>
-      </View>
+      <Text variant="headlineSmall">Correo Electrónico:</Text>
+      <Text variant="titleMedium" style={styles.textContent}>
+        {user.email}
+      </Text>
+
+      <Text variant="headlineSmall" style={styles.sectionTitle}>
+        Pedidos en curso
+      </Text>
+      {orders.length === 0 ? (
+        <Text style={styles.empty}>No tienes pedidos en curso.</Text>
+      ) : (
+        orders.map((order) => (
+          <OrderCard
+            key={order.orden_id}
+            order={order}
+            onTrack={handleTrack}
+            onConfirm={handleConfirm}
+          />
+        ))
+      )}
+
+      <Text variant="headlineSmall" style={styles.sectionTitle}>
+        Historial de pedidos
+      </Text>
+      {orderHistory.length === 0 ? (
+        <Text style={styles.empty}>Aún no tienes pedidos entregados.</Text>
+      ) : (
+        orderHistory.map((order) => <OrderCard key={order.orden_id} order={order} />)
+      )}
+
       <TouchableOpacity onPress={() => navigation.navigate('DataUserProfile')}>
         <Text variant="bodyMedium" style={styles.textLink}>
           ¿Desea actualizar sus datos?
@@ -155,14 +97,17 @@ export const UserProfile = ({ navigation }) => {
           Cerrar sesión
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
     padding: 15,
+    paddingBottom: 40,
   },
   textLink: {
     color: '#0866FF',
@@ -172,32 +117,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  scrollContainer: {
-    flex: 1,
-    marginBottom: 10,
+  sectionTitle: {
+    marginTop: 16,
   },
-  safeContainer: {
-    flex: 1,
-    borderColor: 'gray',
-    padding: 6,
-    borderWidth: 0.2,
-    borderRadius: 5,
-  },
-  text: {
-    paddingBottom: 10,
-  },
-  history: {
-    flexDirection: 'column',
-    paddingTop: 5,
-  },
-  historyText: {
-    flexDirection: 'row',
-  },
-  valueText: {
-    paddingTop: 3,
-  },
-  linkPedido: {
-    marginLeft: 100,
-    paddingTop: 0,
+  empty: {
+    marginTop: 8,
+    color: '#666',
   },
 });

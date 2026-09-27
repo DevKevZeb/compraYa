@@ -43,70 +43,37 @@ export const useUserStore = create((set, get) => ({
   orderHistory: [],
   setOrders: (orders) => set(() => ({ orders })),
   setOrderHistory: (orderHistory) => set(() => ({ orderHistory })),
-  fetchUserOrders: async () => {
-    const userId = useUserStore.getState().user?.userId;
-
+  fetchUserOrders: () => get().fetchOrders(['pendiente', 'en_camino'], 'orders'),
+  fetchOrderHistory: () => get().fetchOrders(['entregado', 'cancelado'], 'orderHistory'),
+  fetchOrders: async (statuses, key) => {
+    const userId = get().user?.userId;
     if (!userId) {
-      console.error('User not logged in');
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('ordenes')
-        .select('*')
-        .eq('usuario_id', userId)
-        .eq('estado', 'pendiente');
+    const { data, error } = await supabase
+      .from('ordenes')
+      .select('*, items_orden (item_orden_id, nombre_producto, cantidad, subtotal)')
+      .eq('usuario_id', userId)
+      .in('estado', statuses)
+      .order('fecha', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching orders:', error.message || error);
-      } else {
-        set({ orders: data });
-      }
-    } catch (error) {
+    if (error) {
       console.error('Error fetching orders:', error.message || error);
-    }
-  },
-  fetchOrderHistory: async () => {
-    const userId = useUserStore.getState().user?.userId;
-
-    if (!userId) {
-      console.error('User not logged in');
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('ordenes')
-        .select('*')
-        .eq('usuario_id', userId)
-        .eq('estado', 'entregado');
-
-      if (error) {
-        console.error('Error fetching order history:', error.message || error);
-      } else {
-        set({ orderHistory: data });
-      }
-    } catch (error) {
-      console.error('Error fetching order history:', error.message || error);
-    }
+    set({ [key]: data });
   },
-  updateOrderStatus: async (orderId) => {
-    try {
-      const { error } = await supabase
-        .from('ordenes')
-        .update({ estado: 'entregado' })
-        .eq('orden_id', orderId);
+  // Marks an order as delivered once the customer confirms receipt.
+  updateOrderStatus: async (orderId, estado = 'entregado') => {
+    const { error } = await supabase.from('ordenes').update({ estado }).eq('orden_id', orderId);
 
-      if (error) {
-        console.error('Error updating order status:', error.message || error);
-      } else {
-        // Fetch updated orders and order history
-        useUserStore.getState().fetchUserOrders();
-        useUserStore.getState().fetchOrderHistory();
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error.message || error);
+    if (error) {
+      return { error };
     }
+
+    await Promise.all([get().fetchUserOrders(), get().fetchOrderHistory()]);
+    return {};
   },
 }));
