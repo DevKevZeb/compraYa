@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 import { Button, Text, Checkbox } from 'react-native-paper';
 import { View, Image, StyleSheet } from 'react-native';
@@ -9,21 +9,14 @@ const DebitCardItem = ({ method, isSelected, onSelect, onEdit }) => {
     <View style={styles.debitCard}>
       <View style={styles.cardHeader}>
         <Image source={visa} style={styles.cardIcon} />
-        <Checkbox
-          status={isSelected ? 'checked' : 'unchecked'}
-          onPress={onSelect}
-        />
+        <Checkbox status={isSelected ? 'checked' : 'unchecked'} onPress={onSelect} />
       </View>
       <Text style={styles.textCardDebit} variant="titleMedium">
         {method.tarjetas_pago[0].last3
           ? `**** **** **** ${method.tarjetas_pago[0].last3}`
           : 'Sin detalles'}
       </Text>
-      <Button
-        mode="contained"
-        style={styles.buttonCardDebit}
-        onPress={onEdit}
-      >
+      <Button mode="contained" style={styles.buttonCardDebit} onPress={onEdit}>
         Editar
       </Button>
     </View>
@@ -32,7 +25,7 @@ const DebitCardItem = ({ method, isSelected, onSelect, onEdit }) => {
 
 const styles = StyleSheet.create({
   debitCard: {
-    marginHorizontal:21,
+    marginHorizontal: 21,
     marginVertical: 8,
     padding: 16,
     backgroundColor: '#EADDFF',

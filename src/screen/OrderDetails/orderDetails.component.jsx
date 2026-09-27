@@ -1,12 +1,12 @@
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, List, Text, TextInput } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { useCartStore } from "../../Stores/card.store";
-import { useDebitCards } from "../../Stores/global.store";
-import { useUserStore } from "../../Stores/user.store";
+import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, List, Text, TextInput } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { useCartStore } from '../../Stores/card.store';
+import { useDebitCards } from '../../Stores/global.store';
+import { useUserStore } from '../../Stores/user.store';
 
 export const OrderDetailsComponent = ({ navigation }) => {
   const {
@@ -17,7 +17,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      address: "",
+      address: '',
     },
   });
 
@@ -26,27 +26,24 @@ export const OrderDetailsComponent = ({ navigation }) => {
   const selectedPaymentMethod = useDebitCards((state) => state.selectedMethod);
   const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
   const shippingCost = 20;
-  const subTotal = cartItems.reduce(
-    (total, item) => total + item.precio * item.cantidad,
-    0
-  );
+  const subTotal = cartItems.reduce((total, item) => total + item.precio * item.cantidad, 0);
   const total = subTotal + shippingCost;
   const currentDate = new Date().toLocaleDateString();
 
   const handlePayment = async (data) => {
     if (!selectedPaymentMethod) {
-      alert("Por favor seleccione un método de pago.");
+      alert('Por favor seleccione un método de pago.');
       return;
     }
 
     await saveOrder(data.address, selectedPaymentMethod, total);
     await fetchUserOrders(); // Actualizar el estado de las órdenes
     Toast.show({
-      type: "success",
-      text1: "Pago realizado exitosamente",
-      text2: "Tu pedido ha sido procesado.",
+      type: 'success',
+      text1: 'Pago realizado exitosamente',
+      text2: 'Tu pedido ha sido procesado.',
     });
-    navigation.navigate("listProducto", { direccion_envio: data.address });
+    navigation.navigate('listProducto', { direccion_envio: data.address });
   };
 
   return (
@@ -55,19 +52,14 @@ export const OrderDetailsComponent = ({ navigation }) => {
         <Text variant="titleMedium" style={styles.text}>
           Productos en pedido
         </Text>
-        <SafeAreaView
-          style={styles.safeContainer}
-          edges={["left", "right", "bottom"]}
-        >
+        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
           <ScrollView>
             {cartItems.map((item) => (
               <View key={item.producto_id} style={styles.productItem}>
                 <Text>{item.nombre_producto}</Text>
                 <Text>Cantidad: {item.cantidad}</Text>
                 <Text>Precio: {item.precio} Bs</Text>
-                <Text>
-                  Subtotal: {(item.precio * item.cantidad).toFixed(2)} Bs
-                </Text>
+                <Text>Subtotal: {(item.precio * item.cantidad).toFixed(2)} Bs</Text>
               </View>
             ))}
           </ScrollView>
@@ -80,10 +72,10 @@ export const OrderDetailsComponent = ({ navigation }) => {
         name="address"
         control={control}
         rules={{
-          required: "Necesita ingresar una dirección",
+          required: 'Necesita ingresar una dirección',
           pattern: {
             value: /^[a-zA-Z0-9\s,.'-]{3,100}$/, //permite comas, guiones, apóstrofes y puntos
-            message: "Debe ingresar una dirección válida",
+            message: 'Debe ingresar una dirección válida',
           },
         }}
         render={({ field: { onChange, value } }) => (
@@ -99,9 +91,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
           />
         )}
       />
-      {errors.address && (
-        <Text style={styles.errorText}>{errors.address.message}</Text>
-      )}
+      {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
       <List.Item
         title="Método de pago"
         style={styles.listItem}
@@ -110,7 +100,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
             mode="contained"
             style={styles.buttonItem}
             onPress={() => {
-              navigation.navigate("PayMethod");
+              navigation.navigate('PayMethod');
             }}
           >
             Seleccionar
@@ -135,11 +125,7 @@ export const OrderDetailsComponent = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.contendButton}>
-        <Button
-          mode="contained"
-          style={styles.payButton}
-          onPress={handleSubmit(handlePayment)}
-        >
+        <Button mode="contained" style={styles.payButton} onPress={handleSubmit(handlePayment)}>
           Pagar
         </Button>
       </View>
@@ -158,7 +144,7 @@ const styles = StyleSheet.create({
   },
   safeContainer: {
     flex: 1,
-    borderColor: "gray",
+    borderColor: 'gray',
     padding: 6,
     borderWidth: 0.2,
     borderRadius: 5,
@@ -170,19 +156,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   errorText: {
-    color: "red",
+    color: 'red',
     fontSize: 12,
     marginLeft: 20,
     marginBottom: 10,
   },
   listItem: {
-    width: "100%",
-    backgroundColor: "#EADDFF",
+    width: '100%',
+    backgroundColor: '#EADDFF',
     borderRadius: 15,
     marginTop: 8,
   },
   buttonItem: {
-    backgroundColor: "#9C7CFE",
+    backgroundColor: '#9C7CFE',
   },
   containerDetails: {
     padding: 10,
@@ -191,20 +177,20 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   contendButton: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
   },
   payButton: {
-    width: "50%",
-    backgroundColor: "#9C7CFE",
+    width: '50%',
+    backgroundColor: '#9C7CFE',
   },
   productItem: {
     marginBottom: 10,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderRadius: 5,
-    backgroundColor:'#EADDFF'
+    backgroundColor: '#EADDFF',
   },
 });

@@ -1,20 +1,13 @@
-import { memo } from "react";
+import { memo } from 'react';
 
-import { StyleSheet, Text, View } from "react-native";
-import { Button, Card } from "react-native-paper";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useCartStore } from "../Stores/card.store";
-import { styles } from "../styles/globalStyle";
+import { StyleSheet, Text, View } from 'react-native';
+import { Button, Card } from 'react-native-paper';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useCartStore } from '../Stores/card.store';
+import { styles } from '../styles/globalStyle';
 
 export const CardComponent = memo(({ item, showDialog }) => {
-  const {
-    nombre_producto,
-    url_imagen,
-    precio,
-    producto_id,
-    popularidad,
-    stock,
-  } = item;
+  const { nombre_producto, url_imagen, precio, producto_id, popularidad, stock } = item;
 
   // Acciones del carrito
   const addToCart = useCartStore((state) => state.addToCart);
@@ -40,17 +33,11 @@ export const CardComponent = memo(({ item, showDialog }) => {
     for (let i = 1; i <= 5; i++) {
       // Decidir si la estrella es llena, media o vacía
       if (i <= Math.floor(scaledPopularity)) {
-        stars.push(
-          <MaterialIcons key={i} name="star" size={40} color="gold" />
-        );
+        stars.push(<MaterialIcons key={i} name="star" size={40} color="gold" />);
       } else if (i - 0.5 <= scaledPopularity) {
-        stars.push(
-          <MaterialIcons key={i} name="star-half" size={40} color="gold" />
-        );
+        stars.push(<MaterialIcons key={i} name="star-half" size={40} color="gold" />);
       } else {
-        stars.push(
-          <MaterialIcons key={i} name="star-border" size={40} color="gold" />
-        );
+        stars.push(<MaterialIcons key={i} name="star-border" size={40} color="gold" />);
       }
     }
     return stars;
@@ -64,10 +51,7 @@ export const CardComponent = memo(({ item, showDialog }) => {
       delayLongPress={3}
     >
       <Card.Title title={nombre_producto} style={styles.cardTitle} />
-      <Card.Cover
-        style={{ heigth: "500vh", objectFit: "cover" }}
-        source={{ uri: url_imagen }}
-      />
+      <Card.Cover style={{ heigth: '500vh', objectFit: 'cover' }} source={{ uri: url_imagen }} />
       <Card.Content style={{ marginTop: 20 }}>
         <Text>Precio: {precio} c/u</Text>
         <Text>Stock: {stock} unidades</Text>
@@ -82,18 +66,13 @@ export const CardComponent = memo(({ item, showDialog }) => {
             buttonColor="#9C7CFE"
             mode="contained"
             textColor="#fff"
-            style={{ backgroundColor: "#ff5f5f" }}
+            style={{ backgroundColor: '#ff5f5f' }}
             onPress={handleRemoveFromCart}
           >
             Cancelar
           </Button>
         )}
-        <Button
-          buttonColor="#9C7CFE"
-          textColor="#ffffff"
-          icon="plus"
-          onPress={handleAddToCart}
-        >
+        <Button buttonColor="#9C7CFE" textColor="#ffffff" icon="plus" onPress={handleAddToCart}>
           Añadir
         </Button>
       </Card.Actions>
@@ -103,11 +82,11 @@ export const CardComponent = memo(({ item, showDialog }) => {
 
 const styleCard = StyleSheet.create({
   startsRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   startsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

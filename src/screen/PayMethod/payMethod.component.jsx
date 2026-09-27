@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Alert, Image, ScrollView, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Button, List, Text } from "react-native-paper";
-import qrImage from "../../../assets/qrImage.png";
-import DebitCardItem from "../../components/debitCardItem.component";
-import { getDebitCardsByUser } from "../../services/api.services";
-import { useDebitCards } from "../../Stores/global.store";
-import { useUserStore } from "../../Stores/user.store";
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, List, Text } from 'react-native-paper';
+import qrImage from '../../../assets/qrImage.png';
+import DebitCardItem from '../../components/debitCardItem.component';
+import { getDebitCardsByUser } from '../../services/api.services';
+import { useDebitCards } from '../../Stores/global.store';
+import { useUserStore } from '../../Stores/user.store';
 
 export const PayMethodComponent = ({ navigation }) => {
   const {
@@ -42,18 +42,18 @@ export const PayMethodComponent = ({ navigation }) => {
   const handlePayment = () => {
     if (!selectedMethod) {
       Alert.alert(
-        "Selecciona un método de pago",
-        "Por favor selecciona un método de pago antes de continuar."
+        'Selecciona un método de pago',
+        'Por favor selecciona un método de pago antes de continuar.'
       );
       return;
     }
     setIsPaying(true);
     setTimeout(() => {
       setIsPaying(false);
-      Alert.alert("Pago exitoso", "El pago se procesó correctamente.", [
+      Alert.alert('Pago exitoso', 'El pago se procesó correctamente.', [
         {
-          text: "Continuar",
-          onPress: () => navigation.navigate("DeliveryMap"),
+          text: 'Continuar',
+          onPress: () => navigation.navigate('DeliveryMap'),
         },
       ]);
     }, 2000);
@@ -61,10 +61,10 @@ export const PayMethodComponent = ({ navigation }) => {
 
   const handleSaveCard = async (cardDetails) => {
     const { last3, marca, fecha_expiracion } = cardDetails;
-    const { data, error } = await supabase.from("metodos_pago").insert([
+    const { data, error } = await supabase.from('metodos_pago').insert([
       {
         usuario_id: userId,
-        tipo_metodo: "card",
+        tipo_metodo: 'card',
         activo: true,
         detalles: last3,
         tarjetas_pago: {
@@ -76,9 +76,9 @@ export const PayMethodComponent = ({ navigation }) => {
     ]);
 
     if (error) {
-      console.error("Error saving card:", error.message || error);
+      console.error('Error saving card:', error.message || error);
     } else {
-      console.log("Card saved:", data);
+      console.log('Card saved:', data);
       refreshDebitCards(userId);
     }
   };
@@ -108,7 +108,7 @@ export const PayMethodComponent = ({ navigation }) => {
             onPress={() => {
               setEditing(false);
               setCardDetails(null);
-              navigation.navigate("DebitCard");
+              navigation.navigate('DebitCard');
             }}
           >
             Agregar
@@ -127,19 +127,16 @@ export const PayMethodComponent = ({ navigation }) => {
               setEditing(true);
               setCardDetails({
                 metodo_pago_id: method.metodo_pago_id,
-                last3: method.tarjetas_pago[0]?.last3 || "",
-                marca: method.tarjetas_pago[0]?.marca || "",
-                fecha_expiracion:
-                  method.tarjetas_pago[0]?.fecha_expiracion || "",
+                last3: method.tarjetas_pago[0]?.last3 || '',
+                marca: method.tarjetas_pago[0]?.marca || '',
+                fecha_expiracion: method.tarjetas_pago[0]?.fecha_expiracion || '',
               });
-              navigation.navigate("DebitCard");
+              navigation.navigate('DebitCard');
             }}
           />
         ))
       ) : (
-        <Text style={styles.noMethodsText}>
-          No hay métodos de pago guardados.
-        </Text>
+        <Text style={styles.noMethodsText}>No hay métodos de pago guardados.</Text>
       )}
 
       <Text variant="titleMedium" style={styles.containerText}>
@@ -149,7 +146,7 @@ export const PayMethodComponent = ({ navigation }) => {
         title="Pago por Qr"
         style={styles.listItem}
         right={(props) => <Image source={qrImage} />}
-        onPress={() => navigation.navigate("QrMethod")}
+        onPress={() => navigation.navigate('QrMethod')}
       />
     </ScrollView>
   );
@@ -157,7 +154,7 @@ export const PayMethodComponent = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    height: "100%",
+    height: '100%',
     marginBottom: 10,
   },
   containerText: {
@@ -165,35 +162,35 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   listItem: {
-    backgroundColor: "#EADDFF",
+    backgroundColor: '#EADDFF',
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 15,
     marginTop: 15,
   },
   buttonItem: {
-    backgroundColor: "#9C7CFE",
+    backgroundColor: '#9C7CFE',
   },
   noMethodsText: {
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   contendButton: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
   },
   payButton: {
-    width: "50%",
-    backgroundColor: "#9C7CFE",
+    width: '50%',
+    backgroundColor: '#9C7CFE',
   },
 });

@@ -6,17 +6,10 @@ import { TabNavigation } from './tab.navigation';
 const RootStack = createNativeStackNavigator();
 
 export const RootNavigation = () => {
-    return (
-        <RootStack.Navigator
-            initialRouteName='Auth'
-            screenOptions={{ headerShown: false }}
-        >
-            <RootStack.Screen name='Auth' component={AuthNavigation} />
-            <RootStack.Screen
-                name='ListProductos'
-                component={TabNavigation}
-            />
-    
-        </RootStack.Navigator>
-    );
+  return (
+    <RootStack.Navigator initialRouteName="Auth" screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="Auth" component={AuthNavigation} />
+      <RootStack.Screen name="ListProductos" component={TabNavigation} />
+    </RootStack.Navigator>
+  );
 };

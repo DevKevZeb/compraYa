@@ -1,18 +1,18 @@
-import axios from "axios";
-import * as Location from "expo-location";
-import React, { useEffect, useState } from "react";
-import { LogBox, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
+import axios from 'axios';
+import * as Location from 'expo-location';
+import React, { useEffect, useState } from 'react';
+import { LogBox, StyleSheet, Text, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 
 const GOOGLE_MAPS_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY;
 
 export const DeliveryMapComponent = ({ route }) => {
   const { direccion_envio } = route.params || {};
-  const addressTest = direccion_envio ? `"${direccion_envio}"` : "";
+  const addressTest = direccion_envio ? `"${direccion_envio}"` : '';
   LogBox.ignoreLogs([
-    "MapViewDirections Error: Error on GMAPS route request: NOT_FOUND",
-    "Directions error: Error on GMAPS route request: NOT_FOUND",
+    'MapViewDirections Error: Error on GMAPS route request: NOT_FOUND',
+    'Directions error: Error on GMAPS route request: NOT_FOUND',
   ]);
   const [myDestination, setmyDestination] = useState({
     latitude: 0,
@@ -30,32 +30,29 @@ export const DeliveryMapComponent = ({ route }) => {
   });
   const geocodeAddress = async (address) => {
     try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json`,
-        {
-          params: {
-            address: address,
-            region: "BO", // Restringe la búsqueda a Bolivia
-            key: GOOGLE_MAPS_KEY,
-            bounds: "-17.50,-66.30|-17.20,-65.80",
-          },
-        }
-      );
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+        params: {
+          address: address,
+          region: 'BO', // Restringe la búsqueda a Bolivia
+          key: GOOGLE_MAPS_KEY,
+          bounds: '-17.50,-66.30|-17.20,-65.80',
+        },
+      });
 
-      if (response.data.status === "OK" && response.data.results.length > 0) {
+      if (response.data.status === 'OK' && response.data.results.length > 0) {
         const location = response.data.results[0].geometry.location;
-        console.log("Geocoded location:", location);
+        console.log('Geocoded location:', location);
         setmyDestination({
-          latitude: location["lat"],
-          longitude: location["lng"],
+          latitude: location['lat'],
+          longitude: location['lng'],
         });
         return location; // { latitude, longitude }
       } else {
-        console.warn("No results found for the address");
+        console.warn('No results found for the address');
         return null;
       }
     } catch (error) {
-      console.error("Error fetching geocoding data:", error);
+      console.error('Error fetching geocoding data:', error);
       return null;
     }
   };
@@ -68,8 +65,8 @@ export const DeliveryMapComponent = ({ route }) => {
   }, [addressTest]);
   async function getCurrentLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
       return;
     }
 
@@ -122,9 +119,7 @@ export const DeliveryMapComponent = ({ route }) => {
           apikey={GOOGLE_MAPS_KEY}
           strokeColor="#9C7CFE"
           strokeWidth={6}
-          onError={(errorMessage) =>
-            console.warn("Directions error:", errorMessage)
-          }
+          onError={(errorMessage) => console.warn('Directions error:', errorMessage)}
         />
       </MapView>
       <Text style={styles.infoText}>Tu pedido está en camino.</Text>
@@ -140,12 +135,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoText: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 20,
     left: 0,
     right: 0,
-    textAlign: "center",
-    backgroundColor: "white",
+    textAlign: 'center',
+    backgroundColor: 'white',
     padding: 10,
   },
 });

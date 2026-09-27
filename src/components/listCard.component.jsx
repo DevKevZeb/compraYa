@@ -25,32 +25,32 @@ export const ListCardComponent = () => {
   return (
     <View style={{ marginBottom: 10 }}>
       {productSelected.map((element) => (
-        <Card key={element.producto_id} style={{ marginBottom: 10}}>
+        <Card key={element.producto_id} style={{ marginBottom: 10 }}>
           <Card.Title
             title={element.nombre_producto}
             subtitle={`Precio: ${element.precio}`}
             style={{ paddingTop: 20 }}
-            titleVariant='titleLarge'
+            titleVariant="titleLarge"
           />
           <Card.Actions>
             <Button
-              icon='plus'
-              mode='contained'
+              icon="plus"
+              mode="contained"
               labelStyle={{ marginLeft: 10 }}
               onPress={() => increaseQuantity(element)}
               style={{ backgroundColor: '#9C7CFE' }}
             ></Button>
-            <Text variant='headlineSmall'>{element.cantidad}</Text>
+            <Text variant="headlineSmall">{element.cantidad}</Text>
             <Button
-              icon='minus'
-              mode='contained'
+              icon="minus"
+              mode="contained"
               labelStyle={{ marginLeft: 10 }}
               onPress={() => decreaseQuantity(element)}
               style={{ backgroundColor: '#9C7CFE' }}
             ></Button>
             <Button
-              icon='delete'
-              mode='contained'
+              icon="delete"
+              mode="contained"
               labelStyle={{ marginLeft: 10 }}
               onPress={() => deleteProduct(element.producto_id)}
               style={{ backgroundColor: '#9C7CFE' }}

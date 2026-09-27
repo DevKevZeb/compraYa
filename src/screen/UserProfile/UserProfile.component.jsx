@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Text } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "../../../lib/initSupaBase";
-import { CustomListItemComponent } from "../../components/customListItem.component";
-import { useUserStore } from "../../Stores/user.store";
+import React, { useEffect } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { supabase } from '../../../lib/initSupaBase';
+import { CustomListItemComponent } from '../../components/customListItem.component';
+import { useUserStore } from '../../Stores/user.store';
 
 export const UserProfile = ({ navigation }) => {
   const user = useUserStore((state) => state.user);
@@ -33,7 +33,7 @@ export const UserProfile = ({ navigation }) => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     clearUser();
-    navigation.navigate("SignIn");
+    navigation.navigate('SignIn');
   };
 
   if (!user) {
@@ -61,10 +61,7 @@ export const UserProfile = ({ navigation }) => {
         <Text variant="headlineSmall" style={styles.text}>
           Pedidos en curso
         </Text>
-        <SafeAreaView
-          style={styles.safeContainer}
-          edges={["left", "right", "bottom"]}
-        >
+        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
           <ScrollView>
             {orders.map((order) => (
               <CustomListItemComponent key={order.numero_seguimiento}>
@@ -94,7 +91,7 @@ export const UserProfile = ({ navigation }) => {
                     </Text>
                     <TouchableOpacity
                       onPress={() =>
-                        navigation.navigate("DeliveryMap", {
+                        navigation.navigate('DeliveryMap', {
                           direccion_envio: order.direccion_envio,
                         })
                       }
@@ -115,10 +112,7 @@ export const UserProfile = ({ navigation }) => {
         <Text variant="headlineSmall" style={styles.text}>
           Historial pedidos
         </Text>
-        <SafeAreaView
-          style={styles.safeContainer}
-          edges={["left", "right", "bottom"]}
-        >
+        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
           <ScrollView>
             {orderHistory.map((order) => (
               <CustomListItemComponent key={order.numero_seguimiento}>
@@ -153,7 +147,7 @@ export const UserProfile = ({ navigation }) => {
           </ScrollView>
         </SafeAreaView>
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate("DataUserProfile")}>
+      <TouchableOpacity onPress={() => navigation.navigate('DataUserProfile')}>
         <Text variant="bodyMedium" style={styles.textLink}>
           ¿Desea actualizar sus datos?
         </Text>
@@ -173,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   textLink: {
-    color: "#0866FF",
+    color: '#0866FF',
     marginTop: 15,
   },
   textContent: {
@@ -186,7 +180,7 @@ const styles = StyleSheet.create({
   },
   safeContainer: {
     flex: 1,
-    borderColor: "gray",
+    borderColor: 'gray',
     padding: 6,
     borderWidth: 0.2,
     borderRadius: 5,
@@ -195,11 +189,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   history: {
-    flexDirection: "column",
+    flexDirection: 'column',
     paddingTop: 5,
   },
   historyText: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   valueText: {
     paddingTop: 3,
