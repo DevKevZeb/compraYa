@@ -1,84 +1,116 @@
 import * as Location from 'expo-location';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
+import { ActivityIndicator, Surface, Text } from 'react-native-paper';
 import { STORE_LOCATION } from '../../config/store';
 import { geocodeAddress, getRoute } from '../../services/maps.service';
 
-export const DeliveryMapComponent = ({ route }) => {
-  const { direccion_envio } = route.params || {};
-  const addressTest = direccion_envio ?? '';
-  const [myDestination, setmyDestination] = useState(null);
-  const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const origin = STORE_LOCATION;
-  const initialRegion = {
-    latitude: origin.latitude,
-    longitude: origin.longitude,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
-  };
+const INITIAL_REGION = {
+  ...STORE_LOCATION,
+  latitudeDelta: 0.1,
+  longitudeDelta: 0.1,
+};
 
-  useEffect(() => {
-    if (!myDestination) {
-      return;
-    }
-    getRoute(origin, myDestination)
-      .then((result) => setRouteCoordinates(result?.coordinates ?? []))
-      .catch(() => setRouteCoordinates([]));
-  }, [origin, myDestination]);
+const MAP_PADDING = { top: 80, right: 60, bottom: 160, left: 60 };
 
-  useEffect(() => {
-    if (addressTest.length > 0) {
-      geocodeAddress(addressTest).then(setmyDestination);
-    } else {
-      getCurrentLocation();
-    }
-  }, [addressTest]);
-  async function getCurrentLocation() {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      setErrorMsg('Permission to access location was denied');
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    setmyDestination({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    });
+// Without an address, fall back to the device location as the destination.
+const getCurrentPosition = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    throw new Error('Necesitamos permiso de ubicación para mostrar la ruta.');
   }
+  const { coords } = await Location.getCurrentPositionAsync({});
+  return { latitude: coords.latitude, longitude: coords.longitude };
+};
+
+export const DeliveryMapComponent = ({ route }) => {
+  const address = route.params?.direccion_envio?.trim() ?? '';
+  const mapRef = useRef(null);
+  const [destination, setDestination] = useState(null);
+  const [deliveryRoute, setDeliveryRoute] = useState(null);
+  const [status, setStatus] = useState({ loading: true, error: null });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setStatus({ loading: true, error: null });
+      try {
+        const target = address ? await geocodeAddress(address) : await getCurrentPosition();
+        if (!target) {
+          throw new Error('No encontramos la dirección de entrega en el mapa.');
+        }
+        if (cancelled) return;
+        setDestination(target);
+
+        const result = await getRoute(STORE_LOCATION, target);
+        if (cancelled) return;
+        setDeliveryRoute(result);
+        setStatus({
+          loading: false,
+          error: result ? null : 'No hay una ruta disponible hasta la dirección.',
+        });
+      } catch (error) {
+        if (!cancelled) {
+          setStatus({ loading: false, error: error.message });
+        }
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [address]);
+
+  // Frame the store, the destination and the route once they are known.
+  useEffect(() => {
+    if (!destination) return;
+    const points = deliveryRoute?.coordinates ?? [STORE_LOCATION, destination];
+    mapRef.current?.fitToCoordinates(points, { edgePadding: MAP_PADDING, animated: true });
+  }, [destination, deliveryRoute]);
 
   return (
     <View style={styles.container}>
-      <MapView
-        style={styles.map}
-        initialRegion={initialRegion}
-        showsUserLocation={true}
-        followsUserLocation={true}
-        cameraZoomRange={5}
-      >
-        {/* Store Marker */}
+      <MapView ref={mapRef} style={styles.map} initialRegion={INITIAL_REGION} showsUserLocation>
         <Marker
-          coordinate={origin}
+          coordinate={STORE_LOCATION}
           title="Tienda"
           description="Punto de origen del pedido"
           pinColor="green"
         />
-
-        {myDestination && (
+        {destination && (
           <Marker
-            coordinate={myDestination}
+            coordinate={destination}
             title="Destino"
-            description="Ubicación de entrega"
+            description={address || 'Tu ubicación'}
             pinColor="red"
           />
         )}
-
-        {routeCoordinates.length > 0 && (
-          <Polyline coordinates={routeCoordinates} strokeColor="#9C7CFE" strokeWidth={6} />
+        {deliveryRoute && (
+          <Polyline coordinates={deliveryRoute.coordinates} strokeColor="#9C7CFE" strokeWidth={6} />
         )}
       </MapView>
-      <Text style={styles.infoText}>Tu pedido está en camino.</Text>
+
+      <Surface style={styles.infoCard} elevation={3}>
+        {status.loading ? (
+          <View style={styles.row}>
+            <ActivityIndicator size="small" color="#9C7CFE" />
+            <Text style={styles.infoText}>Calculando la ruta de entrega...</Text>
+          </View>
+        ) : status.error ? (
+          <Text style={styles.errorText}>{status.error}</Text>
+        ) : (
+          <>
+            <Text variant="titleMedium">Tu pedido está en camino</Text>
+            <Text variant="bodyMedium">
+              {deliveryRoute.distanceKm.toFixed(1)} km · aprox.{' '}
+              {Math.max(1, Math.round(deliveryRoute.durationMin))} min
+            </Text>
+          </>
+        )}
+      </Surface>
     </View>
   );
 };
@@ -90,13 +122,23 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  infoText: {
+  infoCard: {
     position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
+    bottom: 24,
+    left: 16,
+    right: 16,
+    padding: 16,
+    borderRadius: 12,
     backgroundColor: 'white',
-    padding: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoText: {
+    marginLeft: 10,
+  },
+  errorText: {
+    color: '#B3261E',
   },
 });

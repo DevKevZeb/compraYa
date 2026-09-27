@@ -53,7 +53,14 @@ export const OrderDetailsComponent = ({ navigation }) => {
       text1: 'Pago realizado exitosamente',
       text2: `Pedido ${order.numero_seguimiento} en camino.`,
     });
-    navigation.navigate('listProducto', { direccion_envio: address });
+    // Replace checkout with the tracking map so going back returns to the catalog.
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'listProducto' },
+        { name: 'DeliveryMap', params: { direccion_envio: address } },
+      ],
+    });
   };
 
   return (
