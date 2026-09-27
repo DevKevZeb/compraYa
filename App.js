@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { MD3LightTheme, Provider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { styles } from './src/styles/global';
+import { AppFrame } from './src/components/AppFrame';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 const toastConfig = {
@@ -29,12 +30,14 @@ const toastConfig = {
 
 export default function App() {
   return (
-    // The app is designed for a light UI; do not follow the browser's dark mode on web.
-    <Provider theme={MD3LightTheme}>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
-      <Toast config={toastConfig} />
-    </Provider>
+    <AppFrame>
+      {/* The app is designed for a light UI; do not follow the browser's dark mode on web. */}
+      <Provider theme={MD3LightTheme}>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+        <Toast config={toastConfig} />
+      </Provider>
+    </AppFrame>
   );
 }
