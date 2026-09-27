@@ -70,10 +70,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
     marginBottom: 20,
   },
   row: {

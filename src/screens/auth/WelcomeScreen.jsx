@@ -21,7 +21,7 @@ export const WelcomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={Compraya3} style={styles.imageContainer} />
+      <Image source={Compraya3} style={styles.imageContainer} resizeMode="contain" />
       <View style={styles.buttonContainer}>
         <Button
           mode="contained"
@@ -84,6 +84,5 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignSelf: 'center',
-    resizeMode: 'contain',
   },
 });
