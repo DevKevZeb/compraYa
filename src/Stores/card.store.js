@@ -1,238 +1,82 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { supabase } from '../../lib/initSupaBase';
 import { toOrderItems } from '../utils/order';
-import { useUserStore } from './user.store';
 
-export const useCartStore = create((set, get) => ({
-  cartItems: [],
-  cartId: null,
+// The cart lives on the device (persisted across restarts). The backend only
+// sees it when the order is placed through the create_order RPC.
+export const useCartStore = create(
+  persist(
+    (set, get) => ({
+      cartItems: [],
 
-  totalItemsInCart: () => {
-    const cartItems = get().cartItems;
-    return cartItems.reduce((total, item) => total + item.cantidad, 0);
-  },
+      totalItemsInCart: () => get().cartItems.reduce((total, item) => total + item.cantidad, 0),
 
-  // Funcion para agregar producto al carrito
-  addToCart: async (product) => {
-    const cartItems = get().cartItems;
-    const existingProduct = cartItems.find((item) => item.producto_id === product.producto_id);
-    const userId = useUserStore.getState().user?.userId;
-    let cartId = get().cartId;
+      addToCart: (product) => {
+        const cartItems = get().cartItems;
+        const existing = cartItems.find((item) => item.producto_id === product.producto_id);
 
-    if (!userId) {
-      console.error('User not logged in');
-      return;
-    }
+        set({
+          cartItems: existing
+            ? cartItems.map((item) =>
+                item.producto_id === product.producto_id
+                  ? { ...item, cantidad: item.cantidad + 1 }
+                  : item
+              )
+            : [
+                ...cartItems,
+                {
+                  producto_id: product.producto_id,
+                  nombre_producto: product.nombre_producto,
+                  precio: product.precio,
+                  cantidad: 1,
+                },
+              ],
+        });
+      },
 
-    if (!cartId) {
-      // Crear un nuevo carrito
-      const { data: newCart, error: createError } = await supabase
-        .from('carrito_compras')
-        .insert([{ usuario_id: userId, creado_en: new Date().toISOString() }])
-        .select()
-        .single();
+      setQuantity: (productId, quantity) => {
+        if (quantity < 1) {
+          get().removeFromCart(productId);
+          return;
+        }
+        set({
+          cartItems: get().cartItems.map((item) =>
+            item.producto_id === productId ? { ...item, cantidad: quantity } : item
+          ),
+        });
+      },
 
-      if (createError) {
-        console.error('Error creating cart:', createError.message || createError);
-        return;
-      }
+      removeFromCart: (productId) => {
+        set({ cartItems: get().cartItems.filter((item) => item.producto_id !== productId) });
+      },
 
-      cartId = newCart.carrito_id;
-      set({ cartId });
-      console.log('Cart created with ID:', cartId);
-    }
+      clearCart: () => set({ cartItems: [] }),
 
-    if (existingProduct) {
-      set({
-        cartItems: cartItems.map((item) =>
-          item.producto_id === product.producto_id ? { ...item, cantidad: item.cantidad + 1 } : item
-        ),
-      });
-    } else {
-      set({
-        cartItems: [...cartItems, { ...product, cantidad: 1 }],
-      });
-    }
-  },
+      isInCart: (productId) => get().cartItems.some((item) => item.producto_id === productId),
 
-  // Funcion para guardar los productos en items_carrito
-  saveCartItems: async () => {
-    const cartItems = get().cartItems;
-    const cartId = get().cartId;
+      // Places the order through the create_order RPC, which prices the items,
+      // stores them and updates stock in a single transaction.
+      saveOrder: async (address, paymentMethodId) => {
+        const { data, error } = await supabase.rpc('create_order', {
+          p_direccion_envio: address,
+          p_metodo_pago: paymentMethodId,
+          p_items: toOrderItems(get().cartItems),
+        });
 
-    if (!cartId) {
-      console.error('No cart found');
-      return;
-    }
-
-    try {
-      for (const item of cartItems) {
-        const { data: existingItem, error: fetchError } = await supabase
-          .from('items_carrito')
-          .select('item_carrito_id')
-          .eq('carrito_id', cartId)
-          .eq('producto_id', item.producto_id)
-          .single();
-
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          console.error('Error fetching cart item:', fetchError.message || fetchError);
-          continue;
+        if (error) {
+          return { error };
         }
 
-        if (existingItem) {
-          // Actualizar el producto existente
-          const { error: updateError } = await supabase
-            .from('items_carrito')
-            .update({
-              cantidad: item.cantidad,
-              precio_en_el_momento: item.precio,
-              subtotal: item.precio * item.cantidad,
-            })
-            .eq('item_carrito_id', existingItem.item_carrito_id);
-
-          if (updateError) {
-            console.error('Error updating cart item:', updateError.message || updateError);
-          } else {
-            console.log('Cart item updated:', existingItem.item_carrito_id);
-          }
-        } else {
-          // Insertar un nuevo producto
-          const { data, error } = await supabase.from('items_carrito').insert([
-            {
-              carrito_id: cartId,
-              producto_id: item.producto_id,
-              cantidad: item.cantidad,
-              precio_en_el_momento: item.precio,
-              subtotal: item.precio * item.cantidad,
-            },
-          ]);
-
-          if (error) {
-            console.error('Error saving cart item:', error.message || error);
-          } else {
-            console.log('Cart item saved:', data);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error saving cart items:', error.message || error);
+        set({ cartItems: [] });
+        return { order: data };
+      },
+    }),
+    {
+      name: 'compraya-cart',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ cartItems: state.cartItems }),
     }
-  },
-
-  // Funcion para establecer la cantidad de un producto existente directamente
-  setQuantity: (productId, newQuantity) => {
-    const cartItems = get().cartItems;
-    set({
-      cartItems: cartItems.map((item) =>
-        item.producto_id === productId ? { ...item, cantidad: newQuantity } : item
-      ),
-    });
-  },
-
-  // Funcion para eliminar producto del carrito
-  removeFromCart: async (productId) => {
-    const cartItems = get().cartItems;
-    const cartId = get().cartId;
-
-    if (!cartId) {
-      console.error('No cart found');
-      return;
-    }
-
-    set({
-      cartItems: cartItems.filter((item) => item.producto_id !== productId),
-    });
-
-    try {
-      const { data, error } = await supabase
-        .from('items_carrito')
-        .delete()
-        .eq('carrito_id', cartId)
-        .eq('producto_id', productId);
-
-      if (error) {
-        console.error('Error removing from cart:', error.message || error);
-      } else {
-        console.log('Product removed from cart:', data);
-
-        // Verificar si el carrito está vacío y eliminarlo si es necesario
-        const remainingItems = get().cartItems;
-        if (remainingItems.length === 0) {
-          const { error: deleteCartError } = await supabase
-            .from('carrito_compras')
-            .delete()
-            .eq('carrito_id', cartId);
-
-          if (deleteCartError) {
-            console.error('Error deleting cart:', deleteCartError.message || deleteCartError);
-          } else {
-            set({ cartId: null });
-            console.log('Cart deleted');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error removing from cart:', error.message || error);
-    }
-  },
-
-  // Funcion para eliminar el carrito completo
-  clearCart: async () => {
-    const cartId = get().cartId;
-
-    if (!cartId) {
-      console.error('No cart found');
-      return;
-    }
-
-    try {
-      // Eliminar todos los productos del carrito
-      const { error: deleteItemsError } = await supabase
-        .from('items_carrito')
-        .delete()
-        .eq('carrito_id', cartId);
-
-      if (deleteItemsError) {
-        console.error('Error deleting cart items:', deleteItemsError.message || deleteItemsError);
-        return;
-      }
-
-      // Eliminar el carrito
-      const { error: deleteCartError } = await supabase
-        .from('carrito_compras')
-        .delete()
-        .eq('carrito_id', cartId);
-
-      if (deleteCartError) {
-        console.error('Error deleting cart:', deleteCartError.message || deleteCartError);
-      } else {
-        set({ cartItems: [], cartId: null });
-        console.log('Cart cleared');
-      }
-    } catch (error) {
-      console.error('Error clearing cart:', error.message || error);
-    }
-  },
-
-  isInCart: (productId) => {
-    const cartItems = get().cartItems;
-    return cartItems.some((item) => item.producto_id === productId);
-  },
-
-  // Places the order through the create_order RPC, which prices the items,
-  // stores them and updates stock in a single transaction.
-  saveOrder: async (address, paymentMethodId) => {
-    const { data, error } = await supabase.rpc('create_order', {
-      p_direccion_envio: address,
-      p_metodo_pago: paymentMethodId,
-      p_items: toOrderItems(get().cartItems),
-    });
-
-    if (error) {
-      return { error };
-    }
-
-    set({ cartItems: [], cartId: null });
-    return { order: data };
-  },
-}));
+  )
+);

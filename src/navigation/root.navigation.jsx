@@ -27,7 +27,7 @@ export const RootNavigation = () => {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       useUserStore.getState().handleSession(nextSession);
       if (!nextSession) {
-        useCartStore.setState({ cartItems: [], cartId: null });
+        useCartStore.getState().clearCart();
       }
     });
 

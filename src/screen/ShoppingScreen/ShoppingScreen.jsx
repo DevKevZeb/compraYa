@@ -8,12 +8,10 @@ import { calculateSubtotal } from '../../utils/order';
 
 export const ShoppingScreen = ({ navigation }) => {
   const prouductSelected = useCartStore((state) => state.cartItems);
-  const saveCartItems = useCartStore((state) => state.saveCartItems);
   const subTotal = calculateSubtotal(prouductSelected);
   const total = subTotal;
 
-  const handleContinue = async () => {
-    await saveCartItems();
+  const handleContinue = () => {
     navigation.navigate('OrderDetails');
   };
 
