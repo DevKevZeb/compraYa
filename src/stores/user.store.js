@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
+const PROFILE_ATTEMPTS = 3;
+const PROFILE_RETRY_DELAY_MS = 1000;
+
 export const useUserStore = create((set, get) => ({
   // Supabase auth session; the navigation tree is derived from it.
   session: null,
@@ -21,11 +24,20 @@ export const useUserStore = create((set, get) => ({
     }
   },
   loadProfile: async (authUser) => {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('usuario_id, nombre_usuario')
-      .eq('usuario_id', authUser.id)
-      .maybeSingle();
+    const fetchProfile = () =>
+      supabase
+        .from('usuarios')
+        .select('usuario_id, nombre_usuario')
+        .eq('usuario_id', authUser.id)
+        .maybeSingle();
+
+    // A token used right after sign in can be rejected for a moment ("JWT issued
+    // at future") because of clock skew between Supabase services, so retry briefly.
+    let { data, error } = await fetchProfile();
+    for (let attempt = 1; error && attempt < PROFILE_ATTEMPTS; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, PROFILE_RETRY_DELAY_MS));
+      ({ data, error } = await fetchProfile());
+    }
 
     if (error) {
       console.error('Error loading profile:', error.message || error);
