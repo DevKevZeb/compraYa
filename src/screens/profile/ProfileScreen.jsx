@@ -5,6 +5,7 @@ import { Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { supabase } from '../../lib/supabase';
 import { OrderCard } from '../../components/OrderCard';
+import { isDemoAccount } from '../../services/auth';
 import { useUserStore } from '../../stores/user.store';
 
 export const ProfileScreen = ({ navigation }) => {
@@ -87,11 +88,18 @@ export const ProfileScreen = ({ navigation }) => {
         orderHistory.map((order) => <OrderCard key={order.orden_id} order={order} />)
       )}
 
-      <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
-        <Text variant="bodyMedium" style={styles.textLink}>
-          ¿Desea actualizar sus datos?
+      {/* The shared demo account stays read-only so every visitor sees the same profile. */}
+      {isDemoAccount(user.email) ? (
+        <Text variant="bodySmall" style={styles.demoNotice}>
+          Estás usando la cuenta demo. Regístrate para editar tus datos.
         </Text>
-      </TouchableOpacity>
+      ) : (
+        <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+          <Text variant="bodyMedium" style={styles.textLink}>
+            ¿Desea actualizar sus datos?
+          </Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity onPress={handleSignOut}>
         <Text variant="bodyMedium" style={styles.textLink}>
           Cerrar sesión
@@ -108,6 +116,10 @@ const styles = StyleSheet.create({
   content: {
     padding: 15,
     paddingBottom: 40,
+  },
+  demoNotice: {
+    marginTop: 15,
+    color: '#666',
   },
   textLink: {
     color: '#0866FF',

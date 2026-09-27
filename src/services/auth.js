@@ -2,6 +2,19 @@ import { supabase } from '../lib/supabase';
 
 export const PASSWORD_RESET_PATH = 'reset-password';
 
+// Optional shared demo account so visitors can try the app without signing up.
+const demoEmail = process.env.EXPO_PUBLIC_DEMO_EMAIL;
+const demoPassword = process.env.EXPO_PUBLIC_DEMO_PASSWORD;
+export const DEMO_ACCOUNT =
+  demoEmail && demoPassword ? { email: demoEmail, password: demoPassword } : null;
+
+export const signInAsGuest = () => {
+  if (!DEMO_ACCOUNT) {
+    return Promise.resolve({ error: new Error('Demo account is not configured.') });
+  }
+  return supabase.auth.signInWithPassword(DEMO_ACCOUNT);
+};
+
 // Supabase auth redirects carry the result in the URL fragment
 // (…#access_token=…&refresh_token=…&type=recovery) or, on failure, as error params.
 export const parseAuthParams = (url) => {
@@ -38,3 +51,6 @@ export const createSessionFromUrl = async (url) => {
 
   return params.get('type');
 };
+
+export const isDemoAccount = (email) =>
+  Boolean(DEMO_ACCOUNT && email && email.toLowerCase() === DEMO_ACCOUNT.email.toLowerCase());
