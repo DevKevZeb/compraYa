@@ -1,50 +1,49 @@
 import { z } from 'zod';
 
+const email = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1, 'El correo es obligatorio')
+  .email('Correo inválido');
+
+const password = z.string().min(6, 'La contraseña debe de tener al menos 6 caracteres');
+
+const passwordConfirmation = z.string().min(6, 'La confirmación debe tener al menos 6 caracteres');
+
+const passwordsMatch = {
+  check: (data) => data.password === data.confirmPassword,
+  error: { message: 'Las contraseñas son diferentes', path: ['confirmPassword'] },
+};
+
+const name = z.string().trim().min(1, 'El nombre es obligatorio');
+
 export const SigInSchema = z.object({
-  email: z.string().email('Correo Invalido').min(1, 'El correo es obligatorio'),
-  password: z.string().min(6, 'La contraseña debe de tener al menos 6 caracteres'),
+  email,
+  password,
 });
+
 export const RegisterSchema = z
   .object({
-    name: z.string().min(1, 'El nombre es obligatorio'),
-    email: z.string().email('Correo inválido').min(1, 'El correo es obligatorio'),
-    password: z.string().min(6, 'La contraseña debe de tener al menos 6 caracteres'),
-    confirmPassword: z.string().min(6, 'La confirmación debe tener al menos 6 caracteres'),
+    name,
+    email,
+    password,
+    confirmPassword: passwordConfirmation,
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas son diferentes',
-    path: ['confirmPassword'],
-  });
+  .refine(passwordsMatch.check, passwordsMatch.error);
 
 export const ForgotSchema = z.object({
-  email: z
-    .string()
-    .email('Correo Invalido')
-    .min(1, 'El correo es obligatorio')
-    .regex(
-      /^(?!.*@((?!gmail\.com|hotmail\.com|outlook\.com).)*$).*$/,
-      'El correo debe ser de Gmail, Hotmail o Outlook'
-    ),
+  email,
 });
 
 export const RecoverySchema = z
   .object({
-    password: z.string().min(6, 'La contraseña debe de tener al menos 6 caracteres'),
-    confirmPassword: z.string().min(6, 'La confirmación debe tener al menos 6 caracteres'),
+    password,
+    confirmPassword: passwordConfirmation,
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas son diferentes',
-    path: ['confirmPassword'],
-  });
+  .refine(passwordsMatch.check, passwordsMatch.error);
 
 export const DataUserSchema = z.object({
-  name: z.string().min(1, 'El nombre es obligatorio'),
-  email: z
-    .string()
-    .email('Correo Invalido')
-    .min(1, 'El correo es obligatorio')
-    .regex(
-      /^(?!.*@((?!gmail\.com|hotmail\.com|outlook\.com).)*$).*$/,
-      'El correo debe ser de Gmail, Hotmail o Outlook'
-    ),
+  name,
+  email,
 });
