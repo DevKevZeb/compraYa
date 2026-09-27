@@ -26,7 +26,6 @@
     "react": "19.2.3",
     "react-hook-form": "^7.53.1",
     "react-native": "0.86.3",
-    "react-native-dotenv": "^3.4.11",
     "react-native-maps": "1.27.2",
     "react-native-maps-directions": "^1.9.0",
     "react-native-paper": "^5.12.5",

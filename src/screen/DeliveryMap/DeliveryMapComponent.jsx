@@ -1,10 +1,11 @@
-import { GOOGLE_MAPS_KEY } from "@env";
 import axios from "axios";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { LogBox, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
+
+const GOOGLE_MAPS_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY;
 
 export const DeliveryMapComponent = ({ route }) => {
   const { direccion_envio } = route.params || {};
