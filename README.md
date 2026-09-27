@@ -13,8 +13,18 @@ through a **transactional RPC**, so prices and stock can never be tampered with 
 
 > The app UI is in Spanish (it targets customers in Bolivia); code, docs and commits are in English.
 
+## Live demo
+
+| Platform    | Link                                                   |
+| ----------- | ------------------------------------------------------ |
+| Web         | **[Open the web demo](https://YOUR-APP.vercel.app)**   |
+| Android APK | [Download from GitHub Releases](../../releases/latest) |
+
+Tap **"Entrar como invitado"** to explore with a shared demo account (no sign-up needed). For card
+payments use the test number `4242 4242 4242 4242` with any future expiry date. Payments are
+simulated.
+
 <p align="center">
-  <!-- Add screenshots to docs/screenshots/ and update the file names below. -->
   <img src="docs/screenshots/catalog.png" width="200" alt="Catalog" />
   <img src="docs/screenshots/cart.png" width="200" alt="Cart" />
   <img src="docs/screenshots/checkout.png" width="200" alt="Checkout" />
@@ -38,17 +48,20 @@ through a **transactional RPC**, so prices and stock can never be tampered with 
   **keyless** providers: a Leaflet map with OpenStreetMap tiles, the native geocoder with an
   OpenStreetMap Nominatim fallback, and OSRM routing. No Google Maps API key is needed.
 - **Profile**: edit the display name, change the email (confirmed through Supabase Auth), order history.
+- **Guest mode**: one-tap sign-in with a shared, read-only demo profile.
+- **Runs everywhere**: Android and iOS (Expo Go or EAS builds) and the web (static export on Vercel).
 
 ## Tech stack
 
 | Area          | Tools                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
-| App           | Expo SDK 57, React Native 0.86, React 19                                                               |
+| App           | Expo SDK 57, React Native 0.86, React 19, React Native Web                                             |
 | Navigation    | React Navigation 7 (native stack + bottom tabs)                                                        |
 | UI            | React Native Paper (Material Design 3), Leaflet (in `react-native-webview`), `react-native-qrcode-svg` |
 | State & forms | Zustand (with persistence), React Hook Form, Zod                                                       |
 | Backend       | Supabase: Postgres, Auth, row level security, RPC functions                                            |
 | Quality       | ESLint (`eslint-config-expo`), Prettier, Jest + React Native Testing Library, GitHub Actions           |
+| Delivery      | Vercel (web), EAS Build (Android APK), scheduled Supabase keep-alive                                   |
 
 ## Architecture
 
@@ -62,7 +75,7 @@ flowchart LR
 
   Services -->|"supabase-js<br/>(publishable key + user JWT)"| Supabase
   Services -->|geocoding| Nominatim["Device geocoder /<br/>OSM Nominatim"]
-  UI -->|"map tiles (WebView)"| OSM["OpenStreetMap<br/>+ Leaflet"]
+  UI -->|"map tiles (WebView / iframe)"| OSM["OpenStreetMap<br/>+ Leaflet"]
   Services -->|routes| OSRM["OSRM"]
 
   subgraph Supabase
@@ -136,24 +149,62 @@ Fill in `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` (the **publish
 _Project Settings → API Keys_, or `npx supabase projects api-keys`). Never put secret keys in `.env`:
 `EXPO_PUBLIC_*` values are bundled into the app.
 
+Optionally set `EXPO_PUBLIC_DEMO_EMAIL` / `EXPO_PUBLIC_DEMO_PASSWORD` to the credentials of an account
+you create for visitors; this enables the **"Entrar como invitado"** button.
+
 ### 4. Run
 
 ```bash
 npm start
 ```
 
-Scan the QR code with Expo Go. For a card payment you can use the test number `4242 4242 4242 4242`
-with any future expiry date. No real payment is processed.
+Scan the QR code with Expo Go, or press `w` to open the web version. For a card payment you can use
+the test number `4242 4242 4242 4242` with any future expiry date. No real payment is processed.
+
+## Deployment (free tiers)
+
+### Web on Vercel
+
+1. Import the repository in [Vercel](https://vercel.com/new). [`vercel.json`](vercel.json) already sets
+   the build command (`npm run build:web`), the `dist` output and the single-page rewrite.
+2. Add the `EXPO_PUBLIC_*` variables from your `.env` under _Settings → Environment Variables_ and
+   deploy.
+3. Allow password reset links to return to the site: add your exact URL to `additional_redirect_urls`
+   in [`supabase/config.toml`](supabase/config.toml) (for example `"https://your-app.vercel.app/**"`)
+   and run `npx supabase config push`.
+
+### Android APK with EAS
+
+```bash
+npx eas-cli login
+npx eas-cli init                      # links the project to your Expo account
+npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_URL --value <url> --visibility plaintext
+npx eas-cli env:create --environment preview --name EXPO_PUBLIC_SUPABASE_KEY --value <key> --visibility plaintext
+npm run build:android                 # builds an APK in the EAS cloud
+```
+
+Add the demo account variables the same way if you want the guest button. Attach the resulting APK to a
+[GitHub Release](../../releases/new) so the "Download" link above works.
+
+### Keep the backend awake
+
+Free Supabase projects pause after a week without traffic. The
+[keep-alive workflow](.github/workflows/supabase-keep-alive.yml) queries the catalog every three days.
+Add the `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` repository secrets to enable it. GitHub disables
+scheduled workflows after 60 days without repository activity, so re-enable it from the _Actions_ tab
+if needed.
 
 ## Scripts
 
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `npm start`            | Start the Expo dev server         |
-| `npm test`             | Run the Jest test suite           |
-| `npm run lint`         | Lint with ESLint                  |
-| `npm run format`       | Format the codebase with Prettier |
-| `npm run format:check` | Check formatting (used in CI)     |
+| Command                 | Description                          |
+| ----------------------- | ------------------------------------ |
+| `npm start`             | Start the Expo dev server            |
+| `npm test`              | Run the Jest test suite              |
+| `npm run lint`          | Lint with ESLint                     |
+| `npm run format`        | Format the codebase with Prettier    |
+| `npm run format:check`  | Check formatting (used in CI)        |
+| `npm run build:web`     | Export the static web app to `dist/` |
+| `npm run build:android` | Build an Android APK with EAS        |
 
 ## Project structure
 
@@ -199,7 +250,7 @@ run offline. CI runs lint, formatting, tests and an Android bundle on every push
 Planned improvements:
 
 - [ ] Migrate to TypeScript
-- [ ] EAS build and store-ready assets
+- [ ] Store-ready assets and Play Store listing
 - [ ] Real-time courier location with Supabase Realtime
 - [ ] Admin panel for catalog and order management
 
