@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import { Button, Card, Text } from 'react-native-paper';
 import { useCartStore } from '../stores/cart.store';
+import { formatCurrency } from '../utils/order';
 
 export const CartItemList = () => {
   const productSelected = useCartStore((state) => state.cartItems);
@@ -28,7 +29,7 @@ export const CartItemList = () => {
         <Card key={element.producto_id} style={{ marginBottom: 10 }}>
           <Card.Title
             title={element.nombre_producto}
-            subtitle={`Precio: ${element.precio}`}
+            subtitle={formatCurrency(element.precio)}
             style={{ paddingTop: 20 }}
             titleVariant="titleLarge"
           />

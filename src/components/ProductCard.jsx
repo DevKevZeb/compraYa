@@ -1,10 +1,11 @@
 import { memo } from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Button, Card, Text } from 'react-native-paper';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useCartStore } from '../stores/cart.store';
 import { styles } from '../styles/global';
+import { formatCurrency } from '../utils/order';
 
 export const ProductCard = memo(function ProductCard({ item, onPress }) {
   const { nombre_producto, url_imagen, precio, producto_id, popularidad, stock } = item;
@@ -32,11 +33,11 @@ export const ProductCard = memo(function ProductCard({ item, onPress }) {
     for (let i = 1; i <= 5; i++) {
       // Decidir si la estrella es llena, media o vacía
       if (i <= Math.floor(scaledPopularity)) {
-        stars.push(<MaterialIcons key={i} name="star" size={40} color="gold" />);
+        stars.push(<MaterialIcons key={i} name="star" size={22} color="#F5B301" />);
       } else if (i - 0.5 <= scaledPopularity) {
-        stars.push(<MaterialIcons key={i} name="star-half" size={40} color="gold" />);
+        stars.push(<MaterialIcons key={i} name="star-half" size={22} color="#F5B301" />);
       } else {
-        stars.push(<MaterialIcons key={i} name="star-border" size={40} color="gold" />);
+        stars.push(<MaterialIcons key={i} name="star-border" size={22} color="#F5B301" />);
       }
     }
     return stars;
@@ -52,7 +53,7 @@ export const ProductCard = memo(function ProductCard({ item, onPress }) {
       <Card.Title title={nombre_producto} style={styles.cardTitle} />
       <Card.Cover style={{ height: 200 }} source={{ uri: url_imagen }} />
       <Card.Content style={{ marginTop: 20 }}>
-        <Text>Precio: {precio} c/u</Text>
+        <Text variant="titleMedium">{formatCurrency(precio)}</Text>
         <Text>{outOfStock ? 'Agotado' : `Stock: ${stock} unidades`}</Text>
         <View style={styleCard.startsRow}>
           <Text style={styleCard.startsContainer}>{renderStars()}</Text>
