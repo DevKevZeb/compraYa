@@ -1,11 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Divider, Text } from 'react-native-paper';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import face from '../../../../assets/face.png';
-import google from '../../../../assets/google.png';
 import { supabase } from '../../../../lib/initSupaBase';
 import { CustomInputComponent } from '../../../components/CustomInput.component';
 import { RegisterSchema } from '../../../models/form.model';
@@ -119,18 +117,6 @@ export const RegisterComponent = ({ navigation }) => {
           Registrarte
         </Button>
       </View>
-      <Divider horizontalInset={true} bold={true} style={{ marginTop: 20 }} />
-      <Text variant="titleMedium" style={styles.text}>
-        O ingresa con
-      </Text>
-      <View style={styles.socialContainer}>
-        <TouchableOpacity onPress={() => {}}>
-          <Image source={face} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}}>
-          <Image source={google} />
-        </TouchableOpacity>
-      </View>
       <View style={styles.textContainer}>
         <Text variant="titleSmall">¿Ya tienes una cuenta? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
@@ -167,15 +153,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  socialContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 50,
-    marginTop: 40,
-    marginBottom: 60,
   },
   textContainer: {
     flex: 1,

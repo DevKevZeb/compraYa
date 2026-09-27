@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Text, Button, Divider } from 'react-native-paper';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Button } from 'react-native-paper';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Linking from 'expo-linking';
@@ -10,8 +10,6 @@ import { PASSWORD_RESET_PATH } from '../../../services/auth.service';
 
 import { CustomInputComponent } from '../../../components/CustomInput.component';
 import { ForgotSchema } from '../../../models/form.model';
-import face from '../../../../assets/face.png';
-import google from '../../../../assets/google.png';
 export const ForgotPassword = ({ navigation }) => {
   const {
     control,
@@ -76,18 +74,6 @@ export const ForgotPassword = ({ navigation }) => {
           Enviar
         </Button>
       </View>
-      <Divider horizontalInset={true} bold={true} style={{ marginTop: 100 }} />
-      <Text variant="titleMedium" style={styles.text}>
-        O ingresa con
-      </Text>
-      <View style={styles.socialContainer}>
-        <TouchableOpacity onPress={() => {}}>
-          <Image source={face} on />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}}>
-          <Image source={google} />
-        </TouchableOpacity>
-      </View>
       <View style={styles.textContainer}>
         <Text variant="titleSmall">Ya tienes una cuenta? </Text>
         <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
@@ -123,15 +109,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  socialContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 50,
-    marginTop: 40,
-    marginBottom: 60,
   },
   textContainer: {
     flex: 1,
