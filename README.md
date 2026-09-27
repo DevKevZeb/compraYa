@@ -238,26 +238,15 @@ The suite covers card validation, order totals, form schemas, password reset lin
 (including order placement through the RPC) and product card interactions. Supabase is mocked, so tests
 run offline. CI runs lint, formatting, tests and an Android bundle on every push.
 
-## Notes & roadmap
+## Notes
 
 - Payments are **simulated**: no payment gateway is involved.
-- Email confirmation is disabled in the demo project so sign up is instant. Password reset emails use
-  Supabase's built-in email service, which is rate limited.
-- OpenStreetMap tiles, Nominatim and the public OSRM server are fair-use demo services. A production
-  build should use a commercial provider or self-hosted instances. Swapping providers only touches
+- Map tiles, geocoding and routing use OpenStreetMap, Nominatim and OSRM public services, all behind
   `src/services/maps.js` and `src/components/RouteMap.jsx`.
-
-Planned improvements:
-
-- [ ] Migrate to TypeScript
-- [ ] Store-ready assets and Play Store listing
-- [ ] Real-time courier location with Supabase Realtime
-- [ ] Admin panel for catalog and order management
 
 ## Author
 
-**Wally Kevin Zeballos Oquendo**. Started as a mobile programming course project and later rebuilt
-end to end: new backend with RLS, Expo SDK upgrade, testing and CI.
+**Wally Kevin Zeballos Oquendo**
 
 ## License
 
