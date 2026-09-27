@@ -110,7 +110,13 @@ export const OrderDetailsComponent = ({ navigation }) => {
       {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
       <List.Item
         title="Método de pago"
-        description={selectedCard ? maskCardNumber(selectedCard.last4) : 'Sin seleccionar'}
+        description={
+          selectedCard
+            ? maskCardNumber(selectedCard.last4)
+            : selectedPaymentMethod
+              ? 'Pago por QR'
+              : 'Sin seleccionar'
+        }
         style={styles.listItem}
         right={() => (
           <Button

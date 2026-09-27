@@ -176,3 +176,29 @@ export const deleteDebitCard = async (metodoPagoId) => {
     ? { success: false, error }
     : { success: true, message: 'Tarjeta eliminada con éxito.' };
 };
+
+// Each user has a single QR payment method, created the first time they pay by QR.
+export const getOrCreateQrPaymentMethod = async (userId) => {
+  const { data: existing, error: fetchError } = await supabase
+    .from('metodos_pago')
+    .select('metodo_pago_id')
+    .eq('usuario_id', userId)
+    .eq('tipo_metodo', 'qr')
+    .limit(1)
+    .maybeSingle();
+
+  if (fetchError) {
+    return { error: fetchError };
+  }
+  if (existing) {
+    return { metodoPagoId: existing.metodo_pago_id };
+  }
+
+  const { data, error } = await supabase
+    .from('metodos_pago')
+    .insert({ tipo_metodo: 'qr', usuario_id: userId, activo: true })
+    .select('metodo_pago_id')
+    .single();
+
+  return error ? { error } : { metodoPagoId: data.metodo_pago_id };
+};
