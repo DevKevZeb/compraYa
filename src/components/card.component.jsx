@@ -2,7 +2,7 @@ import { memo } from "react";
 
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Card } from "react-native-paper";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useCartStore } from "../Stores/card.store";
 import { styles } from "../styles/globalStyle";
 
