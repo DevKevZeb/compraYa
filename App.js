@@ -3,8 +3,8 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { Provider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { styles } from './src/styles/globalStyle';
-import { RootNavigation } from './src/navigation/root.navigation';
+import { styles } from './src/styles/global';
+import { RootNavigator } from './src/navigation/RootNavigator';
 
 const toastConfig = {
   error: ({ text1, text2, ...rest }) => (
@@ -31,7 +31,7 @@ export default function App() {
   return (
     <Provider>
       <NavigationContainer>
-        <RootNavigation />
+        <RootNavigator />
       </NavigationContainer>
       <Toast config={toastConfig} />
     </Provider>
