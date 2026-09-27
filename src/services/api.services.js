@@ -1,132 +1,37 @@
 import { supabase } from '../../lib/initSupaBase';
-import { useCategory, useProduct } from '../Stores/global.store';
 
-export const getNameCategory = async () => {
-  try {
-    const { data: categorías, error } = await supabase
-      .from('categorías')
-      .select('*')
-      .order('categoria_id', { ascending: true });
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useCategory.getState().setData(categorías);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
-  }
-};
+const PRODUCT_FIELDS = `
+  producto_id,
+  categoria_id,
+  nombre_producto,
+  descripcion,
+  precio,
+  stock,
+  popularidad,
+  url_imagen,
+  atributos_producto (nombre_atributo, valor_atributo)
+`;
 
-export const getProductsBySearch = async (valueSearch) => {
-  try {
-    const { data: productos, error } = await supabase
-      .from('productos')
-      .select('*')
-      .ilike('nombre_producto', `%${valueSearch}%`);
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    if (productos.length === 0) {
-      useProduct.getState().setNoProductsFound(true);
-    } else {
-      useProduct.getState().setNoProductsFound(false);
-      useProduct.getState().setDataProductsSearch(productos);
-    }
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
-  }
-};
-export const getProductId = async (categoryId) => {
-  try {
-    const { data, error } = await supabase
-      .from('productos')
-      .select('*')
-      .eq('categoria_id', categoryId);
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useProduct.getState().setDataProductsCategory(data);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
-  }
-};
+export const getCategories = () =>
+  supabase
+    .from('categorias')
+    .select('categoria_id, nombre_categoria')
+    .order('categoria_id', { ascending: true });
 
-export const getProductAtributeId = async () => {
-  try {
-    const { data: productos, error } = await supabase.from('productos').select(`
-			producto_id,
-    		nombre_producto,
-			url_imagen,
-    		atributos_producto (
-     		 nombre_atributo,
-			 valor_atributo
-    		)
- 		 `);
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useProduct.getState().setDataAtributeProduct(productos);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
-  }
-};
+// Most popular first; optionally filtered by category and/or name.
+export const getProducts = ({ categoryId = null, search = '' } = {}) => {
+  let query = supabase
+    .from('productos')
+    .select(PRODUCT_FIELDS)
+    .order('popularidad', { ascending: false });
 
-export const getPopularProducts = async () => {
-  try {
-    const { data: productos, error } = await supabase
-      .from('productos')
-      .select('*')
-      .order('popularidad', { ascending: false })
-      .limit(10);
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useProduct.getState().setDataProductsCategory(productos);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
+  if (categoryId) {
+    query = query.eq('categoria_id', categoryId);
   }
-};
-
-export const getAllProducts = async () => {
-  try {
-    const { data: productos, error } = await supabase
-      .from('productos')
-      .select('*')
-      .order('producto_id', { ascending: false });
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useProduct.getState().setDataProductsCategory(productos);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
+  if (search) {
+    query = query.ilike('nombre_producto', `%${search}%`);
   }
-};
-export const getProducts = async () => {
-  try {
-    let { data: productos, error } = await supabase
-      .from('productos')
-      .select('*')
-      .order('producto_id', { ascending: false });
-    if (error) {
-      console.error('Error al obtener los datos:', error);
-      return { error };
-    }
-    useProduct.getState().setAllProducts(productos);
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    return { error };
-  }
+  return query;
 };
 
 // Stores a card as a payment method. Only the brand, last four digits and expiry

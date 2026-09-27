@@ -3,10 +3,14 @@ import { Image, View } from 'react-native';
 import { Dialog, Portal, Text, Button, List } from 'react-native-paper';
 
 export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
-  const { nombre_producto, url_imagen, atributos_producto } = detailProduct;
+  const { nombre_producto, descripcion, url_imagen, atributos_producto = [] } = detailProduct;
   return (
     <Portal>
-      <Dialog visible={visible} theme={{ colors: { background: '#BEA8FF' } }} dismissable={false}>
+      <Dialog
+        visible={visible}
+        theme={{ colors: { background: '#BEA8FF' } }}
+        onDismiss={hideDialog}
+      >
         <Dialog.Title>{nombre_producto}</Dialog.Title>
         <Dialog.Content>
           <Image
@@ -18,8 +22,9 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
               marginBottom: 10,
             }}
           />
+          {descripcion ? <Text variant="bodyMedium">{descripcion}</Text> : null}
           <List.Section>
-            <List.Subheader style={{ fontSize: 20, fontWeith: 'bold' }}>
+            <List.Subheader style={{ fontSize: 20, fontWeight: 'bold' }}>
               Caracteristicas
             </List.Subheader>
             {atributos_producto.map((atributo, index) => (
@@ -31,7 +36,7 @@ export const DialogComponent = ({ visible, hideDialog, detailProduct }) => {
           </List.Section>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={hideDialog}>Cancel</Button>
+          <Button onPress={hideDialog}>Cerrar</Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>

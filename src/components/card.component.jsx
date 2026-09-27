@@ -6,20 +6,19 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useCartStore } from '../Stores/card.store';
 import { styles } from '../styles/globalStyle';
 
-export const CardComponent = memo(({ item, showDialog }) => {
+export const CardComponent = memo(function CardComponent({ item, onPress }) {
   const { nombre_producto, url_imagen, precio, producto_id, popularidad, stock } = item;
 
-  // Acciones del carrito
   const addToCart = useCartStore((state) => state.addToCart);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
-  const isInCart = useCartStore((state) => state.isInCart);
-
-  const emitNameProduct = () => {
-    showDialog(nombre_producto);
-  };
+  // Select a boolean (not the isInCart function) so the card re-renders when the cart changes.
+  const inCart = useCartStore((state) =>
+    state.cartItems.some((cartItem) => cartItem.producto_id === producto_id)
+  );
+  const outOfStock = stock <= 0;
 
   const handleAddToCart = () => {
-    addToCart({ nombre_producto, precio, cantidad: 1, producto_id });
+    addToCart({ nombre_producto, precio, producto_id });
   };
 
   const handleRemoveFromCart = () => {
@@ -45,23 +44,23 @@ export const CardComponent = memo(({ item, showDialog }) => {
   return (
     <Card
       style={styles.card}
-      onPress={emitNameProduct}
+      onPress={() => onPress(item)}
       elevation={3}
       mode="elevated"
       delayLongPress={3}
     >
       <Card.Title title={nombre_producto} style={styles.cardTitle} />
-      <Card.Cover style={{ heigth: '500vh', objectFit: 'cover' }} source={{ uri: url_imagen }} />
+      <Card.Cover style={{ height: 200 }} source={{ uri: url_imagen }} />
       <Card.Content style={{ marginTop: 20 }}>
         <Text>Precio: {precio} c/u</Text>
-        <Text>Stock: {stock} unidades</Text>
+        <Text>{outOfStock ? 'Agotado' : `Stock: ${stock} unidades`}</Text>
         <View style={styleCard.startsRow}>
           <Text style={styleCard.startsContainer}>{renderStars()}</Text>
           <Text>{popularidad}%</Text>
         </View>
       </Card.Content>
       <Card.Actions>
-        {isInCart(producto_id) && (
+        {inCart && (
           <Button
             buttonColor="#9C7CFE"
             mode="contained"
@@ -72,7 +71,13 @@ export const CardComponent = memo(({ item, showDialog }) => {
             Cancelar
           </Button>
         )}
-        <Button buttonColor="#9C7CFE" textColor="#ffffff" icon="plus" onPress={handleAddToCart}>
+        <Button
+          buttonColor="#9C7CFE"
+          textColor="#ffffff"
+          icon="plus"
+          onPress={handleAddToCart}
+          disabled={outOfStock}
+        >
           Añadir
         </Button>
       </Card.Actions>

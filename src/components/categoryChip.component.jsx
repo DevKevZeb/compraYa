@@ -1,40 +1,27 @@
-import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Chip } from 'react-native-paper';
-import { useCategory } from '../Stores/global.store';
 import { styles } from '../styles/globalStyle';
 
-export const CategoryChipComponent = ({ filterCategory }) => {
-  const [selectedChip, setSelectedChip] = useState('todos');
-  const categorys = useCategory((state) => state.categorys);
-
-  const handleChipPress = (id, nombre_categoria) => {
-    setSelectedChip(id);
-    filterCategory(nombre_categoria);
-  };
+// Category filter; a null selection means "all products".
+export const CategoryChipComponent = ({ categories, selectedId, onSelect }) => {
+  const options = [{ categoria_id: null, nombre_categoria: 'Todos' }, ...categories];
 
   return (
-    <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.scrollView}>
-      <Chip
-        icon="check"
-        selected={selectedChip === 'todos'}
-        onPress={() => handleChipPress('todos', 'Todos')}
-        style={[styles.chip, selectedChip === 'todos' && styles.selectedChip]}
-        key="todos"
-      >
-        Todos
-      </Chip>
-      {categorys.map((category) => (
-        <Chip
-          icon="check"
-          selected={selectedChip === category.categoria_id}
-          onPress={() => handleChipPress(category.categoria_id, category.nombre_categoria)}
-          style={[styles.chip, selectedChip === category.categoria_id && styles.selectedChip]}
-          key={category.categoria_id}
-        >
-          {category.nombre_categoria}
-        </Chip>
-      ))}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollView}>
+      {options.map((category) => {
+        const selected = selectedId === category.categoria_id;
+        return (
+          <Chip
+            key={category.categoria_id ?? 'all'}
+            icon={selected ? 'check' : undefined}
+            selected={selected}
+            onPress={() => onSelect(category.categoria_id)}
+            style={[styles.chip, selected && styles.selectedChip]}
+          >
+            {category.nombre_categoria}
+          </Chip>
+        );
+      })}
     </ScrollView>
   );
 };

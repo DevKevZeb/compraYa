@@ -1,29 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../../lib/initSupaBase';
 
-export const useCategory = create((set) => ({
-  categorys: [],
-  setData: (newData) => set(() => ({ categorys: newData })),
-}));
-
-export const useProduct = create((set) => ({
-  //stores
-  allProducts: [],
-  productsCategory: [],
-  productAtribute: [],
-  productSearchBar: [],
-  noProductsFound: false,
-  //funciones para actualizar los stores
-  setAllProducts: (newData) => set(() => ({ allProducts: newData })),
-  setDataProductsCategory: (newData) => set(() => ({ productsCategory: newData })),
-  setDataAtributeProduct: (newData) => set(() => ({ productAtribute: newData })),
-  setDataProductsSearch: (newData) => set(() => ({ productSearchBar: newData })),
-  setNoProductsFound: (flag) => set(() => ({ noProductsFound: flag })),
-  //funciones para resetear stores
-  resetProductSearch: () => set(() => ({ productSearchBar: [] })),
-  resetProductCategory: () => set(() => ({ productsCategory: [] })),
-}));
-
 // Flattens a metodos_pago row with its (one-to-one) tarjetas_pago record.
 const toCard = ({ tarjetas_pago: card, ...method }) => {
   const details = Array.isArray(card) ? card[0] : card;
