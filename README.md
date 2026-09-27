@@ -15,10 +15,10 @@ through a **transactional RPC**, so prices and stock can never be tampered with 
 
 ## Live demo
 
-| Platform    | Link                                                   |
-| ----------- | ------------------------------------------------------ |
-| Web         | **[Open the web demo](https://YOUR-APP.vercel.app)**   |
-| Android APK | [Download from GitHub Releases](../../releases/latest) |
+| Platform    | Link                                                      |
+| ----------- | --------------------------------------------------------- |
+| Web         | **[Open the web demo](https://compra-ya-wkz.vercel.app)** |
+| Android APK | [Download from GitHub Releases](../../releases/latest)    |
 
 Tap **"Entrar como invitado"** to explore with a shared demo account (no sign-up needed). For card
 payments use the test number `4242 4242 4242 4242` with any future expiry date. Payments are
