@@ -24,8 +24,19 @@ export const useProduct = create((set) => ({
   resetProductCategory: () => set(() => ({ productsCategory: [] })),
 }));
 
+// Flattens a metodos_pago row with its (one-to-one) tarjetas_pago record.
+const toCard = ({ tarjetas_pago: card, ...method }) => {
+  const details = Array.isArray(card) ? card[0] : card;
+  return {
+    metodo_pago_id: method.metodo_pago_id,
+    activo: method.activo,
+    last4: details?.last4 ?? '',
+    marca: details?.marca ?? 'unknown',
+    fecha_expiracion: details?.fecha_expiracion ?? '',
+  };
+};
+
 export const useDebitCards = create((set) => ({
-  // States for debit cards
   debitCards: [],
   loading: false,
   error: null,
@@ -33,69 +44,25 @@ export const useDebitCards = create((set) => ({
   cardDetails: null,
   selectedMethod: null,
 
-  // Set debit cards data
-  setDebitCards: (newData) =>
-    set(() => ({
-      debitCards: newData,
-      loading: false,
-      error: null,
-    })),
-  // Add a new debit card
-  addDebitCard: (newCard) =>
-    set((state) => ({
-      debitCards: [...state.debitCards, newCard],
-    })),
-  // Remove a debit card
-  removeDebitCard: (cardId) =>
-    set((state) => ({
-      debitCards: state.debitCards.filter((card) => card.metodo_pago_id !== cardId),
-    })),
-  // Set loading state
   setLoading: (isLoading) => set(() => ({ loading: isLoading })),
-  // Set error state
-  setError: (error) => set(() => ({ error })),
-  // Reset debit cards
-  resetDebitCards: () =>
-    set(() => ({
-      debitCards: [],
-      loading: false,
-      error: null,
-    })),
   setEditing: (editing) => set(() => ({ isEditing: editing })),
   setCardDetails: (details) => set(() => ({ cardDetails: details })),
   setSelectedMethod: (methodId) => set(() => ({ selectedMethod: methodId })),
   refreshDebitCards: async (userId) => {
     set(() => ({ loading: true }));
-    try {
-      /**To do: Agregar sesison de usarios */
-      // const userId = supabase.auth.user()?.id;
-      //  const userId = '32';
-      const { data: debitCards, error } = await supabase
-        .from('metodos_pago')
-        .select(
-          `
-          metodo_pago_id,
-          tipo_metodo,
-          activo,
-          tarjetas_pago (
-            last3,
-            marca,
-            fecha_expiracion
-          )
-        `
-        )
-        .eq('usuario_id', userId)
-        .eq('tipo_metodo', 'card');
+    const { data, error } = await supabase
+      .from('metodos_pago')
+      .select('metodo_pago_id, activo, tarjetas_pago (last4, marca, fecha_expiracion)')
+      .eq('usuario_id', userId)
+      .eq('tipo_metodo', 'card')
+      .order('creado_en', { ascending: true });
 
-      if (error) {
-        set(() => ({ error }));
-        console.error('Error fetching debit cards:', error);
-      } else {
-        set(() => ({ debitCards, loading: false, error: null }));
-      }
-    } catch (error) {
+    if (error) {
+      console.error('Error fetching cards:', error.message || error);
       set(() => ({ error, loading: false }));
-      console.error('Error refreshing debit cards:', error);
+      return;
     }
+
+    set(() => ({ debitCards: data.map(toCard), loading: false, error: null }));
   },
 }));

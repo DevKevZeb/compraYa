@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/initSupaBase';
-import { useCategory, useProduct, useDebitCards } from '../Stores/global.store';
+import { useCategory, useProduct } from '../Stores/global.store';
 
 export const getNameCategory = async () => {
   try {
@@ -129,161 +129,50 @@ export const getProducts = async () => {
   }
 };
 
-export const getDebitCardsByUser = async (userId) => {
-  try {
-    useDebitCards.getState().setLoading(true);
+// Stores a card as a payment method. Only the brand, last four digits and expiry
+// date are persisted; editing a card can only change its expiry date.
+export const saveDebitCard = async ({ userId, card, metodoPagoId }) => {
+  if (metodoPagoId) {
+    const { error } = await supabase
+      .from('tarjetas_pago')
+      .update({ fecha_expiracion: card.fecha_expiracion })
+      .eq('metodo_pago_id', metodoPagoId);
 
-    const { data: debitCards, error } = await supabase
-      .from('metodos_pago')
-      .select(
-        `
-                metodo_pago_id,
-    		          tipo_metodo,
-			          activo,
-    		          tarjetas_pago (
-     		           last3,
-			           fecha_expiracion
-    		      )
-            `
-      )
-      .eq('usuario_id', userId)
-      .eq('tipo_metodo', 'card');
-    if (error) {
-      console.error('Error al obtener las tarjetas de débito:', error);
-      // Estado de error.
-      useDebitCards.getState().setError(error);
-      return { error };
-    }
-
-    if (debitCards.length === 0) {
-      console.warn('No se encontraron tarjetas de débito para este usuario.');
-    }
-
-    useDebitCards.getState().setDebitCards(debitCards);
-
-    return { data: debitCards };
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    useDebitCards.getState().setError(error);
-    return { error };
+    return error
+      ? { success: false, error }
+      : { success: true, message: 'Tarjeta actualizada con éxito.' };
   }
-};
 
-export const saveDebitCard = async (data, isEditing, cardDetails, userData) => {
-  const { userId } = userData;
-  try {
-    if (!userId) {
-      throw new Error('No user is authenticated.');
-    }
+  const { data: metodoPago, error: metodoError } = await supabase
+    .from('metodos_pago')
+    .insert({ tipo_metodo: 'card', usuario_id: userId, activo: true })
+    .select('metodo_pago_id')
+    .single();
 
-    if (isEditing) {
-      // Update existing card
-      const { error } = await supabase
-        .from('tarjetas_pago')
-        .update({
-          last3: data.cardNumber,
-          fecha_expiracion: data.expiryDate,
-        })
-        .eq('metodo_pago_id', cardDetails.metodo_pago_id);
+  if (metodoError) {
+    return { success: false, error: metodoError };
+  }
 
-      if (error) {
-        console.error('Error updating card:', error);
-        return { success: false, error };
-      }
+  const { error } = await supabase.from('tarjetas_pago').insert({
+    metodo_pago_id: metodoPago.metodo_pago_id,
+    last4: card.last4,
+    marca: card.marca,
+    fecha_expiracion: card.fecha_expiracion,
+  });
 
-      return { success: true, message: 'Tarjeta actualizada con éxito!' };
-    } else {
-      // Add new card
-      const { data: metodoPago, error: metodoError } = await supabase
-        .from('metodos_pago')
-        .insert({
-          tipo_metodo: 'card',
-          usuario_id: userId,
-          activo: true,
-        })
-        .select('metodo_pago_id')
-        .single();
-
-      if (metodoError) {
-        console.error('Error adding payment method:', metodoError);
-        return { success: false, error: metodoError };
-      }
-
-      const { error } = await supabase.from('tarjetas_pago').insert({
-        metodo_pago_id: metodoPago.metodo_pago_id,
-        last3: data.cardNumber,
-        fecha_expiracion: data.expiryDate,
-      });
-      if (error) {
-        console.error('Error saving card details:', error);
-        return { success: false, error };
-      }
-      return { success: true, message: 'Tarjeta guardada con éxito!' };
-    }
-  } catch (error) {
-    console.error('Error handling card submission:', error);
+  if (error) {
+    // Do not leave an empty payment method behind.
+    await supabase.from('metodos_pago').delete().eq('metodo_pago_id', metodoPago.metodo_pago_id);
     return { success: false, error };
   }
+
+  return { success: true, message: 'Tarjeta guardada con éxito.' };
 };
 
-export const addDebitCard = async (cardData) => {
-  try {
-    useDebitCards.getState().setLoading(true);
+export const deleteDebitCard = async (metodoPagoId) => {
+  const { error } = await supabase.from('metodos_pago').delete().eq('metodo_pago_id', metodoPagoId);
 
-    const { data, error } = await supabase.from('metodos_pago').insert(cardData).select();
-
-    if (error) {
-      console.error('Error al agregar la tarjeta: ', error);
-      useDebitCards.getState().setError(error);
-      return { error };
-    }
-
-    useDebitCards.getState().addDebitCard(data[0]);
-
-    return { data: data[0] };
-  } catch (error) {
-    console.error('Error en la solicitud: ', error);
-    useDebitCards.getState().setError(error);
-    return { error };
-  }
-};
-
-export const deleteDebitCard = async (cardId) => {
-  try {
-    const { error } = await supabase.from('metodos_pago').delete().eq('metodo_pago_id', cardId);
-
-    if (error) {
-      console.error('Error deleting card:', error);
-      return { success: false, error };
-    }
-
-    return { success: true, message: 'Tarjeta eliminada con éxito!' };
-  } catch (error) {
-    console.error('Error handling card deletion:', error);
-    return { success: false, error };
-  }
-};
-
-export const removeDebitCard = async (cardId) => {
-  try {
-    // Set loading state
-    useDebitCards.getState().setLoading(true);
-
-    const { error } = await supabase.from('metodos_pago').delete().eq('metodo_pago_id', cardId);
-
-    if (error) {
-      console.error('Error al eliminar la tarjeta:', error);
-      useDebitCards.getState().setError(error);
-      return { error };
-    }
-
-    // Remove card from local state
-    useDebitCards.getState().removeDebitCard(cardId);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    useDebitCards.getState().setError(error);
-    return { error };
-  }
+  return error
+    ? { success: false, error }
+    : { success: true, message: 'Tarjeta eliminada con éxito.' };
 };

@@ -1,172 +1,175 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useEffect } from 'react';
-
-import { View, StyleSheet, Image, Text } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
-import { Controller, useForm } from 'react-hook-form';
-
-import { useDebitCards } from '../../Stores/global.store';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, Text, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 import { deleteDebitCard, saveDebitCard } from '../../services/api.services';
-import visa from '../../../assets/visa.png';
+import { useDebitCards } from '../../Stores/global.store';
 import { useUserStore } from '../../Stores/user.store';
+import {
+  CARD_BRANDS,
+  dateToExpiry,
+  detectCardBrand,
+  expiryToDate,
+  formatCardNumber,
+  formatExpiry,
+  getLast4,
+  isValidCardNumber,
+  isValidExpiry,
+  maskCardNumber,
+} from '../../utils/card';
+
 export const DebitCardComponent = ({ navigation }) => {
   const user = useUserStore((state) => state.user);
-  const { userId } = user;
-
-  const { isEditing, cardDetails, setEditing, setCardDetails, refreshDebitCards, setLoading } =
+  const { isEditing, cardDetails, refreshDebitCards, selectedMethod, setSelectedMethod } =
     useDebitCards();
+
   const {
     control,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       cardNumber: '',
       expiryDate: '',
-      userName: '',
+      holderName: user?.nombre_usuario ?? '',
     },
   });
 
   useEffect(() => {
     if (isEditing && cardDetails) {
-      const year = cardDetails.fecha_expiracion.slice(2, 4);
-      const month = cardDetails.fecha_expiracion.slice(5, 7);
-      const newExpiryDate = `${month}/${year}`;
-      setValue('cardNumber', cardDetails.last3 || '');
-      setValue('expiryDate', newExpiryDate || '');
-      setValue('userName', user.nombre_usuario || '');
+      setValue('expiryDate', dateToExpiry(cardDetails.fecha_expiracion));
     }
   }, [isEditing, cardDetails, setValue]);
 
-  const onSubmit = async (data) => {
-    const { expiryDate } = data;
-    const [month, year] = expiryDate.split('/');
-    const formattedDate = `20${year}-${month}-01`;
-    const newData = { ...data, expiryDate: formattedDate };
-    setLoading(true);
-    try {
-      const result = await saveDebitCard(newData, isEditing, cardDetails, user);
+  const cardNumber = useWatch({ control, name: 'cardNumber' });
+  const brandKey = isEditing ? cardDetails?.marca : detectCardBrand(cardNumber);
+  const brand = CARD_BRANDS[brandKey] ?? CARD_BRANDS.unknown;
 
-      if (!result.success) {
-        alert('Error: ' + result.error.message);
-        return;
-      }
-      alert(result.message);
-      reset();
-      refreshDebitCards(userId);
+  const showResult = (result) =>
+    Toast.show({
+      type: result.success ? 'success' : 'error',
+      text1: result.success ? 'Listo' : 'Error',
+      text2: result.success ? result.message : result.error.message,
+    });
+
+  const onSubmit = async ({ cardNumber, expiryDate }) => {
+    const card = { fecha_expiracion: expiryToDate(expiryDate) };
+    if (!isEditing) {
+      card.last4 = getLast4(cardNumber);
+      card.marca = detectCardBrand(cardNumber);
+    }
+
+    const result = await saveDebitCard({
+      userId: user.userId,
+      card,
+      metodoPagoId: isEditing ? cardDetails.metodo_pago_id : null,
+    });
+
+    showResult(result);
+    if (result.success) {
+      await refreshDebitCards(user.userId);
       navigation.goBack();
-    } catch (error) {
-      alert('Error inesperado. Intente nuevamente.');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    setLoading(true);
-    try {
-      const result = await deleteDebitCard(cardDetails.metodo_pago_id);
+    const result = await deleteDebitCard(cardDetails.metodo_pago_id);
 
-      if (!result.success) {
-        alert('Error: ' + result.error.message);
-        return;
+    showResult(result);
+    if (result.success) {
+      if (selectedMethod === cardDetails.metodo_pago_id) {
+        setSelectedMethod(null);
       }
-
-      alert(result.message);
-      refreshDebitCards(userId); // Refresh store after deleting
+      await refreshDebitCards(user.userId);
       navigation.goBack();
-    } catch (error) {
-      alert('Error inesperado. Intente nuevamente.');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.box}>
-        <View style={styles.containerVisa}>
-          <Image source={visa} />
+        <View style={styles.brand}>
+          <FontAwesome name={brand.icon} size={48} color="#3D2A80" />
         </View>
 
-        <Controller
-          name="cardNumber"
-          control={control}
-          rules={{
-            required: 'Número de tarjeta es obligatorio',
-            pattern: {
-              value: /^\d{3}$/, // Validar 3 digitos
-              message: 'Debe ingresar un número de tarjeta válido (3 dígitos)',
-            },
-          }}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              mode="outlined"
-              label="Número de tarjeta"
-              placeholder="Ingrese los últimos 3 dígitos"
-              keyboardType="numeric"
-              value={value}
-              onChangeText={onChange}
-              style={styles.numInput}
-              error={!!errors.cardNumber}
+        {isEditing ? (
+          <TextInput
+            mode="outlined"
+            label="Número de tarjeta"
+            value={maskCardNumber(cardDetails?.last4)}
+            disabled
+            style={styles.numInput}
+          />
+        ) : (
+          <>
+            <Controller
+              name="cardNumber"
+              control={control}
+              rules={{
+                required: 'El número de tarjeta es obligatorio',
+                validate: (value) => isValidCardNumber(value) || 'Número de tarjeta inválido',
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  mode="outlined"
+                  label="Número de tarjeta"
+                  placeholder="4242 4242 4242 4242"
+                  keyboardType="number-pad"
+                  value={value}
+                  onBlur={onBlur}
+                  onChangeText={(text) => onChange(formatCardNumber(text))}
+                  style={styles.numInput}
+                  error={!!errors.cardNumber}
+                />
+              )}
             />
-          )}
-        />
-        {errors.cardNumber && <Text style={styles.errorText}>{errors.cardNumber.message}</Text>}
+            {errors.cardNumber && <Text style={styles.errorText}>{errors.cardNumber.message}</Text>}
+          </>
+        )}
 
         <Controller
           name="expiryDate"
           control={control}
           rules={{
-            required: 'Fecha de expiración es obligatoria',
-            pattern: {
-              value: /^(0[1-9]|1[0-2])\/?([0-9]{2})$/,
-              message: 'Formato inválido (MM/YY)',
-            },
+            required: 'La fecha de expiración es obligatoria',
+            validate: (value) => isValidExpiry(value) || 'Fecha inválida o vencida (MM/YY)',
           }}
-          render={({ field: { onChange, value } }) => {
-            const handleTextChange = (text) => {
-              // Elimina cualquier carácter no numérico
-              const cleanText = text.replace(/[^0-9]/g, '');
-
-              // Formatea el texto como MM/YY
-              let formatted = cleanText;
-              if (cleanText.length >= 3) {
-                formatted = `${cleanText.slice(0, 2)}/${cleanText.slice(2, 4)}`;
-              }
-
-              onChange(formatted);
-            };
-            return (
-              <TextInput
-                mode="outlined"
-                label="MM/YY"
-                placeholder="MM/YY"
-                keyboardType="numeric"
-                value={value}
-                onChangeText={handleTextChange}
-                style={styles.numInput}
-                error={!!errors.expiryDate}
-              />
-            );
-          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              mode="outlined"
+              label="Vencimiento"
+              placeholder="MM/YY"
+              keyboardType="number-pad"
+              value={value}
+              onBlur={onBlur}
+              onChangeText={(text) => onChange(formatExpiry(text))}
+              style={styles.numInput}
+              error={!!errors.expiryDate}
+            />
+          )}
         />
         {errors.expiryDate && <Text style={styles.errorText}>{errors.expiryDate.message}</Text>}
 
         <Controller
-          name="userName"
+          name="holderName"
           control={control}
           render={({ field: { onChange, value } }) => (
             <TextInput
               mode="outlined"
-              label="Nombre de usuario"
+              label="Titular"
               value={value}
               onChangeText={onChange}
               style={styles.numInput}
             />
           )}
         />
+
+        <Text style={styles.notice}>
+          Solo guardamos la marca y los últimos 4 dígitos de tu tarjeta.
+        </Text>
 
         <View style={styles.containerButtons}>
           <Button
@@ -174,6 +177,7 @@ export const DebitCardComponent = ({ navigation }) => {
             style={styles.saveButton}
             onPress={handleSubmit(onSubmit)}
             loading={isSubmitting}
+            disabled={isSubmitting}
           >
             Guardar
           </Button>
@@ -205,12 +209,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  containerVisa: {
+  brand: {
     alignSelf: 'center',
     marginBottom: 20,
   },
   numInput: {
     marginBottom: 15,
+  },
+  notice: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'center',
   },
   containerButtons: {
     flexDirection: 'row',

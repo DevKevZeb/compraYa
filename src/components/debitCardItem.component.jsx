@@ -1,21 +1,25 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button, Checkbox, Text } from 'react-native-paper';
+import { CARD_BRANDS, dateToExpiry, maskCardNumber } from '../utils/card';
 
-import { Button, Text, Checkbox } from 'react-native-paper';
-import { View, Image, StyleSheet } from 'react-native';
-import visa from '../../assets/visa.png';
+const DebitCardItem = ({ card, isSelected, onSelect, onEdit }) => {
+  const brand = CARD_BRANDS[card.marca] ?? CARD_BRANDS.unknown;
 
-const DebitCardItem = ({ method, isSelected, onSelect, onEdit }) => {
   return (
     <View style={styles.debitCard}>
       <View style={styles.cardHeader}>
-        <Image source={visa} style={styles.cardIcon} />
+        <View style={styles.brand}>
+          <FontAwesome name={brand.icon} size={28} color="#3D2A80" />
+          <Text variant="labelLarge">{brand.label}</Text>
+        </View>
         <Checkbox status={isSelected ? 'checked' : 'unchecked'} onPress={onSelect} />
       </View>
       <Text style={styles.textCardDebit} variant="titleMedium">
-        {method.tarjetas_pago[0].last3
-          ? `**** **** **** ${method.tarjetas_pago[0].last3}`
-          : 'Sin detalles'}
+        {maskCardNumber(card.last4)}
       </Text>
+      <Text variant="bodySmall">Vence {dateToExpiry(card.fecha_expiracion)}</Text>
       <Button mode="contained" style={styles.buttonCardDebit} onPress={onEdit}>
         Editar
       </Button>
@@ -41,9 +45,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  cardIcon: {
-    width: 40,
-    height: 24,
+  brand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   textCardDebit: {
     marginTop: 8,
