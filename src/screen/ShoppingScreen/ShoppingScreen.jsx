@@ -26,10 +26,6 @@ export const ShoppingScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.costContainer}>
-        {/* <View style={styles.row}>
-          <Text variant='bodyMedium'>Costo Envio:</Text>
-          <Text variant='bodyMedium'>{shippingCost} Bs</Text>
-        </View> */}
         <View style={styles.row}>
           <Text variant="bodyMedium">Subtotal:</Text>
           <Text variant="bodyMedium">{subTotal.toFixed(2)} Bs</Text>

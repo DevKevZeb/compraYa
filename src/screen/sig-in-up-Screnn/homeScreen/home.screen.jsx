@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View, Text, StyleSheet } from 'react-native';
+import { Image, View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import Compraya3 from '../../../../assets/Compraya3.png';
 export const HomeScreen = ({ navigation }) => {
