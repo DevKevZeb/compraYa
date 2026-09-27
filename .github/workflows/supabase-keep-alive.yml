@@ -1,0 +1,28 @@
+name: Supabase keep-alive
+
+# Free Supabase projects are paused after a week without activity. A tiny read
+# every few days keeps the demo backend online.
+on:
+  schedule:
+    - cron: '0 12 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Query the public catalog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::warning::Set the SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY repository secrets."
+            exit 0
+          fi
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/categorias?select=categoria_id&limit=1" \
+            -H "apikey: $SUPABASE_KEY")
+          echo "Supabase responded with HTTP $status"
+          test "$status" = "200"
