@@ -9,7 +9,6 @@ import google from '../../../../assets/google.png';
 import { supabase } from '../../../../lib/initSupaBase';
 import { CustomInputComponent } from '../../../components/CustomInput.component';
 import { SigInSchema } from '../../../models/form.model';
-import { useUserStore } from '../../../Stores/user.store';
 
 export const SignInComponent = ({ navigation }) => {
   const {
@@ -27,19 +26,19 @@ export const SignInComponent = ({ navigation }) => {
   });
 
   const [loading, setLoading] = useState(false);
-  const setUser = useUserStore((state) => state.setUser);
 
   const onSubmit = async (data) => {
     setLoading(true);
     const { email, password } = data;
 
-    const { data: signInData, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    setLoading(false);
+
     if (error) {
-      setLoading(false);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -49,39 +48,13 @@ export const SignInComponent = ({ navigation }) => {
       return;
     }
 
-    // Obtener información adicional del usuario desde la tabla "usuarios"
-    const { data: userData, error: userError } = await supabase
-      .from('usuarios')
-      .select('usuario_id,nombre_usuario, correo_electronico')
-      .eq('correo_electronico', email)
-      .single();
-
-    setLoading(false);
-
-    if (userError) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'No se pudo obtener la información del usuario.',
-        duration: 1000,
-      });
-      return;
-    }
-
-    // Almacenar la información del usuario en el estado global
-    setUser({
-      userId: userData.usuario_id,
-      email: signInData.user.email,
-      nombre_usuario: userData.nombre_usuario,
-    });
-
+    // The root navigator switches to the main app once the session is set.
     Toast.show({
       type: 'success',
       text1: 'Success',
       text2: 'Inicio de sesión exitoso',
       duration: 1000,
     });
-    navigation.navigate('ListProductos'); // Asegúrate de que esta ruta exista
     reset();
   };
 

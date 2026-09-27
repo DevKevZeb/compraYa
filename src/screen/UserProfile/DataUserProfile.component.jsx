@@ -104,8 +104,7 @@ export const DataUserProfile = ({ navigation }) => {
       duration: 1000,
     });
 
-    // Redirigir a la pantalla de inicio de sesión
-    navigation.navigate('SignIn');
+    navigation.goBack();
     setLoading(false); // Detener carga
   };
 

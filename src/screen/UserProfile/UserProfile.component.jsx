@@ -8,7 +8,6 @@ import { useUserStore } from '../../Stores/user.store';
 
 export const UserProfile = ({ navigation }) => {
   const user = useUserStore((state) => state.user);
-  const clearUser = useUserStore((state) => state.clearUser);
   const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
   const fetchOrderHistory = useUserStore((state) => state.fetchOrderHistory);
   const orders = useUserStore((state) => state.orders);
@@ -31,9 +30,8 @@ export const UserProfile = ({ navigation }) => {
   }, [orders]);
 
   const handleSignOut = async () => {
+    // The root navigator returns to the auth flow when the session ends.
     await supabase.auth.signOut();
-    clearUser();
-    navigation.navigate('SignIn');
   };
 
   if (!user) {

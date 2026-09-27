@@ -1,10 +1,41 @@
 import { create } from 'zustand';
 import { supabase } from '../../lib/initSupaBase';
 
-export const useUserStore = create((set) => ({
+export const useUserStore = create((set, get) => ({
+  // Supabase auth session; the navigation tree is derived from it.
+  session: null,
+  authReady: false,
   user: null,
   setUser: (userData) => set(() => ({ user: userData })),
   clearUser: () => set(() => ({ user: null })),
+  handleSession: (session) => {
+    set({ session, authReady: true });
+    if (session) {
+      // Defer Supabase calls out of the auth callback to avoid deadlocks.
+      setTimeout(() => get().loadProfile(session.user), 0);
+    } else {
+      set({ user: null, orders: [], orderHistory: [] });
+    }
+  },
+  loadProfile: async (authUser) => {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('usuario_id, nombre_usuario')
+      .eq('usuario_id', authUser.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error loading profile:', error.message || error);
+    }
+
+    set({
+      user: {
+        userId: authUser.id,
+        email: authUser.email,
+        nombre_usuario: data?.nombre_usuario ?? '',
+      },
+    });
+  },
   orders: [],
   orderHistory: [],
   setOrders: (orders) => set(() => ({ orders })),

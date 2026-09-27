@@ -5,7 +5,6 @@ import { SignInComponent } from '../screen/sig-in-up-Screnn/sign-in-Screen/sign-
 import { RegisterComponent } from '../screen/sig-in-up-Screnn/RegisterScreen/register.component';
 import { ForgotPassword } from '../screen/sig-in-up-Screnn/ForgotPassword/forgotPassword.screen';
 import { RecoveryPasswordComponent } from '../screen/sig-in-up-Screnn/recoveryPassword/recoveryPassword.component';
-import { DataUserProfile } from '../screen/UserProfile/DataUserProfile.component';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -49,16 +48,6 @@ export const AuthNavigation = () => {
         options={{
           headerShown: true,
           headerTitle: '',
-          headerStyle: { backgroundColor: '#EADDFF' },
-          headerShadowVisible: false,
-        }}
-      />
-      <AuthStack.Screen
-        name="DataUserProfile"
-        component={DataUserProfile}
-        options={{
-          headerShown: true,
-          headerTitle: 'Actualizar Datos',
           headerStyle: { backgroundColor: '#EADDFF' },
           headerShadowVisible: false,
         }}
