@@ -9,6 +9,7 @@ const PRODUCT_FIELDS = `
   stock,
   popularidad,
   url_imagen,
+  imagenes,
   atributos_producto (nombre_atributo, valor_atributo)
 `;
 
