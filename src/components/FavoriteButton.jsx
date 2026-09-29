@@ -4,6 +4,7 @@ import { Animated, Pressable, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useFavoritesStore } from '../stores/favorites.store';
 import { colors, radius, shadows } from '../theme';
+import { tapFeedback } from '../utils/haptics';
 
 // Heart toggle with a small "pop" when a product is saved.
 export const FavoriteButton = ({ product, size = 18, style }) => {
@@ -14,6 +15,7 @@ export const FavoriteButton = ({ product, size = 18, style }) => {
   const [scale] = useState(() => new Animated.Value(1));
 
   const onPress = async () => {
+    tapFeedback();
     if (!favorite) {
       Animated.sequence([
         Animated.spring(scale, { toValue: 1.3, speed: 40, useNativeDriver: false }),

@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Badge, Text } from 'react-native-paper';
 import { useCartStore } from '../stores/cart.store';
 import { colors, radius, shadows, spacing } from '../theme';
+import { tapFeedback } from '../utils/haptics';
 import { getStockStatus } from '../utils/product';
 import { FavoriteButton } from './FavoriteButton';
 import { Price, ProductImage, Rating } from './ui';
@@ -50,7 +51,10 @@ export const ProductCard = memo(function ProductCard({ item, onPress, style }) {
         <View style={styles.footer}>
           <Price value={precio} variant="titleMedium" />
           <Pressable
-            onPress={() => addToCart({ nombre_producto, precio, producto_id, url_imagen })}
+            onPress={() => {
+              tapFeedback();
+              addToCart({ nombre_producto, precio, producto_id, url_imagen });
+            }}
             disabled={outOfStock}
             style={({ pressed }) => [
               styles.add,

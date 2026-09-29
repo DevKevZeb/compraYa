@@ -10,6 +10,7 @@ import { Price, QuantityStepper, Rating, SectionHeader, StatusChip } from '../..
 import { getProducts } from '../../services/api';
 import { useCartStore } from '../../stores/cart.store';
 import { colors, radius, shadows, spacing } from '../../theme';
+import { tapFeedback } from '../../utils/haptics';
 import { formatCurrency } from '../../utils/order';
 import { getProductImages, getStockStatus } from '../../utils/product';
 
@@ -44,6 +45,7 @@ export const ProductDetailScreen = ({ navigation, route }) => {
   }, [product.categoria_id, product.producto_id]);
 
   const handleAdd = () => {
+    tapFeedback();
     addToCart(product, quantity);
     Toast.show({
       type: 'success',

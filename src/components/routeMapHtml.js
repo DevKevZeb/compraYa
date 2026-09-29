@@ -27,10 +27,10 @@ const buildHtml = ({ store, destination, route, bottomInset }) => `<!DOCTYPE htm
         .addTo(map)
         .bindPopup(label);
 
-    pin(data.store, '#2E7D32', 'Tienda');
+    pin(data.store, '#2E7D32', 'CompraYa store');
     const bounds = [data.store];
     if (data.destination) {
-      pin(data.destination, '#C62828', 'Destino');
+      pin(data.destination, '#C62828', 'Delivery address');
       bounds.push(data.destination);
     }
     if (data.route.length > 1) {

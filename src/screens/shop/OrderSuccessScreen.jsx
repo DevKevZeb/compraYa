@@ -4,6 +4,7 @@ import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, shadows, spacing } from '../../theme';
+import { successFeedback } from '../../utils/haptics';
 import { formatCurrency } from '../../utils/order';
 
 export const OrderSuccessScreen = ({ navigation, route }) => {
@@ -14,6 +15,7 @@ export const OrderSuccessScreen = ({ navigation, route }) => {
   const [content] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
+    successFeedback();
     Animated.sequence([
       Animated.spring(scale, { toValue: 1, friction: 5, tension: 80, useNativeDriver: false }),
       Animated.parallel([

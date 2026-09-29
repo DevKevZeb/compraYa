@@ -52,7 +52,7 @@ export const RootNavigator = () => {
       })
       .catch((error) => {
         setPasswordRecovery(false);
-        Toast.show({ type: 'error', text1: 'Enlace inválido', text2: error.message });
+        Toast.show({ type: 'error', text1: 'Invalid link', text2: error.message });
       });
   }, [url]);
 
