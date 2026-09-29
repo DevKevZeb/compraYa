@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Avatar, Button, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { supabase } from '../../lib/supabase';
 import { FormInput } from '../../components/FormInput';
+import { supabase } from '../../lib/supabase';
 import { DataUserSchema } from '../../schemas/forms';
 import { useUserStore } from '../../stores/user.store';
+import { colors, radius, spacing } from '../../theme';
+import { getInitials } from '../../utils/user';
 
 export const EditProfileScreen = ({ navigation }) => {
   const {
@@ -16,10 +18,7 @@ export const EditProfileScreen = ({ navigation }) => {
     setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      name: '',
-      email: '',
-    },
+    defaultValues: { name: '', email: '' },
     resolver: zodResolver(DataUserSchema),
     mode: 'onBlur',
   });
@@ -36,7 +35,7 @@ export const EditProfileScreen = ({ navigation }) => {
   }, [user, setValue]);
 
   const showError = (message) =>
-    Toast.show({ type: 'error', text1: 'Error', text2: message, duration: 1000 });
+    Toast.show({ type: 'error', text1: 'Something went wrong', text2: message });
 
   const onSubmit = async ({ name, email }) => {
     setLoading(true);
@@ -48,7 +47,7 @@ export const EditProfileScreen = ({ navigation }) => {
 
     if (updateError) {
       setLoading(false);
-      showError('No se pudo actualizar el nombre del usuario.');
+      showError('We could not update your name.');
       return;
     }
 
@@ -59,7 +58,7 @@ export const EditProfileScreen = ({ navigation }) => {
       const { error: authError } = await supabase.auth.updateUser({ email });
       if (authError) {
         setLoading(false);
-        showError('No se pudo actualizar el correo electrónico del usuario.');
+        showError('We could not update your email address.');
         return;
       }
     }
@@ -69,77 +68,97 @@ export const EditProfileScreen = ({ navigation }) => {
 
     Toast.show({
       type: 'success',
-      text1: 'Éxito',
-      text2: emailChanged
-        ? 'Datos actualizados. Revisa tu correo para confirmar la nueva dirección.'
-        : 'Datos actualizados correctamente.',
-      duration: 1500,
+      text1: 'Profile updated',
+      text2: emailChanged ? 'Check your inbox to confirm your new email address.' : undefined,
     });
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <View style={{ textAlign: 'left' }}>
-          <Text variant="headlineSmall" style={{ marginTop: 10 }}>
-            Actualiza tus datos por favor.
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.avatarWrap}>
+          <Avatar.Text
+            size={84}
+            label={getInitials(user?.nombre_usuario)}
+            style={styles.avatar}
+            color={colors.primary}
+          />
+          <Text variant="bodySmall" style={styles.hint}>
+            Your initials are used as your avatar.
           </Text>
         </View>
-        <FormInput
-          name="name"
-          control={control}
-          label="Nombre"
-          defaultValue={user.nombre_usuario}
-          type="text"
-          error={errors.name}
-        />
-        <FormInput
-          name="email"
-          control={control}
-          label="Email"
-          defaultValue={user.email}
-          type="email"
-          error={errors.email}
-        />
-      </View>
-      <View style={styles.buttonContainer}>
+
+        <View style={styles.card}>
+          <FormInput
+            name="name"
+            control={control}
+            label="Full name"
+            icon="account-outline"
+            autoComplete="name"
+            error={errors.name}
+          />
+          <FormInput
+            name="email"
+            control={control}
+            label="Email"
+            type="email"
+            icon="email-outline"
+            autoComplete="email"
+            error={errors.email}
+          />
+          <Text variant="bodySmall" style={styles.hint}>
+            Changing your email sends a confirmation link to the new address.
+          </Text>
+        </View>
+
         <Button
           mode="contained"
-          style={styles.button}
           onPress={handleSubmit(onSubmit)}
-          loading={loading} // Mostrar animación de carga en el botón
+          loading={loading}
+          disabled={loading}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
         >
-          Actualizar Datos
+          Save changes
         </Button>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: '#EADDFF',
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  text: {
-    textAlign: 'center',
+  content: {
+    padding: spacing.lg,
   },
-  inputContainer: {
-    justifyContent: 'center',
+  avatarWrap: {
     alignItems: 'center',
+    marginVertical: spacing.xl,
+    gap: spacing.sm,
   },
-  input: {
-    width: '80%',
-    marginTop: 30,
+  avatar: {
+    backgroundColor: colors.primarySoft,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
+  hint: {
+    color: colors.textMuted,
   },
   button: {
-    backgroundColor: '#9C7CFE',
-    marginTop: 40,
-    width: '70%',
+    marginTop: spacing.xxl,
+    borderRadius: radius.pill,
   },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  buttonContent: {
+    height: 50,
   },
 });

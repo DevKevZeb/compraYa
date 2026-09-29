@@ -2,6 +2,7 @@ import {
   SHIPPING_COST,
   calculateOrderTotals,
   calculateSubtotal,
+  formatCompactCurrency,
   formatCurrency,
   toOrderItems,
 } from '../order';
@@ -38,5 +39,11 @@ describe('order utils', () => {
 
   it('formats amounts in bolivianos', () => {
     expect(formatCurrency(20)).toBe('Bs 20.00');
+  });
+
+  it('abbreviates large amounts', () => {
+    expect(formatCompactCurrency(950.4)).toBe('Bs 950');
+    expect(formatCompactCurrency(9089)).toBe('Bs 9.1k');
+    expect(formatCompactCurrency(1250000)).toBe('Bs 1.3M');
   });
 });

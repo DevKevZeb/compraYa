@@ -10,6 +10,7 @@ import { EmptyState, SectionHeader } from '../../components/ui';
 import { getCategories, getProducts } from '../../services/api';
 import { useUserStore } from '../../stores/user.store';
 import { colors, fontFamilies, radius, spacing } from '../../theme';
+import { getFirstName, getInitials } from '../../utils/user';
 
 const SEARCH_DEBOUNCE_MS = 400;
 const POPULAR_COUNT = 8;
@@ -19,18 +20,10 @@ const SKELETONS = Array.from({ length: 4 }, (_, i) => ({ producto_id: `skeleton-
 const withSpacer = (items) =>
   items.length % 2 === 1 ? [...items, { producto_id: 'spacer', spacer: true }] : items;
 
-const initials = (name = '') =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('') || 'C';
-
 export const ProductsScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const userName = useUserStore((state) => state.user?.nombre_usuario ?? '');
-  const firstName = userName.split(' ')[0];
+  const firstName = getFirstName(userName);
 
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState(null);
@@ -95,7 +88,7 @@ export const ProductsScreen = ({ navigation }) => {
         </View>
         <Avatar.Text
           size={44}
-          label={initials(userName)}
+          label={getInitials(userName)}
           style={styles.avatar}
           color={colors.primary}
         />

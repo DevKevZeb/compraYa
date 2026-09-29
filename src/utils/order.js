@@ -17,3 +17,11 @@ export const toOrderItems = (items) =>
   items.map(({ producto_id, cantidad }) => ({ producto_id, cantidad }));
 
 export const formatCurrency = (value) => `Bs ${Number(value).toFixed(2)}`;
+
+// Short amounts for tight spaces: "Bs 950", "Bs 9.1k", "Bs 1.2M".
+export const formatCompactCurrency = (value) => {
+  const amount = Number(value);
+  if (amount >= 1_000_000) return `Bs ${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `Bs ${(amount / 1_000).toFixed(1)}k`;
+  return `Bs ${Math.round(amount)}`;
+};
