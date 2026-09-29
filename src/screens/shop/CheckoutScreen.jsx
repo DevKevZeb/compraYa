@@ -1,30 +1,32 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { CheckoutSteps } from '../../components/CheckoutSteps';
 import { OrderSummary } from '../../components/OrderSummary';
 import { PaymentOption } from '../../components/PaymentOption';
+import { RouteMap } from '../../components/RouteMap';
 import { Price, ProductImage, SectionHeader } from '../../components/ui';
+import { DELIVERY_AREA, STORE_LOCATION } from '../../config/store';
 import { useCartStore } from '../../stores/cart.store';
 import { useCheckoutStore } from '../../stores/checkout.store';
 import { usePaymentStore } from '../../stores/payment.store';
 import { useUserStore } from '../../stores/user.store';
 import { colors, radius, shadows, spacing } from '../../theme';
 import { CARD_BRANDS, dateToExpiry } from '../../utils/card';
+import { isWithinDeliveryArea } from '../../utils/geo';
 import { calculateOrderTotals, formatCurrency } from '../../utils/order';
 
 const STEPS = ['Address', 'Payment', 'Review'];
-const MIN_ADDRESS_LENGTH = 5;
 
 export const CheckoutScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const cartItems = useCartStore((state) => state.cartItems);
   const saveOrder = useCartStore((state) => state.saveOrder);
-  const lastAddress = useCheckoutStore((state) => state.lastAddress);
-  const setLastAddress = useCheckoutStore((state) => state.setLastAddress);
+  const location = useCheckoutStore((state) => state.deliveryLocation);
   const userId = useUserStore((state) => state.user?.userId);
   const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
   const {
@@ -37,14 +39,13 @@ export const CheckoutScreen = ({ navigation }) => {
   } = usePaymentStore();
 
   const [step, setStep] = useState(0);
-  const [address, setAddress] = useState(lastAddress);
   const [placing, setPlacing] = useState(false);
 
   const { total } = calculateOrderTotals(cartItems);
   const selectedCard = debitCards.find((card) => card.metodo_pago_id === selectedMethod);
   // Any selected method that is not a saved card is the QR payment method.
   const payingByQr = Boolean(selectedMethod) && !selectedCard;
-  const addressValid = address.trim().length >= MIN_ADDRESS_LENGTH;
+  const addressValid = isWithinDeliveryArea(location);
 
   // Cards may be added from the card form, so refresh whenever checkout regains focus.
   useFocusEffect(
@@ -63,7 +64,7 @@ export const CheckoutScreen = ({ navigation }) => {
 
   const placeOrder = async () => {
     setPlacing(true);
-    const { order, error } = await saveOrder(address.trim(), selectedMethod);
+    const { order, error } = await saveOrder(location, selectedMethod);
     setPlacing(false);
 
     if (error) {
@@ -71,7 +72,6 @@ export const CheckoutScreen = ({ navigation }) => {
       return;
     }
 
-    setLastAddress(address.trim());
     fetchUserOrders();
     // Replace checkout with the confirmation so going back returns to the cart.
     navigation.reset({
@@ -89,19 +89,50 @@ export const CheckoutScreen = ({ navigation }) => {
   const renderAddress = () => (
     <View>
       <SectionHeader title="Where should we deliver?" />
-      <TextInput
-        mode="outlined"
-        label="Delivery address"
-        placeholder="Street, number and area"
-        value={address}
-        onChangeText={setAddress}
-        multiline
-        left={<TextInput.Icon icon="map-marker-outline" />}
-        outlineStyle={styles.inputOutline}
-        style={styles.input}
-      />
+      {location ? (
+        <View style={styles.locationCard}>
+          <View style={styles.locationMap} pointerEvents="none">
+            <RouteMap store={STORE_LOCATION} destination={location} bottomInset={40} />
+          </View>
+          <View style={styles.locationBody}>
+            <View style={styles.locationIcon}>
+              <MaterialCommunityIcons name="map-marker" size={22} color={colors.primary} />
+            </View>
+            <View style={styles.detailText}>
+              <Text variant="titleSmall" style={styles.value}>
+                {location.label}
+              </Text>
+              {location.reference ? (
+                <Text variant="bodySmall" style={styles.hintInline}>
+                  {location.reference}
+                </Text>
+              ) : null}
+            </View>
+            <Button compact onPress={() => navigation.navigate('AddressPicker')}>
+              Change
+            </Button>
+          </View>
+        </View>
+      ) : (
+        <Pressable
+          onPress={() => navigation.navigate('AddressPicker')}
+          style={styles.chooseCard}
+          accessibilityRole="button"
+        >
+          <View style={styles.chooseIcon}>
+            <MaterialCommunityIcons name="map-search-outline" size={30} color={colors.primary} />
+          </View>
+          <Text variant="titleMedium" style={styles.value}>
+            Choose the delivery point on the map
+          </Text>
+          <Text variant="bodySmall" style={styles.hintCenter}>
+            Search your street or drop a pin anywhere in {DELIVERY_AREA.name}.
+          </Text>
+        </Pressable>
+      )}
       <Text variant="bodySmall" style={styles.hint}>
-        We deliver across Cochabamba. You can follow the courier on the map after paying.
+        We deliver within {DELIVERY_AREA.radiusKm} km of the {DELIVERY_AREA.name} city center. You
+        can follow the courier on the map after paying.
       </Text>
     </View>
   );
@@ -155,7 +186,7 @@ export const CheckoutScreen = ({ navigation }) => {
               DELIVERY ADDRESS
             </Text>
             <Text variant="bodyMedium" style={styles.value}>
-              {address.trim()}
+              {location?.address}
             </Text>
           </View>
           <Button compact onPress={() => setStep(0)}>
@@ -235,16 +266,57 @@ const styles = StyleSheet.create({
   gapTop: {
     marginTop: spacing.md,
   },
-  input: {
-    backgroundColor: colors.surface,
-    minHeight: 90,
-  },
-  inputOutline: {
-    borderRadius: radius.md,
-  },
   hint: {
     color: colors.textMuted,
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
+  },
+  hintInline: {
+    color: colors.textMuted,
+  },
+  hintCenter: {
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  locationCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    ...shadows.card,
+  },
+  locationMap: {
+    height: 150,
+  },
+  locationBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    padding: spacing.md,
+  },
+  locationIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chooseCard: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.xxl,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
+  },
+  chooseIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addCard: {
     borderRadius: radius.pill,

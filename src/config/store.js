@@ -4,6 +4,14 @@ export const STORE_LOCATION = {
   longitude: -66.14728339607203,
 };
 
-// Appended to addresses so geocoding favors results near the store.
-export const DELIVERY_AREA = 'Cochabamba, Bolivia';
+// Orders are only delivered inside this circle around Plaza 14 de Septiembre.
+// The create_order database function enforces the same values.
+export const DELIVERY_AREA = {
+  name: 'Cochabamba',
+  center: { latitude: -17.3935, longitude: -66.157 },
+  radiusKm: 10,
+};
+
+// Appended to searches so geocoding favors results in the delivery city.
+export const DELIVERY_CITY = 'Cochabamba, Bolivia';
 export const DELIVERY_COUNTRY_CODE = 'bo';

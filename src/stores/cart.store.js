@@ -59,9 +59,12 @@ export const useCartStore = create(
 
       // Places the order through the create_order RPC, which prices the items,
       // stores them and updates stock in a single transaction.
-      saveOrder: async (address, paymentMethodId) => {
+      // location: { address, latitude, longitude } picked on the delivery map.
+      saveOrder: async (location, paymentMethodId) => {
         const { data, error } = await supabase.rpc('create_order', {
-          p_direccion_envio: address,
+          p_direccion_envio: location.address,
+          p_latitud: location.latitude,
+          p_longitud: location.longitude,
           p_metodo_pago: paymentMethodId,
           p_items: toOrderItems(get().cartItems),
         });

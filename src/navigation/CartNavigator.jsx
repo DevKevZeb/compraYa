@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AddressPickerScreen } from '../screens/shop/AddressPickerScreen';
 import { CardFormScreen } from '../screens/shop/CardFormScreen';
 import { CartScreen } from '../screens/shop/CartScreen';
 import { CheckoutScreen } from '../screens/shop/CheckoutScreen';
@@ -14,6 +15,11 @@ export const CartNavigator = () => (
   <Stack.Navigator screenOptions={stackScreenOptions}>
     <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'My cart' }} />
     <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
+    <Stack.Screen
+      name="AddressPicker"
+      component={AddressPickerScreen}
+      options={{ headerShown: false }}
+    />
     <Stack.Screen
       name="PaymentMethods"
       component={PaymentMethodsScreen}

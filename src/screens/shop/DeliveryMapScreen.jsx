@@ -41,8 +41,11 @@ const Stop = ({ icon, color, label, value, last }) => (
 
 export const DeliveryMapScreen = ({ route }) => {
   const insets = useSafeAreaInsets();
-  const address = route.params?.direccion_envio?.trim() ?? '';
   const order = route.params?.order;
+  const address = (order?.direccion_envio ?? route.params?.direccion_envio ?? '').trim();
+  // Orders store the exact point picked on the map; older ones only have an address.
+  const savedLat = order?.latitud;
+  const savedLng = order?.longitud;
   const [destination, setDestination] = useState(null);
   const [deliveryRoute, setDeliveryRoute] = useState(null);
   const [status, setStatus] = useState({ loading: true, error: null });
@@ -53,7 +56,12 @@ export const DeliveryMapScreen = ({ route }) => {
     const load = async () => {
       setStatus({ loading: true, error: null });
       try {
-        const target = address ? await geocodeAddress(address) : await getCurrentPosition();
+        const target =
+          savedLat != null && savedLng != null
+            ? { latitude: savedLat, longitude: savedLng }
+            : address
+              ? await geocodeAddress(address)
+              : await getCurrentPosition();
         if (!target) {
           throw new Error('We could not find the delivery address on the map.');
         }
@@ -78,7 +86,7 @@ export const DeliveryMapScreen = ({ route }) => {
     return () => {
       cancelled = true;
     };
-  }, [address]);
+  }, [address, savedLat, savedLng]);
 
   const eta = deliveryRoute ? Math.max(1, Math.round(deliveryRoute.durationMin)) : null;
 
