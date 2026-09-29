@@ -1,11 +1,30 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { Image, View, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import Compraya3 from '../../../assets/Compraya3.png';
+import { BrandMark } from '../../components/ui/BrandMark';
 import { DEMO_ACCOUNT, signInAsGuest } from '../../services/auth';
+import { colors, radius, shadows, spacing } from '../../theme';
+
+const FEATURES = [
+  { icon: 'truck-fast-outline', label: 'Fast delivery' },
+  { icon: 'shield-check-outline', label: 'Secure payments' },
+  { icon: 'map-marker-path', label: 'Live tracking' },
+];
+
+// Decorative product bubbles floating over the hero.
+const BUBBLES = [
+  { icon: 'headphones', top: '34%', left: '7%', size: 58 },
+  { icon: 'watch-variant', top: '24%', right: '10%', size: 50 },
+  { icon: 'shoe-sneaker', bottom: '14%', left: '14%', size: 52 },
+  { icon: 'lipstick', bottom: '20%', right: '12%', size: 46 },
+];
 
 export const WelcomeScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [guestLoading, setGuestLoading] = useState(false);
 
   const handleGuest = async () => {
@@ -15,74 +34,169 @@ export const WelcomeScreen = ({ navigation }) => {
 
     // On success the root navigator switches to the main app.
     if (error) {
-      Toast.show({ type: 'error', text1: 'No se pudo entrar como invitado', text2: error.message });
+      Toast.show({ type: 'error', text1: 'Could not sign in as guest', text2: error.message });
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={Compraya3} style={styles.imageContainer} resizeMode="contain" />
-      <View style={styles.buttonContainer}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xl }]}
+      bounces={false}
+    >
+      <LinearGradient
+        colors={[colors.primary, colors.primaryLight]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.hero, { paddingTop: insets.top + spacing.xl }]}
+      >
+        <BrandMark size={44} light />
+        {BUBBLES.map(({ icon, size, ...position }) => (
+          <View
+            key={icon}
+            style={[styles.bubble, position, { width: size, height: size, borderRadius: size / 2 }]}
+          >
+            <MaterialCommunityIcons name={icon} size={size * 0.5} color={colors.primary} />
+          </View>
+        ))}
+        <View style={styles.heroCenter}>
+          <MaterialCommunityIcons name="shopping-outline" size={96} color={colors.onPrimary} />
+        </View>
+      </LinearGradient>
+
+      <View style={styles.body}>
+        <Text variant="headlineMedium" style={styles.title}>
+          Everything you love, delivered fast.
+        </Text>
+        <Text variant="bodyLarge" style={styles.subtitle}>
+          Browse the catalog, pay by card or QR and follow your order on the map.
+        </Text>
+
+        <View style={styles.features}>
+          {FEATURES.map(({ icon, label }) => (
+            <View key={label} style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <MaterialCommunityIcons name={icon} size={22} color={colors.primary} />
+              </View>
+              <Text variant="labelMedium" style={styles.featureLabel}>
+                {label}
+              </Text>
+            </View>
+          ))}
+        </View>
+
         <Button
           mode="contained"
           onPress={() => navigation.navigate('SignIn')}
           style={styles.button}
+          contentStyle={styles.buttonContent}
         >
-          Ingresar
+          Sign in
         </Button>
         <Button
-          mode="contained"
+          mode="outlined"
           onPress={() => navigation.navigate('Register')}
           style={styles.button}
+          contentStyle={styles.buttonContent}
         >
-          Registrate
+          Create account
         </Button>
+
         {DEMO_ACCOUNT && (
-          <>
+          <View style={styles.guest}>
             <Button
-              mode="outlined"
+              mode="text"
+              icon="account-arrow-right-outline"
               onPress={handleGuest}
               loading={guestLoading}
               disabled={guestLoading}
-              style={styles.guestButton}
-              textColor="#5B3FD1"
             >
-              Entrar como invitado
+              Continue as guest
             </Button>
             <Text variant="bodySmall" style={styles.guestHint}>
-              Cuenta demo compartida con datos de prueba
+              Explore with a shared demo account
             </Text>
-          </>
+          </View>
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#eaddff',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+  screen: {
+    flex: 1,
+    backgroundColor: colors.surface,
   },
-  buttonContainer: {
+  content: {
+    flexGrow: 1,
+  },
+  hero: {
+    height: 340,
+    paddingHorizontal: spacing.xxl,
+    borderBottomLeftRadius: radius.xl * 1.5,
+    borderBottomRightRadius: radius.xl * 1.5,
+    overflow: 'hidden',
+  },
+  heroCenter: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.95,
+  },
+  bubble: {
+    position: 'absolute',
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.raised,
+  },
+  body: {
+    flex: 1,
+    paddingHorizontal: spacing.xxl,
+    paddingTop: spacing.xxl,
+  },
+  title: {
+    color: colors.text,
+  },
+  subtitle: {
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+  },
+  features: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: spacing.xxl,
+  },
+  feature: {
+    alignItems: 'center',
+    flex: 1,
+    gap: spacing.xs,
+  },
+  featureIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureLabel: {
+    color: colors.textMuted,
+    textAlign: 'center',
   },
   button: {
-    width: '70%',
-    backgroundColor: '#9C7CFE',
-    marginBottom: 20,
+    borderRadius: radius.pill,
+    marginBottom: spacing.md,
   },
-  guestButton: {
-    width: '70%',
-    borderColor: '#9C7CFE',
+  buttonContent: {
+    height: 50,
+  },
+  guest: {
+    alignItems: 'center',
+    marginTop: spacing.xs,
   },
   guestHint: {
-    marginTop: 6,
-    color: '#5B5B5B',
-  },
-  imageContainer: {
-    alignSelf: 'center',
+    color: colors.textSubtle,
   },
 });

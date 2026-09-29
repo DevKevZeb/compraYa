@@ -1,3 +1,4 @@
+export { BrandMark } from './BrandMark';
 export { EmptyState } from './EmptyState';
 export { Header } from './Header';
 export { Price } from './Price';
