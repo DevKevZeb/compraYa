@@ -37,6 +37,6 @@ describe('order utils', () => {
   });
 
   it('formats amounts in bolivianos', () => {
-    expect(formatCurrency(20)).toBe('20.00 Bs');
+    expect(formatCurrency(20)).toBe('Bs 20.00');
   });
 });

@@ -16,4 +16,4 @@ export const calculateOrderTotals = (items) => {
 export const toOrderItems = (items) =>
   items.map(({ producto_id, cantidad }) => ({ producto_id, cantidad }));
 
-export const formatCurrency = (value) => `${Number(value).toFixed(2)} Bs`;
+export const formatCurrency = (value) => `Bs ${Number(value).toFixed(2)}`;

@@ -44,7 +44,8 @@
           "locationWhenInUsePermission": "CompraYa usa tu ubicación para mostrar la ruta de entrega de tus pedidos."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-image"
     ]
   }
 }
