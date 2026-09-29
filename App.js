@@ -1,11 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { MD3LightTheme, Provider } from 'react-native-paper';
+import { Provider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { styles } from './src/styles/global';
 import { AppFrame } from './src/components/AppFrame';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { theme } from './src/theme';
 
 const toastConfig = {
   error: ({ text1, text2, ...rest }) => (
@@ -31,8 +32,8 @@ const toastConfig = {
 export default function App() {
   return (
     <AppFrame>
-      {/* The app is designed for a light UI; do not follow the browser's dark mode on web. */}
-      <Provider theme={MD3LightTheme}>
+      {/* Brand theme (light only): never follow the system dark mode. */}
+      <Provider theme={theme}>
         <NavigationContainer>
           <RootNavigator />
         </NavigationContainer>
