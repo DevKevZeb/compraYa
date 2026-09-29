@@ -24,7 +24,7 @@ const tabBarStyle = {
 };
 
 // Screens with their own sticky action bar hide the tab bar.
-const FULL_SCREEN_ROUTES = new Set(['ProductDetail', 'Checkout', 'OrderSuccess']);
+const FULL_SCREEN_ROUTES = new Set(['ProductDetail', 'Checkout', 'OrderSuccess', 'DeliveryMap']);
 
 const tabBarFor = (route) =>
   FULL_SCREEN_ROUTES.has(getFocusedRouteNameFromRoute(route)) ? { display: 'none' } : tabBarStyle;
