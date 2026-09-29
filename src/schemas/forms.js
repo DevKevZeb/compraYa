@@ -4,23 +4,23 @@ const email = z
   .string()
   .trim()
   .toLowerCase()
-  .min(1, 'El correo es obligatorio')
-  .email('Correo inválido');
+  .min(1, 'Email is required')
+  .email('Enter a valid email address');
 
-const password = z.string().min(6, 'La contraseña debe de tener al menos 6 caracteres');
+const password = z.string().min(6, 'Password must be at least 6 characters');
 
-const passwordConfirmation = z.string().min(6, 'La confirmación debe tener al menos 6 caracteres');
+const passwordConfirmation = z.string().min(1, 'Please confirm your password');
 
 const passwordsMatch = {
   check: (data) => data.password === data.confirmPassword,
-  error: { message: 'Las contraseñas son diferentes', path: ['confirmPassword'] },
+  error: { message: 'Passwords do not match', path: ['confirmPassword'] },
 };
 
-const name = z.string().trim().min(1, 'El nombre es obligatorio');
+const name = z.string().trim().min(1, 'Name is required');
 
 export const SigInSchema = z.object({
   email,
-  password,
+  password: z.string().min(1, 'Password is required'),
 });
 
 export const RegisterSchema = z

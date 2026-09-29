@@ -7,8 +7,8 @@ describe('form schemas', () => {
     expect(result.data.email).toBe('kevin@umss.edu.bo');
   });
 
-  it('rejects invalid emails and short passwords', () => {
-    const result = SigInSchema.safeParse({ email: 'not-an-email', password: '123' });
+  it('rejects invalid emails and missing passwords', () => {
+    const result = SigInSchema.safeParse({ email: 'not-an-email', password: '' });
     expect(result.success).toBe(false);
     expect(result.error.issues.map((issue) => issue.path[0])).toEqual(['email', 'password']);
   });
@@ -23,7 +23,7 @@ describe('form schemas', () => {
     expect(result.success).toBe(false);
     expect(result.error.issues[0]).toMatchObject({
       path: ['confirmPassword'],
-      message: 'Las contraseñas son diferentes',
+      message: 'Passwords do not match',
     });
   });
 

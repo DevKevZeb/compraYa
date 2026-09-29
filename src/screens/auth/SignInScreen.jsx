@@ -1,12 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Button, Divider, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { supabase } from '../../lib/supabase';
+import { AuthFooterLink } from '../../components/AuthFooterLink';
+import { AuthLayout } from '../../components/AuthLayout';
 import { FormInput } from '../../components/FormInput';
+import { supabase } from '../../lib/supabase';
 import { SigInSchema } from '../../schemas/forms';
+import { DEMO_ACCOUNT, signInAsGuest } from '../../services/auth';
+import { colors, radius, spacing } from '../../theme';
 
 export const SignInScreen = ({ navigation }) => {
   const {
@@ -15,136 +19,134 @@ export const SignInScreen = ({ navigation }) => {
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
     resolver: zodResolver(SigInSchema),
     mode: 'onBlur',
   });
-
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async ({ email, password }) => {
     setLoading(true);
-    const { email, password } = data;
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
 
     if (error) {
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: 'Correo o contraseña invalidos. Por favor, inténtalo de nuevo.',
-        duration: 1000,
+        text1: 'Could not sign in',
+        text2: 'Check your email and password and try again.',
       });
       return;
     }
 
     // The root navigator switches to the main app once the session is set.
-    Toast.show({
-      type: 'success',
-      text1: 'Success',
-      text2: 'Inicio de sesión exitoso',
-      duration: 1000,
-    });
     reset();
   };
 
+  const onGuest = async () => {
+    setLoading(true);
+    const { error } = await signInAsGuest();
+    setLoading(false);
+    if (error) {
+      Toast.show({ type: 'error', text1: 'Could not sign in as guest', text2: error.message });
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text variant="headlineSmall" style={styles.text}>
-        Bienvenido de nuevo todo lo que buscas lo encuentras aquí.
-      </Text>
-      <View style={styles.inputContainer}>
-        <FormInput
-          name="email"
-          control={control}
-          label="Email"
-          placeholder="Ingresa tu email"
-          type="email"
-          error={errors.email}
+    <AuthLayout
+      navigation={navigation}
+      title="Welcome back"
+      subtitle="Sign in to continue shopping."
+      footer={
+        <AuthFooterLink
+          question="Don't have an account?"
+          action="Create one"
+          onPress={() => navigation.navigate('Register')}
         />
-        <FormInput
-          name="password"
-          control={control}
-          label="Contraseña"
-          placeholder="Ingresa tu contraseña"
-          secureTextEntry={true}
-          type="password"
-          error={errors.password}
-        />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ForgotPassword')}
-          style={styles.textInput}
-        >
-          <Text variant="titleSmall">¿Olvidaste tu contraseña?</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleSubmit(onSubmit)}
-          loading={loading}
-        >
-          Ingresar
-        </Button>
-      </View>
-      <View style={styles.textContainer}>
-        <Text variant="titleSmall">¿No tienes cuenta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text variant="titleSmall" style={{ color: '#0866FF' }}>
-            Regístrate ahora
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      }
+    >
+      <FormInput
+        name="email"
+        control={control}
+        label="Email"
+        placeholder="you@example.com"
+        type="email"
+        icon="email-outline"
+        autoComplete="email"
+        error={errors.email}
+      />
+      <FormInput
+        name="password"
+        control={control}
+        label="Password"
+        placeholder="Your password"
+        icon="lock-outline"
+        secureTextEntry
+        autoComplete="password"
+        error={errors.password}
+      />
+      <Button compact style={styles.forgot} onPress={() => navigation.navigate('ForgotPassword')}>
+        Forgot password?
+      </Button>
+
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+        disabled={loading}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+      >
+        Sign in
+      </Button>
+
+      {DEMO_ACCOUNT && (
+        <>
+          <View style={styles.dividerRow}>
+            <Divider style={styles.divider} />
+            <Text variant="labelMedium" style={styles.dividerText}>
+              or
+            </Text>
+            <Divider style={styles.divider} />
+          </View>
+          <Button
+            mode="outlined"
+            icon="account-arrow-right-outline"
+            onPress={onGuest}
+            disabled={loading}
+            style={styles.button}
+            contentStyle={styles.buttonContent}
+          >
+            Continue as guest
+          </Button>
+        </>
+      )}
+    </AuthLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#eaddff',
-    height: '100%',
-  },
-  text: {
-    textAlign: 'center',
-  },
-  inputContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  input: {
-    width: '80%',
-    marginTop: 30,
-  },
-  textInput: {
-    width: '80%',
-    marginTop: 10,
-    textDecorationLine: 'underline',
-    marginLeft: 309,
+  forgot: {
+    alignSelf: 'flex-end',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.lg,
   },
   button: {
-    backgroundColor: '#9C7CFE',
-    marginTop: 75,
-    width: '70%',
+    borderRadius: radius.pill,
   },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  buttonContent: {
+    height: 50,
   },
-  textContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  dividerRow: {
     flexDirection: 'row',
-    marginBottom: 30,
+    alignItems: 'center',
+    marginVertical: spacing.xl,
+    gap: spacing.md,
+  },
+  divider: {
+    flex: 1,
+  },
+  dividerText: {
+    color: colors.textSubtle,
   },
 });

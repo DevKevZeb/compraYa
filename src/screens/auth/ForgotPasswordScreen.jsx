@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Linking from 'expo-linking';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { StyleSheet } from 'react-native';
+import { Button } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { supabase } from '../../lib/supabase';
-import { PASSWORD_RESET_PATH } from '../../services/auth';
-
+import { AuthFooterLink } from '../../components/AuthFooterLink';
+import { AuthLayout } from '../../components/AuthLayout';
 import { FormInput } from '../../components/FormInput';
+import { supabase } from '../../lib/supabase';
 import { ForgotSchema } from '../../schemas/forms';
+import { PASSWORD_RESET_PATH } from '../../services/auth';
+import { radius } from '../../theme';
+
 export const ForgotPasswordScreen = ({ navigation }) => {
   const {
     control,
@@ -17,9 +20,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      email: '',
-    },
+    defaultValues: { email: '' },
     resolver: zodResolver(ForgotSchema),
     mode: 'onBlur',
   });
@@ -34,87 +35,63 @@ export const ForgotPasswordScreen = ({ navigation }) => {
     setLoading(false);
 
     if (error) {
-      Toast.show({ type: 'error', text1: 'Error', text2: error.message });
+      Toast.show({ type: 'error', text1: 'Could not send the email', text2: error.message });
       return;
     }
 
     Toast.show({
       type: 'success',
-      text1: 'Correo enviado',
-      text2: 'Abre el enlace del correo desde este teléfono para crear una nueva contraseña.',
+      text1: 'Check your inbox',
+      text2: 'Open the link on this device to choose a new password.',
       visibilityTime: 6000,
     });
     reset();
     navigation.navigate('SignIn');
   };
+
   return (
-    <View style={styles.container}>
-      <Text variant="headlineSmall" style={styles.text}>
-        Has olvidado tu contraseña? !No te preocupes! eso ocurre, Ingrese la direccion de correro
-        electronico vinculada con su cuenta.
-      </Text>
-      <View style={styles.inputContainer}>
-        <FormInput
-          name="email"
-          control={control}
-          label="Email"
-          placeholder="Ingresa tu email"
-          type="email"
-          error={errors.email}
+    <AuthLayout
+      navigation={navigation}
+      title="Reset your password"
+      subtitle="Enter the email linked to your account and we'll send you a reset link."
+      footer={
+        <AuthFooterLink
+          question="Remembered it?"
+          action="Back to sign in"
+          onPress={() => navigation.navigate('SignIn')}
         />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleSubmit(onSubmit)}
-          loading={loading}
-          disabled={loading}
-        >
-          Enviar
-        </Button>
-      </View>
-      <View style={styles.textContainer}>
-        <Text variant="titleSmall">Ya tienes una cuenta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-          <Text variant="titleSmall" style={{ color: '#0866FF' }}>
-            Ingresa ahora
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      }
+    >
+      <FormInput
+        name="email"
+        control={control}
+        label="Email"
+        placeholder="you@example.com"
+        type="email"
+        icon="email-outline"
+        autoComplete="email"
+        error={errors.email}
+      />
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+        disabled={loading}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+      >
+        Send reset link
+      </Button>
+    </AuthLayout>
   );
 };
+
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: '#EADDFF',
-  },
-  text: {
-    textAlign: 'center',
-  },
-  inputContainer: {
-    marginTop: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  input: {
-    width: '80%',
-  },
   button: {
-    backgroundColor: '#9C7CFE',
-    marginTop: 100,
-    width: '50%',
+    borderRadius: radius.pill,
+    marginTop: 8,
   },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 30,
+  buttonContent: {
+    height: 50,
   },
 });

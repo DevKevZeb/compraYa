@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { Button } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
-import { supabase } from '../../lib/supabase';
+import { AuthLayout } from '../../components/AuthLayout';
 import { FormInput } from '../../components/FormInput';
+import { supabase } from '../../lib/supabase';
 import { RecoverySchema } from '../../schemas/forms';
 import { useUserStore } from '../../stores/user.store';
+import { radius, spacing } from '../../theme';
 
 // Shown after the user opens the password reset link, with a recovery session active.
 export const ResetPasswordScreen = () => {
@@ -16,10 +18,7 @@ export const ResetPasswordScreen = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      password: '',
-      confirmPassword: '',
-    },
+    defaultValues: { password: '', confirmPassword: '' },
     resolver: zodResolver(RecoverySchema),
     mode: 'onBlur',
   });
@@ -32,14 +31,14 @@ export const ResetPasswordScreen = () => {
     setLoading(false);
 
     if (error) {
-      Toast.show({ type: 'error', text1: 'Error', text2: error.message });
+      Toast.show({ type: 'error', text1: 'Could not update your password', text2: error.message });
       return;
     }
 
     Toast.show({
       type: 'success',
-      text1: 'Contraseña actualizada',
-      text2: 'Ya puedes usar tu nueva contraseña.',
+      text1: 'Password updated',
+      text2: 'You can now use your new password.',
     });
     setPasswordRecovery(false);
   };
@@ -50,73 +49,57 @@ export const ResetPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineSmall" style={styles.text}>
-        Elige una nueva contraseña para tu cuenta.
-      </Text>
-      <View style={styles.inputContainer}>
-        <FormInput
-          name="password"
-          control={control}
-          label="Contraseña"
-          placeholder="Nueva contraseña"
-          secureTextEntry={true}
-          type="password"
-          error={errors.password}
-        />
-        <FormInput
-          name="confirmPassword"
-          control={control}
-          label="Confirmar contraseña"
-          placeholder="Repite la contraseña"
-          secureTextEntry={true}
-          type="password"
-          error={errors.confirmPassword}
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleSubmit(onSubmit)}
-          loading={loading}
-          disabled={loading}
-        >
-          Actualizar
-        </Button>
-        <Button mode="text" onPress={onCancel} disabled={loading} style={styles.cancel}>
-          Cancelar
-        </Button>
-      </View>
-    </View>
+    <AuthLayout
+      title="Choose a new password"
+      subtitle="Make it at least 6 characters long."
+      showBack={false}
+    >
+      <FormInput
+        name="password"
+        control={control}
+        label="New password"
+        placeholder="At least 6 characters"
+        icon="lock-outline"
+        secureTextEntry
+        autoComplete="new-password"
+        error={errors.password}
+      />
+      <FormInput
+        name="confirmPassword"
+        control={control}
+        label="Confirm password"
+        placeholder="Repeat your password"
+        icon="lock-check-outline"
+        secureTextEntry
+        autoComplete="new-password"
+        error={errors.confirmPassword}
+      />
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+        disabled={loading}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+      >
+        Update password
+      </Button>
+      <Button onPress={onCancel} disabled={loading} style={styles.cancel}>
+        Cancel
+      </Button>
+    </AuthLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#EADDFF',
-    flex: 1,
-    paddingTop: 80,
-  },
-  text: {
-    textAlign: 'center',
-    marginHorizontal: 24,
-  },
-  inputContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
   button: {
-    backgroundColor: '#9C7CFE',
-    marginTop: 60,
-    width: '50%',
+    borderRadius: radius.pill,
+    marginTop: spacing.sm,
+  },
+  buttonContent: {
+    height: 50,
   },
   cancel: {
-    marginTop: 12,
-  },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: spacing.md,
   },
 });
