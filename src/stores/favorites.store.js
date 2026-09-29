@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { addFavorite, getFavorites, removeFavorite } from '../services/api';
+import { withRetry } from '../utils/retry';
 
 // Favorite products of the signed-in user. Toggles update the UI immediately
 // and roll back if the backend rejects the change.
@@ -10,7 +11,7 @@ export const useFavoritesStore = create((set, get) => ({
   isFavorite: (productId) => get().products.some((p) => p.producto_id === productId),
 
   load: async () => {
-    const { data, error } = await getFavorites();
+    const { data, error } = await withRetry(getFavorites);
     if (error) {
       console.error('Error loading favorites:', error.message || error);
       set({ loaded: true });
