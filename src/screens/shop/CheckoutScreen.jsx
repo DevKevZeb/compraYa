@@ -56,7 +56,7 @@ export const CheckoutScreen = ({ navigation }) => {
     // Replace checkout with the tracking map so going back returns to the catalog.
     navigation.reset({
       index: 1,
-      routes: [{ name: 'Products' }, { name: 'DeliveryMap', params: { direccion_envio: address } }],
+      routes: [{ name: 'Cart' }, { name: 'DeliveryMap', params: { direccion_envio: address } }],
     });
   };
 

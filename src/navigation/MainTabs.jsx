@@ -1,46 +1,62 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Feather from '@expo/vector-icons/Feather';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { ShopNavigator } from './ShopNavigator';
 import { Platform } from 'react-native';
+import { useCartStore } from '../stores/cart.store';
+import { colors, fontFamilies, shadows } from '../theme';
+import { CartNavigator } from './CartNavigator';
+import { HomeNavigator } from './HomeNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 
 const Tab = createBottomTabNavigator();
 
 // On the web the default tab bar height clips the labels; native keeps the
 // automatic height so it respects the device's safe area.
-const tabBarStyle = Platform.select({
-  web: { backgroundColor: '#9C7CFE', height: 64, paddingTop: 6, paddingBottom: 8 },
-  default: { backgroundColor: '#9C7CFE' },
-});
+const tabBarStyle = {
+  backgroundColor: colors.surface,
+  borderTopColor: colors.border,
+  ...shadows.bar,
+  ...Platform.select({ web: { height: 64, paddingTop: 6, paddingBottom: 8 }, default: {} }),
+};
+
+const tabIcon = (name) =>
+  function TabIcon({ focused, color, size }) {
+    return (
+      <MaterialCommunityIcons name={focused ? name : `${name}-outline`} size={size} color={color} />
+    );
+  };
 
 export const MainTabs = () => {
+  const cartCount = useCartStore((state) => state.totalItemsInCart());
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle,
-        tabBarActiveTintColor: '#000000',
-        tabBarInactiveTintColor: '#3D2A80',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSubtle,
+        tabBarLabelStyle: { fontFamily: fontFamilies.medium, fontSize: 11 },
+        tabBarBadgeStyle: { backgroundColor: colors.primary, fontSize: 10 },
       }}
     >
       <Tab.Screen
-        name="Productos"
-        component={ShopNavigator}
+        name="HomeTab"
+        component={HomeNavigator}
+        options={{ tabBarLabel: 'Home', tabBarIcon: tabIcon('home') }}
+      />
+      <Tab.Screen
+        name="CartTab"
+        component={CartNavigator}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="shopping-bag" size={size} color={color} />
-          ),
+          tabBarLabel: 'Cart',
+          tabBarIcon: tabIcon('cart'),
+          tabBarBadge: cartCount > 0 ? cartCount : undefined,
         }}
       />
       <Tab.Screen
-        name="Perfil"
+        name="ProfileTab"
         component={ProfileNavigator}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name="circle-user" size={size} color={color} />
-          ),
-        }}
+        options={{ tabBarLabel: 'Profile', tabBarIcon: tabIcon('account-circle') }}
       />
     </Tab.Navigator>
   );
