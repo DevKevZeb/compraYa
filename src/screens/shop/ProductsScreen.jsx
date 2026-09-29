@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CategoryChips } from '../../components/CategoryChips';
 import { ProductCard } from '../../components/ProductCard';
 import { ProductCardSkeleton } from '../../components/ProductCardSkeleton';
-import { ProductDialog } from '../../components/ProductDialog';
 import { PromoBanners } from '../../components/PromoBanners';
 import { EmptyState, SectionHeader } from '../../components/ui';
 import { getCategories, getProducts } from '../../services/api';
@@ -28,7 +27,7 @@ const initials = (name = '') =>
     .map((part) => part[0].toUpperCase())
     .join('') || 'C';
 
-export const ProductsScreen = () => {
+export const ProductsScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const userName = useUserStore((state) => state.user?.nombre_usuario ?? '');
   const firstName = userName.split(' ')[0];
@@ -39,7 +38,10 @@ export const ProductsScreen = () => {
   const [search, setSearch] = useState('');
   const [reloadCount, setReloadCount] = useState(0);
   const [result, setResult] = useState({ key: null, products: [], error: null });
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const openProduct = useCallback(
+    (product) => navigation.navigate('ProductDetail', { product }),
+    [navigation]
+  );
 
   // Each filter combination is a request; results are loading until they match it.
   const requestKey = `${categoryId}|${search}|${reloadCount}`;
@@ -136,7 +138,7 @@ export const ProductsScreen = () => {
               >
                 {popular.map((item) => (
                   <View key={item.producto_id} style={styles.popularItem}>
-                    <ProductCard item={item} onPress={setSelectedProduct} />
+                    <ProductCard item={item} onPress={openProduct} />
                   </View>
                 ))}
               </ScrollView>
@@ -182,7 +184,7 @@ export const ProductsScreen = () => {
           ) : loading ? (
             <ProductCardSkeleton />
           ) : (
-            <ProductCard item={item} onPress={setSelectedProduct} />
+            <ProductCard item={item} onPress={openProduct} />
           )
         }
         ListHeaderComponent={header}
@@ -193,13 +195,6 @@ export const ProductsScreen = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       />
-      {selectedProduct && (
-        <ProductDialog
-          visible
-          hideDialog={() => setSelectedProduct(null)}
-          detailProduct={selectedProduct}
-        />
-      )}
     </View>
   );
 };

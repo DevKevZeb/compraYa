@@ -13,7 +13,7 @@ export const useCartStore = create(
 
       totalItemsInCart: () => get().cartItems.reduce((total, item) => total + item.cantidad, 0),
 
-      addToCart: (product) => {
+      addToCart: (product, quantity = 1) => {
         const cartItems = get().cartItems;
         const existing = cartItems.find((item) => item.producto_id === product.producto_id);
 
@@ -21,7 +21,7 @@ export const useCartStore = create(
           cartItems: existing
             ? cartItems.map((item) =>
                 item.producto_id === product.producto_id
-                  ? { ...item, cantidad: item.cantidad + 1 }
+                  ? { ...item, cantidad: item.cantidad + quantity }
                   : item
               )
             : [
@@ -30,7 +30,8 @@ export const useCartStore = create(
                   producto_id: product.producto_id,
                   nombre_producto: product.nombre_producto,
                   precio: product.precio,
-                  cantidad: 1,
+                  url_imagen: product.url_imagen,
+                  cantidad: quantity,
                 },
               ],
         });

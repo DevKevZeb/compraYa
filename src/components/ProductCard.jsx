@@ -46,7 +46,7 @@ export const ProductCard = memo(function ProductCard({ item, onPress, style }) {
         <View style={styles.footer}>
           <Price value={precio} variant="titleMedium" />
           <Pressable
-            onPress={() => addToCart({ nombre_producto, precio, producto_id })}
+            onPress={() => addToCart({ nombre_producto, precio, producto_id, url_imagen })}
             disabled={outOfStock}
             style={({ pressed }) => [
               styles.add,

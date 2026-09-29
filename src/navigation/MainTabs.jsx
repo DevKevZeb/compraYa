@@ -1,5 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Platform } from 'react-native';
 import { useCartStore } from '../stores/cart.store';
 import { colors, fontFamilies, shadows } from '../theme';
@@ -18,6 +19,12 @@ const tabBarStyle = {
   ...Platform.select({ web: { height: 64, paddingTop: 6, paddingBottom: 8 }, default: {} }),
 };
 
+// Screens with their own sticky action bar hide the tab bar.
+const FULL_SCREEN_ROUTES = new Set(['ProductDetail', 'Checkout', 'OrderSuccess']);
+
+const tabBarFor = (route) =>
+  FULL_SCREEN_ROUTES.has(getFocusedRouteNameFromRoute(route)) ? { display: 'none' } : tabBarStyle;
+
 const tabIcon = (name) =>
   function TabIcon({ focused, color, size }) {
     return (
@@ -30,14 +37,14 @@ export const MainTabs = () => {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle,
+        tabBarStyle: tabBarFor(route),
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSubtle,
         tabBarLabelStyle: { fontFamily: fontFamilies.medium, fontSize: 11 },
         tabBarBadgeStyle: { backgroundColor: colors.primary, fontSize: 10 },
-      }}
+      })}
     >
       <Tab.Screen
         name="HomeTab"
