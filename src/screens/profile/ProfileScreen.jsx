@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import Toast from 'react-native-toast-message';
 import { supabase } from '../../lib/supabase';
 import { OrderCard } from '../../components/OrderCard';
 import { isDemoAccount } from '../../services/auth';
@@ -14,7 +13,6 @@ export const ProfileScreen = ({ navigation }) => {
   const fetchOrderHistory = useUserStore((state) => state.fetchOrderHistory);
   const orders = useUserStore((state) => state.orders);
   const orderHistory = useUserStore((state) => state.orderHistory);
-  const updateOrderStatus = useUserStore((state) => state.updateOrderStatus);
 
   // Orders are placed from the shopping tab, so refresh whenever this tab is shown.
   useFocusEffect(
@@ -26,17 +24,7 @@ export const ProfileScreen = ({ navigation }) => {
     }, [user, fetchUserOrders, fetchOrderHistory])
   );
 
-  const handleTrack = (order) =>
-    navigation.navigate('DeliveryMap', { direccion_envio: order.direccion_envio });
-
-  const handleConfirm = async (order) => {
-    const { error } = await updateOrderStatus(order.orden_id, 'entregado');
-    Toast.show(
-      error
-        ? { type: 'error', text1: 'Error', text2: error.message }
-        : { type: 'success', text1: 'Pedido entregado', text2: '¡Gracias por tu compra!' }
-    );
-  };
+  const openOrder = (order) => navigation.navigate('OrderDetail', { order });
 
   const handleSignOut = async () => {
     // The root navigator returns to the auth flow when the session ends.
@@ -69,14 +57,7 @@ export const ProfileScreen = ({ navigation }) => {
       {orders.length === 0 ? (
         <Text style={styles.empty}>No tienes pedidos en curso.</Text>
       ) : (
-        orders.map((order) => (
-          <OrderCard
-            key={order.orden_id}
-            order={order}
-            onTrack={handleTrack}
-            onConfirm={handleConfirm}
-          />
-        ))
+        orders.map((order) => <OrderCard key={order.orden_id} order={order} onPress={openOrder} />)
       )}
 
       <Text variant="headlineSmall" style={styles.sectionTitle}>
@@ -85,7 +66,9 @@ export const ProfileScreen = ({ navigation }) => {
       {orderHistory.length === 0 ? (
         <Text style={styles.empty}>Aún no tienes pedidos entregados.</Text>
       ) : (
-        orderHistory.map((order) => <OrderCard key={order.orden_id} order={order} />)
+        orderHistory.map((order) => (
+          <OrderCard key={order.orden_id} order={order} onPress={openOrder} />
+        ))
       )}
 
       {/* The shared demo account stays read-only so every visitor sees the same profile. */}

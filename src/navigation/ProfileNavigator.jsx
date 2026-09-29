@@ -1,5 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
+import { OrderDetailScreen } from '../screens/profile/OrderDetailScreen';
+import { OrdersScreen } from '../screens/profile/OrdersScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { DeliveryMapScreen } from '../screens/shop/DeliveryMapScreen';
 import { stackScreenOptions } from './stackOptions';
@@ -13,6 +15,12 @@ export const ProfileNavigator = () => (
       name="EditProfile"
       component={EditProfileScreen}
       options={{ title: 'Edit profile' }}
+    />
+    <Stack.Screen name="Orders" component={OrdersScreen} options={{ title: 'My orders' }} />
+    <Stack.Screen
+      name="OrderDetail"
+      component={OrderDetailScreen}
+      options={{ title: 'Order details' }}
     />
     <Stack.Screen
       name="DeliveryMap"

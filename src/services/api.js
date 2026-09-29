@@ -13,6 +13,16 @@ const PRODUCT_FIELDS = `
   atributos_producto (nombre_atributo, valor_atributo)
 `;
 
+// Orders with their line items (and product thumbnails) and payment method.
+export const ORDER_FIELDS = `
+  *,
+  items_orden (item_orden_id, nombre_producto, cantidad, precio_unitario, subtotal, productos (url_imagen)),
+  metodos_pago (tipo_metodo, tarjetas_pago (last4, marca))
+`;
+
+export const getOrder = (orderId) =>
+  supabase.from('ordenes').select(ORDER_FIELDS).eq('orden_id', orderId).single();
+
 export const getCategories = () =>
   supabase
     .from('categorias')

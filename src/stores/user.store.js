@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { ORDER_FIELDS } from '../services/api';
 
 const PROFILE_ATTEMPTS = 3;
 const PROFILE_RETRY_DELAY_MS = 1000;
@@ -65,7 +66,7 @@ export const useUserStore = create((set, get) => ({
 
     const { data, error } = await supabase
       .from('ordenes')
-      .select('*, items_orden (item_orden_id, nombre_producto, cantidad, subtotal)')
+      .select(ORDER_FIELDS)
       .eq('usuario_id', userId)
       .in('estado', statuses)
       .order('fecha', { ascending: false });

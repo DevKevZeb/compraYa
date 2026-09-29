@@ -1,91 +1,117 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Button, Chip, Text } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { colors, radius, shadows, spacing } from '../theme';
 import { formatCurrency } from '../utils/order';
+import { formatOrderDate, getOrderStatus } from '../utils/orderStatus';
+import { ProductImage, StatusChip } from './ui';
 
-const STATUS_LABELS = {
-  pendiente: { label: 'En camino', color: '#FFE8A3' },
-  en_camino: { label: 'En camino', color: '#FFE8A3' },
-  entregado: { label: 'Entregado', color: '#C8F2C2' },
-  cancelado: { label: 'Cancelado', color: '#FFD0D0' },
-};
+const MAX_THUMBS = 3;
 
-export const OrderCard = ({ order, onTrack, onConfirm }) => {
-  const status = STATUS_LABELS[order.estado] ?? { label: order.estado, color: '#EEE' };
+// Order summary row: number, date, status, product thumbnails and total.
+export const OrderCard = ({ order, onPress }) => {
+  const status = getOrderStatus(order.estado);
+  const items = order.items_orden ?? [];
+  const count = items.reduce((sum, item) => sum + item.cantidad, 0);
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      onPress={() => onPress(order)}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={`Order ${order.numero_seguimiento}, ${status.label}`}
+    >
       <View style={styles.header}>
-        <Text variant="titleMedium">{order.numero_seguimiento}</Text>
-        <Chip compact style={{ backgroundColor: status.color }}>
-          {status.label}
-        </Chip>
-      </View>
-      <Text variant="bodySmall">{new Date(order.fecha).toLocaleString()}</Text>
-      <Text variant="bodyMedium" style={styles.address}>
-        {order.direccion_envio}
-      </Text>
-
-      {order.items_orden?.map((item) => (
-        <View key={item.item_orden_id} style={styles.itemRow}>
-          <Text variant="bodySmall" style={styles.itemName} numberOfLines={1}>
-            {item.cantidad} × {item.nombre_producto}
+        <View style={styles.headerText}>
+          <Text variant="titleSmall" style={styles.number}>
+            {order.numero_seguimiento}
           </Text>
-          <Text variant="bodySmall">{formatCurrency(item.subtotal)}</Text>
+          <Text variant="bodySmall" style={styles.muted}>
+            {formatOrderDate(order.fecha)}
+          </Text>
         </View>
-      ))}
-
-      <View style={styles.itemRow}>
-        <Text variant="titleSmall">Total</Text>
-        <Text variant="titleSmall">{formatCurrency(order.monto_total)}</Text>
+        <StatusChip label={status.label} tone={status.tone} />
       </View>
 
-      {(onTrack || onConfirm) && (
-        <View style={styles.actions}>
-          {onTrack && (
-            <Button compact onPress={() => onTrack(order)}>
-              Ver seguimiento
-            </Button>
-          )}
-          {onConfirm && (
-            <Button compact mode="contained" buttonColor="#9C7CFE" onPress={() => onConfirm(order)}>
-              Confirmar recepción
-            </Button>
-          )}
+      <View style={styles.footer}>
+        <View style={styles.thumbs}>
+          {items.slice(0, MAX_THUMBS).map((item) => (
+            <ProductImage
+              key={item.item_orden_id}
+              uri={item.productos?.url_imagen}
+              height={44}
+              radius={radius.sm}
+              style={styles.thumb}
+            />
+          ))}
+          {items.length > MAX_THUMBS ? (
+            <View style={[styles.thumb, styles.more]}>
+              <Text variant="labelMedium" style={styles.muted}>
+                +{items.length - MAX_THUMBS}
+              </Text>
+            </View>
+          ) : null}
         </View>
-      )}
-    </View>
+        <View style={styles.total}>
+          <Text variant="bodySmall" style={styles.muted}>
+            {count} {count === 1 ? 'item' : 'items'}
+          </Text>
+          <Text variant="titleMedium" style={styles.number}>
+            {formatCurrency(order.monto_total)}
+          </Text>
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={22} color={colors.textSubtle} />
+      </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#EADDFF',
-    borderRadius: 15,
-    marginTop: 8,
-    padding: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.md,
+    ...shadows.card,
+  },
+  pressed: {
+    opacity: 0.9,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: spacing.md,
   },
-  address: {
-    marginVertical: 6,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 2,
-  },
-  itemName: {
+  headerText: {
     flex: 1,
-    marginRight: 8,
   },
-  actions: {
+  number: {
+    color: colors.text,
+  },
+  muted: {
+    color: colors.textMuted,
+  },
+  footer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 10,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  thumbs: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  thumb: {
+    width: 44,
+    height: 44,
+    backgroundColor: colors.background,
+    borderRadius: radius.sm,
+  },
+  more: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  total: {
+    alignItems: 'flex-end',
   },
 });
