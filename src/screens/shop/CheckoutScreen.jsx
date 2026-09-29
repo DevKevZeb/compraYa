@@ -1,158 +1,224 @@
-import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, List, Text, TextInput } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Text, TextInput } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { CheckoutSteps } from '../../components/CheckoutSteps';
+import { OrderSummary } from '../../components/OrderSummary';
+import { PaymentOption } from '../../components/PaymentOption';
+import { Price, ProductImage, SectionHeader } from '../../components/ui';
 import { useCartStore } from '../../stores/cart.store';
+import { useCheckoutStore } from '../../stores/checkout.store';
 import { usePaymentStore } from '../../stores/payment.store';
 import { useUserStore } from '../../stores/user.store';
-import { maskCardNumber } from '../../utils/card';
+import { colors, radius, shadows, spacing } from '../../theme';
+import { CARD_BRANDS, dateToExpiry } from '../../utils/card';
 import { calculateOrderTotals, formatCurrency } from '../../utils/order';
 
-export const CheckoutScreen = ({ navigation }) => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    defaultValues: {
-      address: '',
-    },
-  });
+const STEPS = ['Address', 'Payment', 'Review'];
+const MIN_ADDRESS_LENGTH = 5;
 
+export const CheckoutScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const cartItems = useCartStore((state) => state.cartItems);
   const saveOrder = useCartStore((state) => state.saveOrder);
-  const debitCards = usePaymentStore((state) => state.debitCards);
-  const selectedPaymentMethod = usePaymentStore((state) => state.selectedMethod);
+  const lastAddress = useCheckoutStore((state) => state.lastAddress);
+  const setLastAddress = useCheckoutStore((state) => state.setLastAddress);
+  const userId = useUserStore((state) => state.user?.userId);
   const fetchUserOrders = useUserStore((state) => state.fetchUserOrders);
-  const { subtotal, shipping, total } = calculateOrderTotals(cartItems);
-  const selectedCard = debitCards.find((card) => card.metodo_pago_id === selectedPaymentMethod);
-  const currentDate = new Date().toLocaleDateString();
+  const {
+    debitCards,
+    refreshDebitCards,
+    selectedMethod,
+    setSelectedMethod,
+    setEditing,
+    setCardDetails,
+  } = usePaymentStore();
 
-  const handlePayment = async ({ address }) => {
-    if (!selectedPaymentMethod) {
-      Toast.show({
-        type: 'info',
-        text1: 'Falta el método de pago',
-        text2: 'Por favor seleccione un método de pago.',
-      });
-      return;
-    }
+  const [step, setStep] = useState(0);
+  const [address, setAddress] = useState(lastAddress);
+  const [placing, setPlacing] = useState(false);
 
-    const { order, error } = await saveOrder(address, selectedPaymentMethod);
+  const { total } = calculateOrderTotals(cartItems);
+  const selectedCard = debitCards.find((card) => card.metodo_pago_id === selectedMethod);
+  // Any selected method that is not a saved card is the QR payment method.
+  const payingByQr = Boolean(selectedMethod) && !selectedCard;
+  const addressValid = address.trim().length >= MIN_ADDRESS_LENGTH;
+
+  // Cards may be added from the card form, so refresh whenever checkout regains focus.
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        refreshDebitCards(userId);
+      }
+    }, [userId, refreshDebitCards])
+  );
+
+  const addCard = () => {
+    setEditing(false);
+    setCardDetails(null);
+    navigation.navigate('CardForm');
+  };
+
+  const placeOrder = async () => {
+    setPlacing(true);
+    const { order, error } = await saveOrder(address.trim(), selectedMethod);
+    setPlacing(false);
 
     if (error) {
-      Toast.show({ type: 'error', text1: 'No se pudo crear el pedido', text2: error.message });
+      Toast.show({ type: 'error', text1: 'We could not place your order', text2: error.message });
       return;
     }
 
-    await fetchUserOrders();
+    setLastAddress(address.trim());
+    fetchUserOrders();
     Toast.show({
       type: 'success',
-      text1: 'Pago realizado exitosamente',
-      text2: `Pedido ${order.numero_seguimiento} en camino.`,
+      text1: 'Order placed',
+      text2: `Order ${order.numero_seguimiento} is on its way.`,
     });
-    // Replace checkout with the tracking map so going back returns to the catalog.
+    // Replace checkout with the tracking map so going back returns to the cart.
     navigation.reset({
       index: 1,
       routes: [{ name: 'Cart' }, { name: 'DeliveryMap', params: { direccion_envio: address } }],
     });
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.scrollContainer}>
-        <Text variant="titleMedium" style={styles.text}>
-          Productos en pedido
-        </Text>
-        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
-          <ScrollView>
-            {cartItems.map((item) => (
-              <View key={item.producto_id} style={styles.productItem}>
-                <Text>{item.nombre_producto}</Text>
-                <Text>Cantidad: {item.cantidad}</Text>
-                <Text>Precio: {formatCurrency(item.precio)}</Text>
-                <Text>Subtotal: {formatCurrency(item.precio * item.cantidad)}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </SafeAreaView>
-      </View>
-      <Text variant="titleMedium" style={styles.text}>
-        Dirección de envío
+  const paymentLabel = selectedCard
+    ? `${CARD_BRANDS[selectedCard.marca]?.label ?? 'Card'} •••• ${selectedCard.last4}`
+    : payingByQr
+      ? 'QR payment'
+      : 'Not selected';
+
+  const renderAddress = () => (
+    <View>
+      <SectionHeader title="Where should we deliver?" />
+      <TextInput
+        mode="outlined"
+        label="Delivery address"
+        placeholder="Street, number and area"
+        value={address}
+        onChangeText={setAddress}
+        multiline
+        left={<TextInput.Icon icon="map-marker-outline" />}
+        outlineStyle={styles.inputOutline}
+        style={styles.input}
+      />
+      <Text variant="bodySmall" style={styles.hint}>
+        We deliver across Cochabamba. You can follow the courier on the map after paying.
       </Text>
-      <Controller
-        name="address"
-        control={control}
-        rules={{
-          required: 'Necesita ingresar una dirección',
-          validate: (value) =>
-            (value.trim().length >= 5 && value.trim().length <= 150) ||
-            'Debe ingresar una dirección válida',
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            mode="outlined"
-            label="Dirección de envío"
-            placeholder="Ingrese una dirección"
-            keyboardType="default"
-            value={value}
-            onChangeText={onChange}
-            style={styles.textInput}
-            error={!!errors.address}
-          />
-        )}
+    </View>
+  );
+
+  const renderPayment = () => (
+    <View style={styles.gap}>
+      <SectionHeader title="How would you like to pay?" />
+      {debitCards.map((card) => (
+        <PaymentOption
+          key={card.metodo_pago_id}
+          iconSet="fontawesome"
+          icon={CARD_BRANDS[card.marca]?.icon ?? 'credit-card'}
+          title={`${CARD_BRANDS[card.marca]?.label ?? 'Card'} •••• ${card.last4}`}
+          subtitle={`Expires ${dateToExpiry(card.fecha_expiracion)}`}
+          selected={selectedMethod === card.metodo_pago_id}
+          onPress={() => setSelectedMethod(card.metodo_pago_id)}
+        />
+      ))}
+      <PaymentOption
+        icon="qrcode-scan"
+        title="Pay with QR"
+        subtitle="Scan a code from your banking app"
+        selected={payingByQr}
+        onPress={() => navigation.navigate('QrPayment')}
       />
-      {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
-      <List.Item
-        title="Método de pago"
-        description={
-          selectedCard
-            ? maskCardNumber(selectedCard.last4)
-            : selectedPaymentMethod
-              ? 'Pago por QR'
-              : 'Sin seleccionar'
-        }
-        style={styles.listItem}
-        right={() => (
-          <Button
-            mode="contained"
-            style={styles.buttonItem}
-            onPress={() => {
-              navigation.navigate('PaymentMethods');
-            }}
-          >
-            Seleccionar
-          </Button>
-        )}
-      />
-      <View style={styles.containerDetails}>
-        <Text variant="titleMedium" style={styles.text}>
-          Monto total
-        </Text>
-        <Text variant="titleSmall" style={styles.textDetail}>
-          Costo Envío: {formatCurrency(shipping)}
-        </Text>
-        <Text variant="titleSmall" style={styles.textDetail}>
-          Fecha: {currentDate}
-        </Text>
-        <Text variant="titleSmall" style={styles.textDetail}>
-          Subtotal: {formatCurrency(subtotal)}
-        </Text>
-        <Text variant="titleSmall" style={styles.textDetail}>
-          Total: {formatCurrency(total)}
-        </Text>
+      <Button icon="plus" mode="outlined" onPress={addCard} style={styles.addCard}>
+        Add a new card
+      </Button>
+    </View>
+  );
+
+  const renderReview = () => (
+    <View>
+      <SectionHeader title={`Items (${cartItems.length})`} />
+      <View style={styles.card}>
+        {cartItems.map((item, index) => (
+          <View key={item.producto_id} style={[styles.itemRow, index > 0 && styles.itemDivider]}>
+            <ProductImage uri={item.url_imagen} height={48} style={styles.thumb} />
+            <Text variant="bodyMedium" numberOfLines={1} style={styles.itemName}>
+              {item.cantidad} × {item.nombre_producto}
+            </Text>
+            <Price value={item.precio * item.cantidad} variant="bodyMedium" />
+          </View>
+        ))}
       </View>
-      <View style={styles.contendButton}>
+
+      <View style={[styles.card, styles.gapTop]}>
+        <View style={styles.detailRow}>
+          <View style={styles.detailText}>
+            <Text variant="labelMedium" style={styles.muted}>
+              DELIVERY ADDRESS
+            </Text>
+            <Text variant="bodyMedium" style={styles.value}>
+              {address.trim()}
+            </Text>
+          </View>
+          <Button compact onPress={() => setStep(0)}>
+            Edit
+          </Button>
+        </View>
+        <View style={[styles.detailRow, styles.itemDivider]}>
+          <View style={styles.detailText}>
+            <Text variant="labelMedium" style={styles.muted}>
+              PAYMENT
+            </Text>
+            <Text variant="bodyMedium" style={styles.value}>
+              {paymentLabel}
+            </Text>
+          </View>
+          <Button compact onPress={() => setStep(1)}>
+            Edit
+          </Button>
+        </View>
+      </View>
+
+      <OrderSummary items={cartItems} style={[styles.card, styles.gapTop]} />
+    </View>
+  );
+
+  const canContinue = step === 0 ? addressValid : step === 1 ? Boolean(selectedMethod) : true;
+
+  return (
+    <View style={styles.screen}>
+      <CheckoutSteps steps={STEPS} current={step} />
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {step === 0 ? renderAddress() : step === 1 ? renderPayment() : renderReview()}
+      </ScrollView>
+
+      <View style={[styles.bar, { paddingBottom: insets.bottom + spacing.md }]}>
+        {step > 0 ? (
+          <Button
+            mode="outlined"
+            onPress={() => setStep(step - 1)}
+            style={styles.back}
+            contentStyle={styles.buttonContent}
+          >
+            Back
+          </Button>
+        ) : null}
         <Button
           mode="contained"
-          style={styles.payButton}
-          onPress={handleSubmit(handlePayment)}
-          loading={isSubmitting}
-          disabled={isSubmitting || cartItems.length === 0}
+          onPress={step < STEPS.length - 1 ? () => setStep(step + 1) : placeOrder}
+          disabled={!canContinue || placing || cartItems.length === 0}
+          loading={placing}
+          style={styles.next}
+          contentStyle={styles.buttonContent}
         >
-          Pagar
+          {step < STEPS.length - 1 ? 'Continue' : `Place order · ${formatCurrency(total)}`}
         </Button>
       </View>
     </View>
@@ -160,63 +226,91 @@ export const CheckoutScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    padding: 15,
+    backgroundColor: colors.background,
   },
-  scrollContainer: {
-    flex: 1,
-    marginBottom: 10,
+  content: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
-  safeContainer: {
-    flex: 1,
-    borderColor: 'gray',
-    padding: 6,
-    borderWidth: 0.2,
-    borderRadius: 5,
+  gap: {
+    gap: spacing.md,
   },
-  text: {
-    paddingBottom: 10,
+  gapTop: {
+    marginTop: spacing.md,
   },
-  textInput: {
-    marginBottom: 10,
+  input: {
+    backgroundColor: colors.surface,
+    minHeight: 90,
   },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginLeft: 20,
-    marginBottom: 10,
+  inputOutline: {
+    borderRadius: radius.md,
   },
-  listItem: {
-    width: '100%',
-    backgroundColor: '#EADDFF',
-    borderRadius: 15,
-    marginTop: 8,
+  hint: {
+    color: colors.textMuted,
+    marginTop: spacing.sm,
   },
-  buttonItem: {
-    backgroundColor: '#9C7CFE',
+  addCard: {
+    borderRadius: radius.pill,
   },
-  containerDetails: {
-    padding: 10,
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    ...shadows.card,
   },
-  textDetail: {
-    paddingBottom: 5,
-  },
-  contendButton: {
-    justifyContent: 'center',
+  itemRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  payButton: {
-    width: '50%',
-    backgroundColor: '#9C7CFE',
+  itemDivider: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
-  productItem: {
-    marginBottom: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    backgroundColor: '#EADDFF',
+  thumb: {
+    width: 48,
+    backgroundColor: colors.background,
+  },
+  itemName: {
+    flex: 1,
+    color: colors.text,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  detailText: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  muted: {
+    color: colors.textSubtle,
+    letterSpacing: 0.5,
+  },
+  value: {
+    color: colors.text,
+  },
+  bar: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.surface,
+    ...shadows.bar,
+  },
+  back: {
+    borderRadius: radius.pill,
+  },
+  next: {
+    flex: 1,
+    borderRadius: radius.pill,
+  },
+  buttonContent: {
+    height: 50,
   },
 });
