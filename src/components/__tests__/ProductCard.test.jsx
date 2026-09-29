@@ -26,32 +26,40 @@ describe('ProductCard', () => {
     useCartStore.setState({ cartItems: [] });
   });
 
-  it('shows the product details', async () => {
+  it('shows the name, rating and price', async () => {
     await renderCard();
     expect(screen.getByText('iPhone 5s')).toBeOnTheScreen();
-    expect(screen.getByText('Stock: 25 unidades')).toBeOnTheScreen();
+    expect(screen.getByText('2.9')).toBeOnTheScreen();
+    expect(screen.getByText('Bs 1391.90')).toBeOnTheScreen();
   });
 
-  it('adds the product to the cart and allows cancelling it', async () => {
+  it('adds the product to the cart and shows the quantity', async () => {
     await renderCard();
 
-    await fireEvent.press(screen.getByText('Añadir'));
-    expect(useCartStore.getState().cartItems).toHaveLength(1);
+    await fireEvent.press(screen.getByLabelText('Add iPhone 5s to cart'));
+    await fireEvent.press(screen.getByLabelText('Add iPhone 5s to cart'));
 
-    await fireEvent.press(screen.getByText('Cancelar'));
-    expect(useCartStore.getState().cartItems).toHaveLength(0);
-    expect(screen.queryByText('Cancelar')).not.toBeOnTheScreen();
+    expect(useCartStore.getState().cartItems).toEqual([
+      expect.objectContaining({ producto_id: 1, cantidad: 2 }),
+    ]);
+    expect(screen.getByText('2')).toBeOnTheScreen();
   });
 
-  it('does not allow adding out-of-stock products', async () => {
-    await renderCard({ ...product, stock: 0 });
+  it('flags low stock and blocks out-of-stock products', async () => {
+    const { rerender } = await renderCard({ ...product, stock: 3 });
+    expect(screen.getByText('Only 3 left')).toBeOnTheScreen();
 
-    expect(screen.getByText('Agotado')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('Añadir'));
+    await rerender(
+      <PaperProvider>
+        <ProductCard item={{ ...product, stock: 0 }} onPress={jest.fn()} />
+      </PaperProvider>
+    );
+    expect(screen.getByText('Out of stock')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByLabelText('Add iPhone 5s to cart'));
     expect(useCartStore.getState().cartItems).toHaveLength(0);
   });
 
-  it('opens the product details when pressed', async () => {
+  it('opens the product when pressed', async () => {
     const onPress = jest.fn();
     await renderCard(product, onPress);
 

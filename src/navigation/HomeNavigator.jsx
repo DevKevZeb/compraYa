@@ -6,6 +6,6 @@ const Stack = createNativeStackNavigator();
 
 export const HomeNavigator = () => (
   <Stack.Navigator screenOptions={stackScreenOptions}>
-    <Stack.Screen name="Products" component={ProductsScreen} options={{ title: 'CompraYa' }} />
+    <Stack.Screen name="Products" component={ProductsScreen} options={{ headerShown: false }} />
   </Stack.Navigator>
 );
