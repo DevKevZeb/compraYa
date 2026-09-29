@@ -1,10 +1,9 @@
 # Screenshots
 
-Images used by the main README, captured on an Android emulator (Pixel 5, Expo Go):
+Images used by the main README, captured from the web build in a 412 × 880 phone viewport:
 
-- `catalog.png`: product list with category chips
-- `cart.png`: cart with quantities and subtotal
-- `checkout.png`: order summary with the selected payment method
-- `tracking.png`: delivery map with route, distance and ETA
+- `welcome.png`, `home.png`, `product.png`, `cart.png`
+- `checkout.png`, `order.png`, `tracking.png`, `profile.png`
+- `web-demo.png`: the desktop web demo with the product showcase
 
-To refresh them, keep the same file names: 540 px wide portrait PNGs without the system bars.
+To refresh them, keep the same file names: 540 px wide portrait PNGs (1280 px for `web-demo.png`).

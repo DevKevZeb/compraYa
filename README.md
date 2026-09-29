@@ -11,8 +11,6 @@ Customers browse a catalog, fill a cart, pay with a saved card or a QR code, and
 route on a map. The backend enforces security with Postgres **row level security** and places orders
 through a **transactional RPC**, so prices and stock can never be tampered with from the client.
 
-> The app UI is in Spanish (it targets customers in Bolivia); code, docs and commits are in English.
-
 ## Live demo
 
 | Platform    | Link                                                      |
@@ -20,55 +18,75 @@ through a **transactional RPC**, so prices and stock can never be tampered with 
 | Web         | **[Open the web demo](https://compra-ya-wkz.vercel.app)** |
 | Android APK | [Download from GitHub Releases](../../releases/latest)    |
 
-Tap **"Entrar como invitado"** to explore with a shared demo account (no sign-up needed). For card
-payments use the test number `4242 4242 4242 4242` with any future expiry date. Payments are
+Tap **"Continue as guest"** to explore with a shared demo account (no sign-up needed). For card
+payments use the test number `4242 4242 4242 4242` with any future expiry date and CVC. Payments are
 simulated.
 
+![CompraYa web demo](docs/screenshots/web-demo.png)
+
+## Screenshots
+
 <p align="center">
-  <img src="docs/screenshots/catalog.png" width="200" alt="Catalog" />
+  <img src="docs/screenshots/welcome.png" width="200" alt="Welcome screen" />
+  <img src="docs/screenshots/home.png" width="200" alt="Home with banners, categories and product grid" />
+  <img src="docs/screenshots/product.png" width="200" alt="Product detail" />
   <img src="docs/screenshots/cart.png" width="200" alt="Cart" />
-  <img src="docs/screenshots/checkout.png" width="200" alt="Checkout" />
-  <img src="docs/screenshots/tracking.png" width="200" alt="Delivery tracking" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/checkout.png" width="200" alt="Three-step checkout" />
+  <img src="docs/screenshots/order.png" width="200" alt="Order detail with status timeline" />
+  <img src="docs/screenshots/tracking.png" width="200" alt="Delivery tracking map" />
+  <img src="docs/screenshots/profile.png" width="200" alt="Profile" />
 </p>
 
 ## Features
 
 - **Authentication**: sign up, sign in, persistent sessions and password reset via an email deep link
   (Supabase Auth). The navigation tree is derived from the auth session.
-- **Catalog**: categories, debounced search, product details with attributes, stock and popularity,
-  loading/empty/error states and pull to refresh.
-- **Cart**: stored on the device (persisted across restarts) with quantity controls.
+- **Catalog**: promo banners, category chips, a "Popular now" carousel, a two-column product grid,
+  debounced search, skeleton loading and empty/error states.
+- **Product detail**: photo gallery, rating, stock status, expandable description, specs, related
+  products and a sticky "Add to cart" bar with a quantity stepper.
+- **Favorites**: save products with a heart; synced to Supabase with optimistic updates.
+- **Cart**: stored on the device (persisted across restarts) with thumbnails and quantity steppers.
+- **Checkout**: three steps (address → payment → review) that remember the last address, followed by
+  an animated order confirmation.
 - **Payments**
-  - Cards are validated on the device (Luhn checksum, brand detection, expiry). **Only the brand and
-    last four digits are stored.**
+  - Cards are validated on the device (Luhn checksum, brand detection, expiry) with a live card
+    preview. **Only the brand and last four digits are stored.**
   - QR payments render a dynamic QR code with the order amount and a unique reference.
 - **Orders**: placed atomically by the `create_order` Postgres function, which prices items server-side,
-  checks and decrements stock, and stores line items. Customers can track orders and confirm delivery.
+  checks and decrements stock, and stores line items. An orders screen and an order detail with a
+  status timeline let customers track and confirm deliveries.
 - **Delivery tracking**: route from the store to the delivery address with distance and ETA, using
   **keyless** providers: a Leaflet map with OpenStreetMap tiles, the native geocoder with an
   OpenStreetMap Nominatim fallback, and OSRM routing. No Google Maps API key is needed.
-- **Profile**: edit the display name, change the email (confirmed through Supabase Auth), order history.
+- **Profile**: stats (orders, deliveries, amount spent), saved cards, and editing the name or email
+  (confirmed through Supabase Auth).
+- **Design system**: shared color, spacing and radius tokens, a custom Material 3 theme, the Inter
+  typeface, reusable UI primitives, haptic feedback and branded toasts.
 - **Guest mode**: one-tap sign-in with a shared, read-only demo profile.
 - **Runs everywhere**: Android and iOS (Expo Go or EAS builds) and the web (static export on Vercel).
 
 ## Tech stack
 
-| Area          | Tools                                                                                                  |
-| ------------- | ------------------------------------------------------------------------------------------------------ |
-| App           | Expo SDK 57, React Native 0.86, React 19, React Native Web                                             |
-| Navigation    | React Navigation 7 (native stack + bottom tabs)                                                        |
-| UI            | React Native Paper (Material Design 3), Leaflet (in `react-native-webview`), `react-native-qrcode-svg` |
-| State & forms | Zustand (with persistence), React Hook Form, Zod                                                       |
-| Backend       | Supabase: Postgres, Auth, row level security, RPC functions                                            |
-| Quality       | ESLint (`eslint-config-expo`), Prettier, Jest + React Native Testing Library, GitHub Actions           |
-| Delivery      | Vercel (web), EAS Build (Android APK), scheduled Supabase keep-alive                                   |
+| Area          | Tools                                                                                                             |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| App           | Expo SDK 57, React Native 0.86, React 19, React Native Web                                                        |
+| Navigation    | React Navigation 7 (native stack + bottom tabs)                                                                   |
+| UI            | React Native Paper (Material Design 3, custom theme), Inter, `expo-image`, `expo-linear-gradient`, `expo-haptics` |
+| Maps & QR     | Leaflet (in `react-native-webview`), OpenStreetMap, OSRM, `react-native-qrcode-svg`                               |
+| State & forms | Zustand (with persistence), React Hook Form, Zod                                                                  |
+| Backend       | Supabase: Postgres, Auth, row level security, RPC functions                                                       |
+| Quality       | ESLint (`eslint-config-expo`), Prettier, Jest + React Native Testing Library, GitHub Actions                      |
+| Delivery      | Vercel (web), EAS Build (Android APK), scheduled Supabase keep-alive                                              |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
   subgraph App["Expo app"]
-    UI["Screens & components"] --> Stores["Zustand stores<br/>(session, cart, payments)"]
+    UI["Screens & components"] --> Stores["Zustand stores<br/>(session, cart, favorites, payments)"]
     UI --> Services["Services<br/>(api, auth, maps)"]
     Stores --> Services
   end
@@ -106,6 +124,8 @@ erDiagram
   metodos_pago ||--o{ ordenes : "paid with"
   ordenes ||--|{ items_orden : contains
   productos ||--o{ items_orden : "snapshot of"
+  usuarios ||--o{ favoritos : saves
+  productos ||--o{ favoritos : "saved as"
 ```
 
 The schema is versioned in [`supabase/migrations`](supabase/migrations) and demo data in
@@ -150,7 +170,7 @@ _Project Settings → API Keys_, or `npx supabase projects api-keys`). Never put
 `EXPO_PUBLIC_*` values are bundled into the app.
 
 Optionally set `EXPO_PUBLIC_DEMO_EMAIL` / `EXPO_PUBLIC_DEMO_PASSWORD` to the credentials of an account
-you create for visitors; this enables the **"Entrar como invitado"** button.
+you create for visitors; this enables the **"Continue as guest"** button.
 
 ### 4. Run
 
@@ -210,19 +230,20 @@ if needed.
 
 ```
 src/
-├── components/     Reusable UI (product card, order card, header, form input…)
+├── components/     Feature components (product card, card preview, order timeline…)
+│   └── ui/         Design-system primitives (Screen, Header, Price, Rating, QuantityStepper…)
 ├── config/         App constants (store location, delivery area)
 ├── lib/            Supabase client
-├── navigation/     Root (auth-gated), auth, tabs, shop and profile navigators
+├── navigation/     Root (auth-gated), auth, tabs and per-tab stacks
 ├── schemas/        Zod form schemas
 ├── screens/
 │   ├── auth/       Welcome, sign in, register, forgot/reset password
-│   ├── shop/       Products, cart, checkout, payment methods, card form, QR, delivery map
-│   └── profile/    Profile and order history, edit profile
+│   ├── shop/       Home, product detail, favorites, cart, checkout, payments, QR, confirmation, map
+│   └── profile/    Profile, orders, order detail, edit profile
 ├── services/       Backend API, auth deep links, maps (geocoding + routing)
-├── stores/         Zustand stores: session/user, cart, payment methods
-├── styles/         Shared styles
-└── utils/          Pure helpers (cards, order totals) — unit tested
+├── stores/         Zustand stores: session/user, cart, checkout, favorites, payment methods
+├── theme/          Design tokens, Material 3 theme and fonts
+└── utils/          Pure helpers (cards, orders, order status, products, retry) — unit tested
 supabase/
 ├── migrations/     Versioned schema, RLS policies and functions
 └── seed.sql        Demo catalog
@@ -234,9 +255,11 @@ supabase/
 npm test
 ```
 
-The suite covers card validation, order totals, form schemas, password reset links, the cart store
-(including order placement through the RPC) and product card interactions. Supabase is mocked, so tests
-run offline. CI runs lint, formatting, tests and an Android bundle on every push.
+64 tests across 15 suites cover card validation, order totals and status timelines, form schemas,
+password reset links, the cart and favorites stores (including optimistic updates and order placement
+through the RPC), request retries and UI components such as the product card, quantity stepper and
+checkout summary. Supabase is mocked, so tests run offline. CI runs lint, formatting, tests and an
+Android bundle on every push.
 
 ## Notes
 
