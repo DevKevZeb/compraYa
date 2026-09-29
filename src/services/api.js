@@ -35,6 +35,19 @@ export const getProducts = ({ categoryId = null, search = '' } = {}) => {
   return query;
 };
 
+// Favorites, newest first, with the full product for rendering.
+export const getFavorites = () =>
+  supabase
+    .from('favoritos')
+    .select(`producto_id, creado_en, productos (${PRODUCT_FIELDS})`)
+    .order('creado_en', { ascending: false });
+
+export const addFavorite = (productId) =>
+  supabase.from('favoritos').insert({ producto_id: productId });
+
+export const removeFavorite = (productId) =>
+  supabase.from('favoritos').delete().eq('producto_id', productId);
+
 // Stores a card as a payment method. Only the brand, last four digits and expiry
 // date are persisted; editing a card can only change its expiry date.
 export const saveDebitCard = async ({ userId, card, metodoPagoId }) => {

@@ -1,10 +1,14 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useCartStore } from '../stores/cart.store';
+import { useFavoritesStore } from '../stores/favorites.store';
+import { useUserStore } from '../stores/user.store';
 import { colors, fontFamilies, shadows } from '../theme';
 import { CartNavigator } from './CartNavigator';
+import { FavoritesNavigator } from './FavoritesNavigator';
 import { HomeNavigator } from './HomeNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 
@@ -34,6 +38,14 @@ const tabIcon = (name) =>
 
 export const MainTabs = () => {
   const cartCount = useCartStore((state) => state.totalItemsInCart());
+  const userId = useUserStore((state) => state.user?.userId);
+  const loadFavorites = useFavoritesStore((state) => state.load);
+
+  useEffect(() => {
+    if (userId) {
+      loadFavorites();
+    }
+  }, [userId, loadFavorites]);
 
   return (
     <Tab.Navigator
@@ -50,6 +62,11 @@ export const MainTabs = () => {
         name="HomeTab"
         component={HomeNavigator}
         options={{ tabBarLabel: 'Home', tabBarIcon: tabIcon('home') }}
+      />
+      <Tab.Screen
+        name="FavoritesTab"
+        component={FavoritesNavigator}
+        options={{ tabBarLabel: 'Favorites', tabBarIcon: tabIcon('heart') }}
       />
       <Tab.Screen
         name="CartTab"

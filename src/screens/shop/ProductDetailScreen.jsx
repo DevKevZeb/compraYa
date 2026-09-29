@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { FavoriteButton } from '../../components/FavoriteButton';
 import { ProductCard } from '../../components/ProductCard';
 import { ProductGallery } from '../../components/ProductGallery';
 import { Price, QuantityStepper, Rating, SectionHeader, StatusChip } from '../../components/ui';
@@ -145,6 +146,11 @@ export const ProductDetailScreen = ({ navigation, route }) => {
         accessibilityLabel="Go back"
         style={[styles.back, { top: insets.top + spacing.sm }]}
       />
+      <FavoriteButton
+        product={product}
+        size={20}
+        style={[styles.favorite, { top: insets.top + spacing.sm + 4 }]}
+      />
 
       <View style={[styles.bar, { paddingBottom: insets.bottom + spacing.md }]}>
         <QuantityStepper value={quantity} onChange={setQuantity} max={Math.max(product.stock, 1)} />
@@ -242,6 +248,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: spacing.md,
     ...shadows.card,
+  },
+  favorite: {
+    position: 'absolute',
+    right: spacing.lg,
   },
   bar: {
     position: 'absolute',

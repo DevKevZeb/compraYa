@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { ResetPasswordScreen } from '../screens/auth/ResetPasswordScreen';
 import { createSessionFromUrl, PASSWORD_RESET_PATH } from '../services/auth';
 import { useCartStore } from '../stores/cart.store';
+import { useFavoritesStore } from '../stores/favorites.store';
 import { useUserStore } from '../stores/user.store';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabs } from './MainTabs';
@@ -28,6 +29,7 @@ export const RootNavigator = () => {
       useUserStore.getState().handleSession(nextSession);
       if (!nextSession) {
         useCartStore.getState().clearCart();
+        useFavoritesStore.getState().reset();
       }
     });
 

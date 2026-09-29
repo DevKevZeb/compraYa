@@ -5,6 +5,7 @@ import { Badge, Text } from 'react-native-paper';
 import { useCartStore } from '../stores/cart.store';
 import { colors, radius, shadows, spacing } from '../theme';
 import { getStockStatus } from '../utils/product';
+import { FavoriteButton } from './FavoriteButton';
 import { Price, ProductImage, Rating } from './ui';
 
 // Compact catalog tile: image, name, rating, price and a quick "add" button.
@@ -27,7 +28,10 @@ export const ProductCard = memo(function ProductCard({ item, onPress, style }) {
       accessibilityRole="button"
       accessibilityLabel={nombre_producto}
     >
-      <ProductImage uri={url_imagen} height={130} accessibilityLabel={nombre_producto} />
+      <View>
+        <ProductImage uri={url_imagen} height={130} accessibilityLabel={nombre_producto} />
+        <FavoriteButton product={item} size={16} style={styles.favorite} />
+      </View>
 
       <View style={styles.body}>
         <Text variant="bodyMedium" numberOfLines={2} style={styles.name}>
@@ -121,6 +125,11 @@ const styles = StyleSheet.create({
   },
   addDisabled: {
     backgroundColor: colors.textSubtle,
+  },
+  favorite: {
+    position: 'absolute',
+    top: spacing.xs,
+    right: spacing.xs,
   },
   badge: {
     position: 'absolute',
