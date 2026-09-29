@@ -3,6 +3,7 @@ import { CardFormScreen } from '../screens/shop/CardFormScreen';
 import { CartScreen } from '../screens/shop/CartScreen';
 import { CheckoutScreen } from '../screens/shop/CheckoutScreen';
 import { DeliveryMapScreen } from '../screens/shop/DeliveryMapScreen';
+import { OrderSuccessScreen } from '../screens/shop/OrderSuccessScreen';
 import { PaymentMethodsScreen } from '../screens/shop/PaymentMethodsScreen';
 import { QrPaymentScreen } from '../screens/shop/QrPaymentScreen';
 import { stackScreenOptions } from './stackOptions';
@@ -20,6 +21,11 @@ export const CartNavigator = () => (
     />
     <Stack.Screen name="CardForm" component={CardFormScreen} options={{ title: 'Card' }} />
     <Stack.Screen name="QrPayment" component={QrPaymentScreen} options={{ title: 'Pay with QR' }} />
+    <Stack.Screen
+      name="OrderSuccess"
+      component={OrderSuccessScreen}
+      options={{ headerShown: false, gestureEnabled: false }}
+    />
     <Stack.Screen
       name="DeliveryMap"
       component={DeliveryMapScreen}

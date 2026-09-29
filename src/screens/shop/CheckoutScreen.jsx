@@ -73,15 +73,10 @@ export const CheckoutScreen = ({ navigation }) => {
 
     setLastAddress(address.trim());
     fetchUserOrders();
-    Toast.show({
-      type: 'success',
-      text1: 'Order placed',
-      text2: `Order ${order.numero_seguimiento} is on its way.`,
-    });
-    // Replace checkout with the tracking map so going back returns to the cart.
+    // Replace checkout with the confirmation so going back returns to the cart.
     navigation.reset({
       index: 1,
-      routes: [{ name: 'Cart' }, { name: 'DeliveryMap', params: { direccion_envio: address } }],
+      routes: [{ name: 'Cart' }, { name: 'OrderSuccess', params: { order } }],
     });
   };
 
