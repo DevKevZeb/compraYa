@@ -1,13 +1,22 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
+import { EmptyState } from '../../components/ui';
 import { getOrCreateQrPaymentMethod } from '../../services/api';
 import { useCartStore } from '../../stores/cart.store';
 import { usePaymentStore } from '../../stores/payment.store';
 import { useUserStore } from '../../stores/user.store';
+import { colors, radius, shadows, spacing } from '../../theme';
 import { calculateOrderTotals, formatCurrency } from '../../utils/order';
+
+const STEPS = [
+  'Open your banking app and choose "Pay with QR".',
+  'Scan the code and check the amount.',
+  'Confirm the transfer, then tap "I have paid".',
+];
 
 // Simulated QR payment: the code carries the amount and a payment reference,
 // as a bank transfer QR would. Confirming selects QR as the order's payment method.
@@ -32,15 +41,15 @@ export const QrPaymentScreen = ({ navigation }) => {
     setLoading(false);
 
     if (error) {
-      Toast.show({ type: 'error', text1: 'Error', text2: error.message });
+      Toast.show({ type: 'error', text1: 'Something went wrong', text2: error.message });
       return;
     }
 
     setSelectedMethod(metodoPagoId);
     Toast.show({
       type: 'success',
-      text1: 'Pago por QR registrado',
-      text2: 'Confirma tu pedido para finalizar la compra.',
+      text1: 'QR payment registered',
+      text2: 'Review and place your order to finish.',
     });
     navigation.navigate('Checkout');
   };
@@ -48,57 +57,144 @@ export const QrPaymentScreen = ({ navigation }) => {
   if (cartItems.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text variant="titleMedium">Agrega productos al carrito para generar el QR.</Text>
+        <EmptyState
+          icon="qrcode-remove"
+          title="Nothing to pay yet"
+          description="Add products to your cart to generate a QR code."
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text variant="titleMedium">Escanea el código desde tu app bancaria</Text>
-      <View style={styles.qr}>
-        <QRCode value={payload} size={220} />
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <View style={styles.card}>
+        <Text variant="labelLarge" style={styles.muted}>
+          AMOUNT TO PAY
+        </Text>
+        <Text variant="displaySmall" style={styles.amount}>
+          {formatCurrency(total)}
+        </Text>
+        <View style={styles.qr}>
+          <QRCode value={payload} size={200} color={colors.text} />
+        </View>
+        <Text variant="bodySmall" style={styles.muted}>
+          Reference {reference}
+        </Text>
       </View>
-      <Text variant="headlineSmall">{formatCurrency(total)}</Text>
-      <Text variant="bodySmall" style={styles.reference}>
-        Referencia: {reference}
-      </Text>
+
+      <View style={styles.steps}>
+        {STEPS.map((step, index) => (
+          <View key={step} style={styles.step}>
+            <View style={styles.stepNumber}>
+              <Text variant="labelMedium" style={styles.stepNumberText}>
+                {index + 1}
+              </Text>
+            </View>
+            <Text variant="bodyMedium" style={styles.stepText}>
+              {step}
+            </Text>
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.notice}>
+        <MaterialCommunityIcons name="information-outline" size={18} color={colors.primary} />
+        <Text variant="bodySmall" style={styles.noticeText}>
+          Demo payment: no money is transferred.
+        </Text>
+      </View>
+
       <Button
         mode="contained"
-        style={styles.button}
+        icon="check"
         onPress={handleConfirm}
         loading={loading}
         disabled={loading}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
       >
-        Ya realicé el pago
+        I have paid
       </Button>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    padding: 24,
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  qr: {
-    marginVertical: 24,
-    padding: 16,
-    backgroundColor: 'white',
-    borderRadius: 12,
-  },
-  reference: {
-    marginTop: 4,
-    color: '#666',
-  },
-  button: {
-    marginTop: 24,
-    backgroundColor: '#9C7CFE',
+  content: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl,
   },
   empty: {
     flex: 1,
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  card: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xxl,
+    ...shadows.card,
+  },
+  muted: {
+    color: colors.textMuted,
+    letterSpacing: 0.5,
+  },
+  amount: {
+    color: colors.text,
+    marginTop: spacing.xs,
+  },
+  qr: {
+    marginVertical: spacing.xl,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  steps: {
+    marginTop: spacing.xl,
+    gap: spacing.md,
+  },
+  step: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  stepNumber: {
+    width: 26,
+    height: 26,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+  },
+  stepNumberText: {
+    color: colors.primary,
+  },
+  stepText: {
+    flex: 1,
+    color: colors.text,
+  },
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+  },
+  noticeText: {
+    color: colors.textMuted,
+  },
+  button: {
+    marginTop: spacing.xl,
+    borderRadius: radius.pill,
+  },
+  buttonContent: {
+    height: 50,
   },
 });

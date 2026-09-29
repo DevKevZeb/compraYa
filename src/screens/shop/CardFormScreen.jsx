@@ -1,14 +1,15 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React, { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import { CardPreview } from '../../components/CardPreview';
 import { deleteDebitCard, saveDebitCard } from '../../services/api';
 import { usePaymentStore } from '../../stores/payment.store';
 import { useUserStore } from '../../stores/user.store';
+import { colors, radius, spacing } from '../../theme';
 import {
-  CARD_BRANDS,
   dateToExpiry,
   detectCardBrand,
   expiryToDate,
@@ -18,7 +19,15 @@ import {
   isValidCardNumber,
   isValidExpiry,
   maskCardNumber,
+  onlyDigits,
 } from '../../utils/card';
+
+const FieldError = ({ error }) =>
+  error ? (
+    <Text variant="bodySmall" style={styles.error}>
+      {error.message}
+    </Text>
+  ) : null;
 
 export const CardFormScreen = ({ navigation }) => {
   const user = useUserStore((state) => state.user);
@@ -34,6 +43,7 @@ export const CardFormScreen = ({ navigation }) => {
     defaultValues: {
       cardNumber: '',
       expiryDate: '',
+      cvc: '',
       holderName: user?.nombre_usuario ?? '',
     },
   });
@@ -44,22 +54,25 @@ export const CardFormScreen = ({ navigation }) => {
     }
   }, [isEditing, cardDetails, setValue]);
 
-  const cardNumber = useWatch({ control, name: 'cardNumber' });
-  const brandKey = isEditing ? cardDetails?.marca : detectCardBrand(cardNumber);
-  const brand = CARD_BRANDS[brandKey] ?? CARD_BRANDS.unknown;
+  const [cardNumber, expiryDate, holderName] = useWatch({
+    control,
+    name: ['cardNumber', 'expiryDate', 'holderName'],
+  });
+  const brand = isEditing ? cardDetails?.marca : detectCardBrand(cardNumber);
 
   const showResult = (result) =>
     Toast.show({
       type: result.success ? 'success' : 'error',
-      text1: result.success ? 'Listo' : 'Error',
-      text2: result.success ? result.message : result.error.message,
+      text1: result.success ? result.message : 'Something went wrong',
+      text2: result.success ? undefined : result.error.message,
     });
 
-  const onSubmit = async ({ cardNumber, expiryDate }) => {
-    const card = { fecha_expiracion: expiryToDate(expiryDate) };
+  // The CVC is only validated to mimic a real checkout; it is never stored or sent.
+  const onSubmit = async ({ cardNumber: number, expiryDate: expiry }) => {
+    const card = { fecha_expiracion: expiryToDate(expiry) };
     if (!isEditing) {
-      card.last4 = getLast4(cardNumber);
-      card.marca = detectCardBrand(cardNumber);
+      card.last4 = getLast4(number);
+      card.marca = detectCardBrand(number);
     }
 
     const result = await saveDebitCard({
@@ -88,154 +101,211 @@ export const CardFormScreen = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.box}>
-        <View style={styles.brand}>
-          <FontAwesome name={brand.icon} size={48} color="#3D2A80" />
-        </View>
+  const inputProps = {
+    mode: 'outlined',
+    outlineStyle: styles.outline,
+    style: styles.input,
+  };
 
-        {isEditing ? (
-          <TextInput
-            mode="outlined"
-            label="Número de tarjeta"
-            value={maskCardNumber(cardDetails?.last4)}
-            disabled
-            style={styles.numInput}
-          />
-        ) : (
-          <>
+  return (
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <CardPreview
+          brand={brand}
+          number={cardNumber}
+          last4={isEditing ? cardDetails?.last4 : undefined}
+          holder={holderName}
+          expiry={expiryDate}
+        />
+
+        <View style={styles.form}>
+          {isEditing ? (
+            <TextInput
+              {...inputProps}
+              label="Card number"
+              value={maskCardNumber(cardDetails?.last4)}
+              disabled
+            />
+          ) : (
             <Controller
               name="cardNumber"
               control={control}
               rules={{
-                required: 'El número de tarjeta es obligatorio',
-                validate: (value) => isValidCardNumber(value) || 'Número de tarjeta inválido',
+                required: 'Enter your card number',
+                validate: (value) => isValidCardNumber(value) || 'This card number is not valid',
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
-                  mode="outlined"
-                  label="Número de tarjeta"
+                  {...inputProps}
+                  label="Card number"
                   placeholder="4242 4242 4242 4242"
                   keyboardType="number-pad"
                   value={value}
                   onBlur={onBlur}
                   onChangeText={(text) => onChange(formatCardNumber(text))}
-                  style={styles.numInput}
                   error={!!errors.cardNumber}
+                  left={<TextInput.Icon icon="credit-card-outline" />}
                 />
               )}
             />
-            {errors.cardNumber && <Text style={styles.errorText}>{errors.cardNumber.message}</Text>}
-          </>
-        )}
-
-        <Controller
-          name="expiryDate"
-          control={control}
-          rules={{
-            required: 'La fecha de expiración es obligatoria',
-            validate: (value) => isValidExpiry(value) || 'Fecha inválida o vencida (MM/YY)',
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              mode="outlined"
-              label="Vencimiento"
-              placeholder="MM/YY"
-              keyboardType="number-pad"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={(text) => onChange(formatExpiry(text))}
-              style={styles.numInput}
-              error={!!errors.expiryDate}
-            />
           )}
-        />
-        {errors.expiryDate && <Text style={styles.errorText}>{errors.expiryDate.message}</Text>}
+          <FieldError error={errors.cardNumber} />
 
-        <Controller
-          name="holderName"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              mode="outlined"
-              label="Titular"
-              value={value}
-              onChangeText={onChange}
-              style={styles.numInput}
-            />
-          )}
-        />
+          <View style={styles.row}>
+            <View style={styles.half}>
+              <Controller
+                name="expiryDate"
+                control={control}
+                rules={{
+                  required: 'Required',
+                  validate: (value) => isValidExpiry(value) || 'Invalid or expired',
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    {...inputProps}
+                    label="Expiry"
+                    placeholder="MM/YY"
+                    keyboardType="number-pad"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(formatExpiry(text))}
+                    error={!!errors.expiryDate}
+                  />
+                )}
+              />
+              <FieldError error={errors.expiryDate} />
+            </View>
+            {!isEditing ? (
+              <View style={styles.half}>
+                <Controller
+                  name="cvc"
+                  control={control}
+                  rules={{
+                    validate: (value) => /^\d{3,4}$/.test(value) || '3 or 4 digits',
+                  }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      {...inputProps}
+                      label="CVC"
+                      placeholder="123"
+                      keyboardType="number-pad"
+                      secureTextEntry
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={(text) => onChange(onlyDigits(text).slice(0, 4))}
+                      error={!!errors.cvc}
+                    />
+                  )}
+                />
+                <FieldError error={errors.cvc} />
+              </View>
+            ) : null}
+          </View>
 
-        <Text style={styles.notice}>
-          Solo guardamos la marca y los últimos 4 dígitos de tu tarjeta.
-        </Text>
+          <Controller
+            name="holderName"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                {...inputProps}
+                label="Name on card"
+                value={value}
+                onChangeText={onChange}
+                autoCapitalize="words"
+                left={<TextInput.Icon icon="account-outline" />}
+              />
+            )}
+          />
 
-        <View style={styles.containerButtons}>
+          <View style={styles.notice}>
+            <MaterialCommunityIcons name="shield-lock-outline" size={18} color={colors.success} />
+            <Text variant="bodySmall" style={styles.noticeText}>
+              Only the card brand and last 4 digits are saved. The full number and CVC never leave
+              your device.
+            </Text>
+          </View>
+
           <Button
             mode="contained"
-            style={styles.saveButton}
             onPress={handleSubmit(onSubmit)}
             loading={isSubmitting}
             disabled={isSubmitting}
+            style={styles.button}
+            contentStyle={styles.buttonContent}
           >
-            Guardar
+            {isEditing ? 'Save changes' : 'Save card'}
           </Button>
-          {isEditing && (
-            <Button mode="contained" style={styles.deleteButton} onPress={handleDelete}>
-              Eliminar
+          {isEditing ? (
+            <Button
+              icon="trash-can-outline"
+              textColor={colors.error}
+              onPress={handleDelete}
+              style={styles.delete}
+            >
+              Remove card
             </Button>
-          )}
+          ) : null}
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    alignItems: 'center',
+    backgroundColor: colors.background,
   },
-  box: {
-    marginTop: 40,
-    width: 346,
-    padding: 20,
-    backgroundColor: '#EADDFF',
-    borderRadius: 15,
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
+  content: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl,
   },
-  brand: {
-    alignSelf: 'center',
-    marginBottom: 20,
+  form: {
+    marginTop: spacing.xxl,
+    gap: spacing.xs,
   },
-  numInput: {
-    marginBottom: 15,
+  input: {
+    backgroundColor: colors.surface,
+  },
+  outline: {
+    borderRadius: radius.md,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  half: {
+    flex: 1,
+  },
+  error: {
+    color: colors.error,
+    marginLeft: spacing.xs,
+    marginBottom: spacing.xs,
   },
   notice: {
-    fontSize: 12,
-    color: '#555',
-    textAlign: 'center',
-  },
-  containerButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+    backgroundColor: colors.successSoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.md,
   },
-  saveButton: {
+  noticeText: {
     flex: 1,
-    marginRight: 10,
-    backgroundColor: '#9C7CFE',
+    color: colors.text,
   },
-  deleteButton: {
-    flex: 1,
-    marginLeft: 10,
-    backgroundColor: '#FF5252',
+  button: {
+    marginTop: spacing.xl,
+    borderRadius: radius.pill,
   },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginLeft: 20,
-    marginBottom: 10,
+  buttonContent: {
+    height: 50,
+  },
+  delete: {
+    marginTop: spacing.sm,
   },
 });

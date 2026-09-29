@@ -1,33 +1,27 @@
-import React, { useEffect } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, List, Text } from 'react-native-paper';
-import qrImage from '../../../assets/qrImage.png';
-import PaymentCardItem from '../../components/PaymentCardItem';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { CardPreview } from '../../components/CardPreview';
+import { EmptyState, SectionHeader, Skeleton } from '../../components/ui';
 import { usePaymentStore } from '../../stores/payment.store';
 import { useUserStore } from '../../stores/user.store';
+import { colors, radius, spacing } from '../../theme';
+import { dateToExpiry } from '../../utils/card';
 
-// Lets the user pick the payment method used by the order being placed.
+// Saved cards: tap a card to edit its expiry date or remove it.
 export const PaymentMethodsScreen = ({ navigation }) => {
-  const {
-    debitCards,
-    loading,
-    refreshDebitCards,
-    setEditing,
-    setCardDetails,
-    setSelectedMethod,
-    selectedMethod,
-  } = usePaymentStore();
+  const { debitCards, loading, refreshDebitCards, setEditing, setCardDetails } = usePaymentStore();
   const userId = useUserStore((state) => state.user?.userId);
+  const holderName = useUserStore((state) => state.user?.nombre_usuario);
 
-  useEffect(() => {
-    if (userId) {
-      refreshDebitCards(userId);
-    }
-  }, [userId, refreshDebitCards]);
-
-  const handleSelectMethod = (methodId) => {
-    setSelectedMethod(selectedMethod === methodId ? null : methodId);
-  };
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        refreshDebitCards(userId);
+      }
+    }, [userId, refreshDebitCards])
+  );
 
   const openCardForm = (card) => {
     setEditing(Boolean(card));
@@ -35,108 +29,77 @@ export const PaymentMethodsScreen = ({ navigation }) => {
     navigation.navigate('CardForm');
   };
 
-  if (loading && debitCards.length === 0) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#9C7CFE" />
-        <Text style={styles.loadingText}>Cargando métodos de pago...</Text>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView style={styles.scrollContainer}>
-      <Text style={styles.containerText} variant="titleMedium">
-        Tarjetas de crédito y débito
-      </Text>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <SectionHeader title="Saved cards" />
 
-      <List.Item
-        title="Nueva Tarjeta"
-        style={styles.listItem}
-        right={() => (
-          <Button mode="contained" style={styles.buttonItem} onPress={() => openCardForm(null)}>
-            Agregar
-          </Button>
-        )}
-      />
-
-      {debitCards.length > 0 ? (
-        debitCards.map((card) => (
-          <PaymentCardItem
-            key={card.metodo_pago_id}
-            card={card}
-            isSelected={selectedMethod === card.metodo_pago_id}
-            onSelect={() => handleSelectMethod(card.metodo_pago_id)}
-            onEdit={() => openCardForm(card)}
-          />
-        ))
+      {loading && debitCards.length === 0 ? (
+        <Skeleton height={190} radius={radius.lg} />
+      ) : debitCards.length === 0 ? (
+        <EmptyState
+          icon="credit-card-plus-outline"
+          title="No cards yet"
+          description="Save a card to check out faster."
+        />
       ) : (
-        <Text style={styles.noMethodsText}>No hay métodos de pago guardados.</Text>
+        <View style={styles.cards}>
+          {debitCards.map((card) => (
+            <Pressable
+              key={card.metodo_pago_id}
+              onPress={() => openCardForm(card)}
+              accessibilityRole="button"
+              accessibilityLabel={`Edit card ending in ${card.last4}`}
+            >
+              <CardPreview
+                compact
+                brand={card.marca}
+                last4={card.last4}
+                holder={holderName}
+                expiry={dateToExpiry(card.fecha_expiracion)}
+              />
+            </Pressable>
+          ))}
+        </View>
       )}
 
-      <Text variant="titleMedium" style={styles.containerText}>
-        Otros métodos de pago
+      <Button
+        mode="contained"
+        icon="plus"
+        onPress={() => openCardForm(null)}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+      >
+        Add a new card
+      </Button>
+      <Text variant="bodySmall" style={styles.hint}>
+        QR payments are available at checkout and need no setup.
       </Text>
-      <List.Item
-        title="Pago por Qr"
-        style={styles.listItem}
-        right={() => <Image source={qrImage} />}
-        onPress={() => navigation.navigate('QrPayment')}
-      />
-
-      <View style={styles.contendButton}>
-        <Button
-          mode="contained"
-          style={styles.payButton}
-          disabled={!selectedMethod}
-          onPress={() => navigation.goBack()}
-        >
-          Usar tarjeta seleccionada
-        </Button>
-      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    height: '100%',
-    marginBottom: 10,
-  },
-  containerText: {
-    marginLeft: 30,
-    marginTop: 20,
-  },
-  listItem: {
-    backgroundColor: '#EADDFF',
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 15,
-    marginTop: 15,
-  },
-  buttonItem: {
-    backgroundColor: '#9C7CFE',
-  },
-  noMethodsText: {
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  loadingContainer: {
+  screen: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: colors.background,
   },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  content: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl,
   },
-  contendButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 24,
+  cards: {
+    gap: spacing.lg,
   },
-  payButton: {
-    width: '70%',
-    backgroundColor: '#9C7CFE',
+  button: {
+    marginTop: spacing.xxl,
+    borderRadius: radius.pill,
+  },
+  buttonContent: {
+    height: 50,
+  },
+  hint: {
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.md,
   },
 });

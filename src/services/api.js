@@ -57,9 +57,7 @@ export const saveDebitCard = async ({ userId, card, metodoPagoId }) => {
       .update({ fecha_expiracion: card.fecha_expiracion })
       .eq('metodo_pago_id', metodoPagoId);
 
-    return error
-      ? { success: false, error }
-      : { success: true, message: 'Tarjeta actualizada con éxito.' };
+    return error ? { success: false, error } : { success: true, message: 'Card updated' };
   }
 
   const { data: metodoPago, error: metodoError } = await supabase
@@ -85,15 +83,13 @@ export const saveDebitCard = async ({ userId, card, metodoPagoId }) => {
     return { success: false, error };
   }
 
-  return { success: true, message: 'Tarjeta guardada con éxito.' };
+  return { success: true, message: 'Card saved' };
 };
 
 export const deleteDebitCard = async (metodoPagoId) => {
   const { error } = await supabase.from('metodos_pago').delete().eq('metodo_pago_id', metodoPagoId);
 
-  return error
-    ? { success: false, error }
-    : { success: true, message: 'Tarjeta eliminada con éxito.' };
+  return error ? { success: false, error } : { success: true, message: 'Card removed' };
 };
 
 // Each user has a single QR payment method, created the first time they pay by QR.
