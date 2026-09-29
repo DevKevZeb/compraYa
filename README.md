@@ -33,9 +33,12 @@ simulated.
   <img src="docs/screenshots/cart.png" width="200" alt="Cart" />
 </p>
 <p align="center">
+  <img src="docs/screenshots/address.png" width="200" alt="Delivery location picker" />
   <img src="docs/screenshots/checkout.png" width="200" alt="Three-step checkout" />
   <img src="docs/screenshots/order.png" width="200" alt="Order detail with status timeline" />
   <img src="docs/screenshots/tracking.png" width="200" alt="Delivery tracking map" />
+</p>
+<p align="center">
   <img src="docs/screenshots/profile.png" width="200" alt="Profile" />
 </p>
 
@@ -49,8 +52,10 @@ simulated.
   products and a sticky "Add to cart" bar with a quantity stepper.
 - **Favorites**: save products with a heart; synced to Supabase with optimistic updates.
 - **Cart**: stored on the device (persisted across restarts) with thumbnails and quantity steppers.
-- **Checkout**: three steps (address → payment → review) that remember the last address, followed by
-  an animated order confirmation.
+- **Checkout**: three steps (address → payment → review) followed by an animated order confirmation.
+- **Delivery location on a map**: customers search a place, drop a pin or use their current location
+  on a map of Cochabamba; the address is filled in by reverse geocoding. Deliveries are limited to
+  10 km around the city center, drawn on the map and enforced again by the database.
 - **Payments**
   - Cards are validated on the device (Luhn checksum, brand detection, expiry) with a live card
     preview. **Only the brand and last four digits are stored.**
@@ -108,8 +113,8 @@ flowchart LR
 - **Security lives in the database.** The publishable key ships with the app, so every table has RLS:
   the catalog is public, while profiles, payment methods and orders are only visible to their owner.
   Clients can only change an order's status and a profile's name (column-level grants).
-- **Orders are created only by `create_order`** (`security definer`), which ignores client prices and
-  runs in a single transaction.
+- **Orders are created only by `create_order`** (`security definer`), which ignores client prices,
+  rejects delivery points outside the delivery area and runs in a single transaction.
 - **Profiles are created by a trigger** on `auth.users`, so credentials never touch public tables.
 
 ### Data model
@@ -255,7 +260,8 @@ supabase/
 npm test
 ```
 
-64 tests across 15 suites cover card validation, order totals and status timelines, form schemas,
+70 tests across 17 suites cover card validation, order totals and status timelines, delivery-area
+geometry, address labels, form schemas,
 password reset links, the cart and favorites stores (including optimistic updates and order placement
 through the RPC), request retries and UI components such as the product card, quantity stepper and
 checkout summary. Supabase is mocked, so tests run offline. CI runs lint, formatting, tests and an
