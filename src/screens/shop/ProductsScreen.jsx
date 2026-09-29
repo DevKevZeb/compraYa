@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { Avatar, Searchbar, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CartButton } from '../../components/CartButton';
 import { CategoryChips } from '../../components/CategoryChips';
 import { ProductCard } from '../../components/ProductCard';
 import { ProductCardSkeleton } from '../../components/ProductCardSkeleton';
@@ -86,6 +87,7 @@ export const ProductsScreen = ({ navigation }) => {
             What are you looking for today?
           </Text>
         </View>
+        <CartButton />
         <Avatar.Text
           size={44}
           label={getInitials(userName)}

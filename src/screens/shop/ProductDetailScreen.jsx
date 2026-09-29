@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, IconButton, Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { CartButton } from '../../components/CartButton';
 import { FavoriteButton } from '../../components/FavoriteButton';
 import { ProductCard } from '../../components/ProductCard';
 import { ProductGallery } from '../../components/ProductGallery';
@@ -153,8 +154,9 @@ export const ProductDetailScreen = ({ navigation, route }) => {
         size={20}
         style={[styles.favorite, { top: insets.top + spacing.sm + 4 }]}
       />
+      <CartButton size={40} style={[styles.cart, { top: insets.top + spacing.sm + 4 }]} />
 
-      <View style={[styles.bar, { paddingBottom: insets.bottom + spacing.md }]}>
+      <View style={styles.bar}>
         <QuantityStepper value={quantity} onChange={setQuantity} max={Math.max(product.stock, 1)} />
         <Button
           mode="contained"
@@ -253,6 +255,10 @@ const styles = StyleSheet.create({
   },
   favorite: {
     position: 'absolute',
+    right: spacing.lg + 40 + spacing.sm,
+  },
+  cart: {
+    position: 'absolute',
     right: spacing.lg,
   },
   bar: {
@@ -264,7 +270,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
     ...shadows.bar,
   },
