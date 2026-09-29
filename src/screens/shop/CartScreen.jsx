@@ -1,49 +1,60 @@
-import * as React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Divider, Text } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { CartItemList } from '../../components/CartItemList';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Button } from 'react-native-paper';
+import { CartLine } from '../../components/CartLine';
+import { OrderSummary } from '../../components/OrderSummary';
+import { EmptyState } from '../../components/ui';
 import { useCartStore } from '../../stores/cart.store';
-import { calculateSubtotal } from '../../utils/order';
+import { colors, radius, shadows, spacing } from '../../theme';
+import { calculateOrderTotals, formatCurrency } from '../../utils/order';
 
 export const CartScreen = ({ navigation }) => {
-  const prouductSelected = useCartStore((state) => state.cartItems);
-  const subTotal = calculateSubtotal(prouductSelected);
-  const total = subTotal;
+  const cartItems = useCartStore((state) => state.cartItems);
+  const setQuantity = useCartStore((state) => state.setQuantity);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const { total } = calculateOrderTotals(cartItems);
 
-  const handleContinue = () => {
-    navigation.navigate('Checkout');
-  };
+  if (cartItems.length === 0) {
+    return (
+      <View style={styles.empty}>
+        <EmptyState
+          icon="cart-outline"
+          title="Your cart is empty"
+          description="Add products from the catalog and they will show up here."
+          actionLabel="Browse products"
+          onAction={() => navigation.navigate('HomeTab')}
+        />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.scrollContainer}>
-        <SafeAreaView style={styles.safeContainer} edges={['left', 'right', 'bottom']}>
-          <ScrollView>
-            <CartItemList />
-          </ScrollView>
-        </SafeAreaView>
-      </View>
+    <View style={styles.screen}>
+      <FlatList
+        data={cartItems}
+        keyExtractor={(item) => String(item.producto_id)}
+        renderItem={({ item }) => (
+          <CartLine item={item} onChangeQuantity={setQuantity} onRemove={removeFromCart} />
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListFooterComponent={
+          <Button icon="trash-can-outline" onPress={clearCart} style={styles.clear}>
+            Clear cart
+          </Button>
+        }
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
 
-      <View style={styles.costContainer}>
-        <View style={styles.row}>
-          <Text variant="bodyMedium">Subtotal:</Text>
-          <Text variant="bodyMedium">{subTotal.toFixed(2)} Bs</Text>
-        </View>
-        <Divider style={styles.divider} />
-        <View style={styles.row}>
-          <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
-            Total:
-          </Text>
-          <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
-            {total.toFixed(2)} Bs
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button mode="contained" onPress={handleContinue} style={{ backgroundColor: '#9C7CFE' }}>
-          Continuar
+      <View style={styles.summary}>
+        <OrderSummary items={cartItems} />
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('Checkout')}
+          style={styles.checkout}
+          contentStyle={styles.checkoutContent}
+        >
+          {`Checkout · ${formatCurrency(total)}`}
         </Button>
       </View>
     </View>
@@ -51,38 +62,38 @@ export const CartScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    padding: 15,
+    backgroundColor: colors.background,
   },
-  scrollContainer: {
+  empty: {
     flex: 1,
+    justifyContent: 'center',
+    backgroundColor: colors.background,
   },
-  safeContainer: {
-    flex: 1,
-    borderColor: 'gray',
-    padding: 6,
-    borderWidth: 0.2,
-    borderRadius: 5,
+  list: {
+    padding: spacing.lg,
   },
-  costContainer: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
-    marginBottom: 20,
+  separator: {
+    height: spacing.md,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 5,
-  },
-  divider: {
-    marginVertical: 5,
-  },
-  buttonContainer: {
+  clear: {
     alignSelf: 'center',
-    width: '80%',
+    marginTop: spacing.md,
+  },
+  summary: {
+    padding: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    ...shadows.bar,
+  },
+  checkout: {
+    marginTop: spacing.md,
+    borderRadius: radius.pill,
+  },
+  checkoutContent: {
+    height: 50,
   },
 });
