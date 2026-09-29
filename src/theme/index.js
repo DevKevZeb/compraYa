@@ -1,12 +1,15 @@
 import { MD3LightTheme } from 'react-native-paper';
+import { paperFonts } from './fonts';
 import { colors, radius } from './tokens';
 
+export { fontAssets, fontFamilies } from './fonts';
 export { colors, radius, shadows, spacing } from './tokens';
 
 // Material 3 theme built from the brand tokens (light only).
 export const theme = {
   ...MD3LightTheme,
   roundness: radius.md / 4,
+  fonts: paperFonts,
   colors: {
     ...MD3LightTheme.colors,
     primary: colors.primary,

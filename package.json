@@ -15,6 +15,7 @@
     "build:android": "eas build --platform android --profile preview"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/metro-runtime": "~57.0.16",
     "@expo/vector-icons": "^15.0.2",
     "@hookform/resolvers": "^3.9.1",

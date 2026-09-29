@@ -1,12 +1,17 @@
 import { NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { Provider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { styles } from './src/styles/global';
 import { AppFrame } from './src/components/AppFrame';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { theme } from './src/theme';
+import { fontAssets, theme } from './src/theme';
+
+// Keep the splash screen up until the brand fonts are ready.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const toastConfig = {
   error: ({ text1, text2, ...rest }) => (
@@ -30,6 +35,19 @@ const toastConfig = {
 };
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  const ready = fontsLoaded || Boolean(fontError);
+
+  useEffect(() => {
+    if (ready) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [ready]);
+
+  if (!ready) {
+    return null;
+  }
+
   return (
     <AppFrame>
       {/* Brand theme (light only): never follow the system dark mode. */}
