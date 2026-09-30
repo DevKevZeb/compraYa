@@ -1,6 +1,6 @@
 # CompraYa
 
-[![CI](https://github.com/DevKevZeb/compraYa/actions/workflows/ci.yml/badge.svg)](https://github.com/DevKevZeb/compraYa/actions/workflows/ci.yml)
+[![CI](https://github.com/dev-kevzeb/compraYa/actions/workflows/ci.yml/badge.svg)](https://github.com/dev-kevzeb/compraYa/actions/workflows/ci.yml)
 ![Expo SDK 57](https://img.shields.io/badge/Expo_SDK-57-000020?logo=expo&logoColor=white)
 ![React Native 0.86](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres_%2B_Auth-3FCF8E?logo=supabase&logoColor=white)
